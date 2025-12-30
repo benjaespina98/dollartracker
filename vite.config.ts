@@ -11,9 +11,9 @@ export default defineConfig({
       includeAssets: ['favicon.svg'],
       manifest: {
         id: '/',
-        name: 'Dólar Tracker',
-        short_name: 'Dólar',
-        description: 'Seguimiento de cotizaciones del dólar en Argentina',
+        name: 'Dollar Tracker',
+        short_name: 'Dollar',
+        description: 'Dollar rate tracking for Argentina',
         lang: 'es-AR',
         theme_color: '#121212',
         background_color: '#121212',

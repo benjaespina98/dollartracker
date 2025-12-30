@@ -29,7 +29,7 @@ export default function App() {
       <header className="header">
         <div className="headerTop">
           <h1 className="title">
-            Dólar Tracker <span className="titleIcon">💵</span>
+            Dollar Tracker <span className="titleIcon">💵</span>
           </h1>
           <button
             className="refreshAllBtn"
