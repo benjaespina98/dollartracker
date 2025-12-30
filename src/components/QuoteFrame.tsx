@@ -3,9 +3,10 @@ import { useState } from "react";
 type Props = {
   title: string;
   src: string;
+  refreshKey: number;
 };
 
-export default function QuoteFrame({ title, src }: Props) {
+export default function QuoteFrame({ title, src, refreshKey }: Props) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -16,6 +17,7 @@ export default function QuoteFrame({ title, src }: Props) {
 
       <div className={`quoteBody ${loaded ? "isLoaded" : ""}`}>
         <iframe
+          key={refreshKey}
           title={title}
           src={src}
           loading="lazy"
