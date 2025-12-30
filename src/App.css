@@ -58,13 +58,14 @@
 
 .quoteTitle {
   margin: 0;
-  font-size: 1.2rem; /* títulos más grandes */
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
 /* Contenedor del iframe */
 .quoteBody {
+  position: relative; /* necesario para el loader */
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -72,13 +73,31 @@
   box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
 }
 
-/* El iframe “tal cual” tamaño DolarHoy */
+/* Loader */
+.quoteBody::before {
+  content: "Cargando…";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+/* Cuando el iframe cargó (clase puesta desde React), ocultamos el loader */
+.quoteBody.isLoaded::before {
+  display: none;
+}
+
+/* El iframe */
 .quoteBody iframe {
   width: 100%;
   height: 260px;
   border: 0;
   display: block;
-  background: #fff; /* por si el widget tarda, evita “transparencias raras” */
+  background: #fff;
 }
 
 .footer {
