@@ -12,7 +12,7 @@ Fue desarrollado como proyecto personal para practicar React y tooling actual.
 ## 🛠 Tecnologías
 - React
 - Vite
-- JavaScript / TypeScript
+- TypeScript
 - CSS
 
 ## 🧩 Mi rol
@@ -25,3 +25,4 @@ Fue desarrollado como proyecto personal para practicar React y tooling actual.
 
 ## 📌 Estado
 Proyecto personal.
+
