@@ -1,68 +1,55 @@
 import "./App.css";
+import QuoteCard from "./components/QuoteCard";
+import { useCotizaciones } from "./useCotizaciones";
+
+const CARDS = [
+  { key: "oficial", icon: "🏦", label: "Oficial" },
+  { key: "blue", icon: "🟦", label: "Blue" },
+  { key: "bolsa", icon: "📈", label: "MEP (Bolsa)" },
+  { key: "contadoconliqui", icon: "🌎", label: "CCL" },
+  { key: "cripto", icon: "₿", label: "Cripto" },
+  { key: "eur_oficial", icon: "💶", label: "Euro Oficial" },
+] as const;
 
 export default function App() {
+  const { state, refresh } = useCotizaciones();
+
   return (
     <div className="app">
       <header className="header">
-        <h1 className="title">
-          Dollar Tracker <span className="titleIcon">💵</span>
-        </h1>
+        <div className="headerTop">
+          <h1 className="title">
+            Dollar Tracker <span className="titleIcon">💵</span>
+          </h1>
+          <button className="refreshAllBtn" onClick={() => refresh()} type="button">
+            ↻ Actualizar
+          </button>
+        </div>
 
         <p className="subtitle">
-          PWA para seguimiento de cotizaciones{" "}
-          <span className="sourcePill" title="Widgets embebidos de un tercero">
-            fuente: DólarHoy
+          Cotizaciones del dólar y euro en Argentina, en tiempo real{" "}
+          <span className="sourcePill" title="API pública de cotizaciones">
+            fuente: DolarAPI
           </span>
         </p>
       </header>
 
       <main className="grid">
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">🟦 Blue</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/dolar-blue" frameborder="0"></iframe></div>` }} />
-        </section>
-
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">🏦 Oficial</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/dolar-bancos-y-casas-de-cambio" frameborder="0"></iframe></div>` }} />
-        </section>
-
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">📈 MEP (Bolsa)</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/dolar-mep" frameborder="0"></iframe></div>` }} />
-        </section>
-
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">🌎 CCL</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/dolar-contado-con-liquidacion" frameborder="0"></iframe></div>` }} />
-        </section>
-
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">₿ Cripto (BTC/USD)</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/bitcoin-usd" frameborder="0"></iframe></div>` }} />
-        </section>
-
-        <section className="quoteCard">
-          <header className="quoteHeader">
-            <h2 className="quoteTitle">🇦🇷 Solidario (Banco Nación)</h2>
-          </header>
-          <div className="quoteBody isLoaded" dangerouslySetInnerHTML={{ __html: `<div><iframe style="width:320px;height:260px;border-radius:10px;box-shadow:2px 4px 4px rgb(0 0 0 / 25%);display:flex;justify-content:center;border:1px solid #bcbcbc" src="https://dolarhoy.com/i/cotizaciones/banco-nacion" frameborder="0"></iframe></div>` }} />
-        </section>
+        {CARDS.map(({ key, icon, label }) => (
+          <QuoteCard
+            key={key}
+            icon={icon}
+            label={label}
+            data={state[key]?.data ?? null}
+            previousVenta={state[key]?.previousVenta ?? null}
+            status={state[key]?.status ?? "loading"}
+          />
+        ))}
       </main>
 
       <footer className="footer">
         <small className="footerNote">
-          * Datos embebidos desde un proveedor externo. Pueden variar o no estar disponibles temporalmente.
+          * Datos provistos por DolarAPI (dolarapi.com), actualizados automáticamente cada 5 minutos.
         </small>
       </footer>
     </div>
