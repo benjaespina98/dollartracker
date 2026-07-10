@@ -1,46 +1,55 @@
 import "./App.css";
-import QuoteFrame from "./components/QuoteFrame";
+import QuoteCard from "./components/QuoteCard";
+import { useCotizaciones } from "./useCotizaciones";
 
-type Quote = { title: string; icon: string; src: string };
-
-const quotes: Quote[] = [
-  { title: "Blue", icon: "🟦", src: "https://dolarhoy.com/i/cotizaciones/dolar-blue" },
-  {
-    title: "Oficial",
-    icon: "🏦",
-    src: "https://dolarhoy.com/i/cotizaciones/dolar-bancos-y-casas-de-cambio",
-  },
-  { title: "MEP (Bolsa)", icon: "📈", src: "https://dolarhoy.com/i/cotizaciones/dolar-mep" },
-  { title: "CCL", icon: "🌎", src: "https://dolarhoy.com/i/cotizaciones/dolar-contado-con-liquidacion" },
-  { title: "Cripto (BTC/USD)", icon: "₿", src: "https://dolarhoy.com/i/cotizaciones/bitcoin-usd" },
-  { title: "Solidario (Banco Nación)", icon: "🇦🇷", src: "https://dolarhoy.com/i/cotizaciones/banco-nacion" },
-];
+const CARDS = [
+  { key: "oficial", icon: "🏦", label: "Oficial" },
+  { key: "blue", icon: "🟦", label: "Blue" },
+  { key: "bolsa", icon: "📈", label: "MEP (Bolsa)" },
+  { key: "contadoconliqui", icon: "🌎", label: "CCL" },
+  { key: "cripto", icon: "₿", label: "Cripto" },
+  { key: "eur_oficial", icon: "💶", label: "Euro Oficial" },
+] as const;
 
 export default function App() {
+  const { state, refresh } = useCotizaciones();
+
   return (
     <div className="app">
       <header className="header">
-        <h1 className="title">
-          Dollar Tracker <span className="titleIcon">💵</span>
-        </h1>
+        <div className="headerTop">
+          <h1 className="title">
+            Dollar Tracker <span className="titleIcon">💵</span>
+          </h1>
+          <button className="refreshAllBtn" onClick={() => refresh()} type="button">
+            ↻ Actualizar
+          </button>
+        </div>
 
         <p className="subtitle">
-          PWA para seguimiento de cotizaciones{" "}
-          <span className="sourcePill" title="Widgets embebidos de un tercero">
-            fuente: DólarHoy
+          Cotizaciones del dólar y euro en Argentina, en tiempo real{" "}
+          <span className="sourcePill" title="API pública de cotizaciones">
+            fuente: DolarAPI
           </span>
         </p>
       </header>
 
       <main className="grid">
-        {quotes.map((q) => (
-          <QuoteFrame key={q.src} title={`${q.icon} ${q.title}`} src={q.src} />
+        {CARDS.map(({ key, icon, label }) => (
+          <QuoteCard
+            key={key}
+            icon={icon}
+            label={label}
+            data={state[key]?.data ?? null}
+            previousVenta={state[key]?.previousVenta ?? null}
+            status={state[key]?.status ?? "loading"}
+          />
         ))}
       </main>
 
       <footer className="footer">
         <small className="footerNote">
-          * Datos embebidos desde un proveedor externo. Pueden variar o no estar disponibles temporalmente.
+          * Datos provistos por DolarAPI (dolarapi.com), actualizados automáticamente cada 5 minutos.
         </small>
       </footer>
     </div>
