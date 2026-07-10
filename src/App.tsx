@@ -19,9 +19,7 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="headerTop">
-          <h1 className="title">
-            Dollar Tracker <span className="titleIcon">💵</span>
-          </h1>
+          <h1 className="title">DollarTracker</h1>
           <button className="refreshAllBtn" onClick={() => refresh()} type="button">
             ↻ Actualizar
           </button>
