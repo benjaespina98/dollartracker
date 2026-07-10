@@ -7,6 +7,7 @@ const ENDPOINTS: Record<string, string> = {
   bolsa: "https://dolarapi.com/v1/dolares/bolsa",
   contadoconliqui: "https://dolarapi.com/v1/dolares/contadoconliqui",
   cripto: "https://dolarapi.com/v1/dolares/cripto",
+  tarjeta: "https://dolarapi.com/v1/dolares/tarjeta",
   eur_oficial: "https://dolarapi.com/v1/cotizaciones/eur",
 };
 

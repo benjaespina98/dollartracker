@@ -3,12 +3,13 @@ import QuoteCard from "./components/QuoteCard";
 import { useCotizaciones } from "./useCotizaciones";
 
 const CARDS = [
-  { key: "oficial", icon: "🏦", label: "Oficial" },
-  { key: "blue", icon: "🟦", label: "Blue" },
-  { key: "bolsa", icon: "📈", label: "MEP (Bolsa)" },
-  { key: "contadoconliqui", icon: "🌎", label: "CCL" },
-  { key: "cripto", icon: "₿", label: "Cripto" },
-  { key: "eur_oficial", icon: "💶", label: "Euro Oficial" },
+  { key: "oficial", icon: "🏦", label: "Oficial", accent: "#78beff" },
+  { key: "blue", icon: "🟦", label: "Blue", accent: "#4ade80" },
+  { key: "bolsa", icon: "📈", label: "MEP (Bolsa)", accent: "#c084fc" },
+  { key: "contadoconliqui", icon: "🌎", label: "CCL", accent: "#f472b6" },
+  { key: "cripto", icon: "₿", label: "Cripto", accent: "#f97316" },
+  { key: "tarjeta", icon: "💳", label: "Tarjeta", accent: "#fb7185" },
+  { key: "eur_oficial", icon: "💶", label: "Euro Oficial", accent: "#facc15" },
 ] as const;
 
 export default function App() {
@@ -35,11 +36,12 @@ export default function App() {
       </header>
 
       <main className="grid">
-        {CARDS.map(({ key, icon, label }) => (
+        {CARDS.map(({ key, icon, label, accent }) => (
           <QuoteCard
             key={key}
             icon={icon}
             label={label}
+            accent={accent}
             data={state[key]?.data ?? null}
             previousVenta={state[key]?.previousVenta ?? null}
             status={state[key]?.status ?? "loading"}

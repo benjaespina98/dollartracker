@@ -23,6 +23,15 @@
   font-size: 2.5rem;
   line-height: 1.05;
   letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #4ade80, #78beff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.titleIcon {
+  -webkit-text-fill-color: initial;
 }
 
 .titleIcon {
@@ -107,11 +116,27 @@
   letter-spacing: -0.01em;
 }
 
+.quoteCard {
+  --accent: #78beff;
+}
+
+.quoteTitle::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 /* Contenedor de datos de cotización */
 .quoteBody {
   position: relative;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 2px solid var(--accent);
   background: rgba(255, 255, 255, 0.03);
   box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
   padding: 18px;
@@ -120,7 +145,12 @@
   flex-direction: column;
   justify-content: center;
   gap: 14px;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.quoteBody:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .quoteBody--error {
@@ -154,7 +184,11 @@
 }
 
 .quotePriceBlock--venta {
-  background: rgba(120, 190, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.quotePriceValue--accent {
+  color: var(--accent);
 }
 
 .quotePriceLabel {
