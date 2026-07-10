@@ -1,8 +1,10 @@
+import type { CSSProperties } from "react";
 import type { Cotizacion } from "../types";
 
 interface Props {
   icon: string;
   label: string;
+  accent: string;
   data: Cotizacion | null;
   previousVenta: number | null;
   status: "loading" | "ready" | "error";
@@ -20,14 +22,14 @@ const timeFormatter = new Intl.DateTimeFormat("es-AR", {
   minute: "2-digit",
 });
 
-export default function QuoteCard({ icon, label, data, previousVenta, status }: Props) {
+export default function QuoteCard({ icon, label, accent, data, previousVenta, status }: Props) {
   const variation =
     data && previousVenta !== null && previousVenta !== 0
       ? ((data.venta - previousVenta) / previousVenta) * 100
       : null;
 
   return (
-    <section className="quoteCard">
+    <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
       <header className="quoteHeader">
         <h2 className="quoteTitle">
           {icon} {label}
@@ -47,7 +49,7 @@ export default function QuoteCard({ icon, label, data, previousVenta, status }: 
               </div>
               <div className="quotePriceBlock quotePriceBlock--venta">
                 <span className="quotePriceLabel">Venta</span>
-                <span className="quotePriceValue">{currencyFormatter.format(data.venta)}</span>
+                <span className="quotePriceValue quotePriceValue--accent">{currencyFormatter.format(data.venta)}</span>
               </div>
             </div>
 
