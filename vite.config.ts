@@ -11,8 +11,8 @@ export default defineConfig({
       includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         id: '/',
-        name: 'Dollar Tracker',
-        short_name: 'Dollar',
+        name: 'DollarTracker',
+        short_name: 'DollarTracker',
         description: 'Dollar rate tracking for Argentina',
         lang: 'es-AR',
         theme_color: '#121212',
