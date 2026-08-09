@@ -1,8 +1,9 @@
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import type { MarketQuote } from "../types";
 
 interface Props {
   label: string;
+  icon: ReactNode;
   unit: string;
   accent: string;
   data: MarketQuote | null;
@@ -30,7 +31,7 @@ const fullDateFormatter = new Intl.DateTimeFormat("es-AR", {
   hourCycle: "h23",
 });
 
-export default function MarketCard({ label, unit, accent, data, status }: Props) {
+export default function MarketCard({ label, icon, unit, accent, data, status }: Props) {
   const [copied, setCopied] = useState(false);
   const marketDate = data?.marketTime ? new Date(data.marketTime * 1000) : null;
 
@@ -61,7 +62,10 @@ export default function MarketCard({ label, unit, accent, data, status }: Props)
   return (
     <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
       <header className="quoteHeader">
-        <h2 className="quoteTitle">{label}</h2>
+        <div className="quoteTitleGroup">
+          <span className="quoteIcon">{icon}</span>
+          <h2 className="quoteTitle">{label}</h2>
+        </div>
         {data && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}

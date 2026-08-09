@@ -1,8 +1,9 @@
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import type { Cotizacion } from "../types";
 
 interface Props {
   label: string;
+  icon: ReactNode;
   accent: string;
   data: Cotizacion | null;
   previousVenta: number | null;
@@ -30,7 +31,7 @@ const fullDateFormatter = new Intl.DateTimeFormat("es-AR", {
   hourCycle: "h23",
 });
 
-export default function QuoteCard({ label, accent, data, previousVenta, status }: Props) {
+export default function QuoteCard({ label, icon, accent, data, previousVenta, status }: Props) {
   const [copied, setCopied] = useState(false);
 
   const variation =
@@ -65,7 +66,10 @@ export default function QuoteCard({ label, accent, data, previousVenta, status }
   return (
     <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
       <header className="quoteHeader">
-        <h2 className="quoteTitle">{label}</h2>
+        <div className="quoteTitleGroup">
+          <span className="quoteIcon">{icon}</span>
+          <h2 className="quoteTitle">{label}</h2>
+        </div>
         {data && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}

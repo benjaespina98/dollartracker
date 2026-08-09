@@ -2,6 +2,19 @@ import "./App.css";
 import MarketCard from "./components/MarketCard";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
+import {
+  IconBank,
+  IconCandles,
+  IconCard,
+  IconCrypto,
+  IconDroplet,
+  IconGlobe,
+  IconGlyph,
+  IconIngot,
+  IconPulse,
+  IconSwap,
+  IconTrend,
+} from "./components/icons";
 import { useCotizaciones } from "./useCotizaciones";
 import { useMarketData } from "./useMarketData";
 import { useTheme } from "./useTheme";
@@ -10,30 +23,30 @@ const CURRENCY_SECTIONS = [
   {
     title: "Dólar",
     cards: [
-      { key: "oficial", label: "Oficial", accent: "#4ade80" },
-      { key: "blue", label: "Blue", accent: "#78beff" },
-      { key: "bolsa", label: "MEP (Bolsa)", accent: "#c084fc" },
-      { key: "contadoconliqui", label: "CCL", accent: "#f472b6" },
-      { key: "cripto", label: "Cripto", accent: "#f97316" },
-      { key: "tarjeta", label: "Tarjeta", accent: "#fb7185" },
+      { key: "oficial", label: "Oficial", accent: "#4ade80", icon: <IconBank /> },
+      { key: "blue", label: "Blue", accent: "#78beff", icon: <IconSwap /> },
+      { key: "bolsa", label: "MEP (Bolsa)", accent: "#c084fc", icon: <IconCandles /> },
+      { key: "contadoconliqui", label: "CCL", accent: "#f472b6", icon: <IconGlobe /> },
+      { key: "cripto", label: "Cripto", accent: "#f97316", icon: <IconCrypto /> },
+      { key: "tarjeta", label: "Tarjeta", accent: "#fb7185", icon: <IconCard /> },
     ],
   },
   {
     title: "Otras monedas",
     cards: [
-      { key: "eur_oficial", label: "Euro", accent: "#facc15" },
-      { key: "brl_oficial", label: "Real Brasileño", accent: "#2dd4bf" },
+      { key: "eur_oficial", label: "Euro", accent: "#facc15", icon: <IconGlyph glyph="€" /> },
+      { key: "brl_oficial", label: "Real Brasileño", accent: "#2dd4bf", icon: <IconGlyph glyph="R$" /> },
     ],
   },
-] as const;
+];
 
 const MARKET_CARDS = [
-  { key: "oil", label: "Petróleo (USO)", unit: "ETF · sigue al WTI", accent: "#a16207" },
-  { key: "gold", label: "Oro (GLD)", unit: "ETF · sigue al oro spot", accent: "#eab308" },
-  { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8" },
-  { key: "dow", label: "Dow Jones (DIA)", unit: "ETF", accent: "#818cf8" },
-  { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399" },
-] as const;
+  { key: "oil", label: "Petróleo (USO)", unit: "ETF · sigue al WTI", accent: "#a16207", icon: <IconDroplet /> },
+  { key: "gold", label: "Oro (GLD)", unit: "ETF · sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
+  { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8", icon: <IconTrend /> },
+  { key: "dow", label: "Dow Jones (DIA)", unit: "ETF", accent: "#818cf8", icon: <IconTrend /> },
+  { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399", icon: <IconTrend /> },
+];
 
 export default function App() {
   const { state, refresh: refreshCotizaciones } = useCotizaciones();
@@ -99,10 +112,11 @@ export default function App() {
             <span>{section.title}</span>
           </h2>
           <div className="grid">
-            {section.cards.map(({ key, label, accent }) => (
+            {section.cards.map(({ key, label, accent, icon }) => (
               <QuoteCard
                 key={key}
                 label={label}
+                icon={icon}
                 accent={accent}
                 data={state[key]?.data ?? null}
                 previousVenta={state[key]?.previousVenta ?? null}
@@ -119,15 +133,17 @@ export default function App() {
         </h2>
         <div className="grid">
           <RiesgoPaisCard
+            icon={<IconPulse />}
             accent="#ef4444"
             data={riesgoPais.data}
             previousValor={riesgoPais.previousValor}
             status={riesgoPais.status}
           />
-          {MARKET_CARDS.map(({ key, label, unit, accent }) => (
+          {MARKET_CARDS.map(({ key, label, unit, accent, icon }) => (
             <MarketCard
               key={key}
               label={label}
+              icon={icon}
               unit={unit}
               accent={accent}
               data={markets[key]?.data ?? null}

@@ -1,7 +1,8 @@
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import type { RiesgoPais } from "../types";
 
 interface Props {
+  icon: ReactNode;
   accent: string;
   data: RiesgoPais | null;
   previousValor: number | null;
@@ -15,7 +16,15 @@ const dateFormatter = new Intl.DateTimeFormat("es-AR", {
   month: "2-digit",
 });
 
-export default function RiesgoPaisCard({ accent, data, previousValor, status }: Props) {
+// Umbrales informales usados habitualmente para leer el índice de riesgo país
+function getCategory(valor: number): { label: string; tone: "low" | "medium" | "high" | "critical" } {
+  if (valor < 400) return { label: "Riesgo bajo", tone: "low" };
+  if (valor < 800) return { label: "Riesgo moderado", tone: "medium" };
+  if (valor < 1500) return { label: "Riesgo alto", tone: "high" };
+  return { label: "Riesgo crítico", tone: "critical" };
+}
+
+export default function RiesgoPaisCard({ icon, accent, data, previousValor, status }: Props) {
   const [copied, setCopied] = useState(false);
 
   const diff = data && previousValor !== null ? data.valor - previousValor : null;
@@ -45,7 +54,10 @@ export default function RiesgoPaisCard({ accent, data, previousValor, status }: 
   return (
     <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
       <header className="quoteHeader">
-        <h2 className="quoteTitle">Riesgo País</h2>
+        <div className="quoteTitleGroup">
+          <span className="quoteIcon">{icon}</span>
+          <h2 className="quoteTitle">Riesgo País</h2>
+        </div>
         {data && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}
@@ -76,25 +88,38 @@ export default function RiesgoPaisCard({ accent, data, previousValor, status }: 
         )}
         {status === "error" && !data && <span className="quoteError">⚠ No se pudo obtener el dato</span>}
 
-        {data && (
-          <>
-            <div className="marketPrice">
-              <span className="marketPrice__value">{valueFormatter.format(data.valor)}</span>
-              <span className="marketPrice__unit">puntos básicos</span>
-            </div>
+        {data &&
+          (() => {
+            const category = getCategory(data.valor);
+            return (
+              <>
+                <div className="riesgoBlock">
+                  <span className="riesgoBlock__label">EMBI+ Argentina</span>
+                  <div className="riesgoBlock__row">
+                    <span className="riesgoBlock__value">{valueFormatter.format(data.valor)}</span>
+                    <span className="riesgoBlock__unit">puntos básicos</span>
+                  </div>
+                </div>
 
-            <div className="quoteMeta">
-              {diff !== null && diff !== 0 && (
-                <span className={`quoteVariation ${diff > 0 ? "up" : "down"}`}>
-                  {diff > 0 ? "▲" : "▼"} {Math.abs(diff)} pb
+                <div className="quoteMeta">
+                  <span
+                    className={`riesgoTag riesgoTag--${category.tone}`}
+                    title="Categoría orientativa según umbrales de mercado habituales, no es un dato oficial"
+                  >
+                    {category.label}
+                  </span>
+                  {diff !== null && diff !== 0 && (
+                    <span className={`quoteVariation ${diff > 0 ? "up" : "down"}`}>
+                      {diff > 0 ? "▲" : "▼"} {Math.abs(diff)} pb
+                    </span>
+                  )}
+                </div>
+                <span className="quoteUpdated riesgoDate" title={`Último dato informado: ${data.fecha}`}>
+                  Cierre del {dateFormatter.format(new Date(`${data.fecha}T12:00:00`))}
                 </span>
-              )}
-              <span className="quoteUpdated" title={`Último dato informado: ${data.fecha}`}>
-                Cierre del {dateFormatter.format(new Date(`${data.fecha}T12:00:00`))}
-              </span>
-            </div>
-          </>
-        )}
+              </>
+            );
+          })()}
       </div>
     </section>
   );
