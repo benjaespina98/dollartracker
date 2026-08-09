@@ -1,32 +1,62 @@
 import "./App.css";
+import MarketCard from "./components/MarketCard";
 import QuoteCard from "./components/QuoteCard";
+import RiesgoPaisCard from "./components/RiesgoPaisCard";
+import {
+  IconBank,
+  IconCandles,
+  IconCard,
+  IconCrypto,
+  IconDroplet,
+  IconGlobe,
+  IconGlyph,
+  IconIngot,
+  IconPulse,
+  IconSwap,
+  IconTrend,
+} from "./components/icons";
 import { useCotizaciones } from "./useCotizaciones";
+import { useMarketData } from "./useMarketData";
 import { useTheme } from "./useTheme";
 
-const SECTIONS = [
+const CURRENCY_SECTIONS = [
   {
     title: "Dólar",
     cards: [
-      { key: "oficial", label: "Oficial", accent: "#4ade80" },
-      { key: "blue", label: "Blue", accent: "#78beff" },
-      { key: "bolsa", label: "MEP (Bolsa)", accent: "#c084fc" },
-      { key: "contadoconliqui", label: "CCL", accent: "#f472b6" },
-      { key: "cripto", label: "Cripto", accent: "#f97316" },
-      { key: "tarjeta", label: "Tarjeta", accent: "#fb7185" },
+      { key: "oficial", label: "Oficial", accent: "#4ade80", icon: <IconBank /> },
+      { key: "blue", label: "Blue", accent: "#78beff", icon: <IconSwap /> },
+      { key: "bolsa", label: "MEP (Bolsa)", accent: "#c084fc", icon: <IconCandles /> },
+      { key: "contadoconliqui", label: "CCL", accent: "#f472b6", icon: <IconGlobe /> },
+      { key: "cripto", label: "Cripto", accent: "#f97316", icon: <IconCrypto /> },
+      { key: "tarjeta", label: "Tarjeta", accent: "#fb7185", icon: <IconCard /> },
     ],
   },
   {
     title: "Otras monedas",
     cards: [
-      { key: "eur_oficial", label: "Euro", accent: "#facc15" },
-      { key: "brl_oficial", label: "Real Brasileño", accent: "#2dd4bf" },
+      { key: "eur_oficial", label: "Euro", accent: "#facc15", icon: <IconGlyph glyph="€" /> },
+      { key: "brl_oficial", label: "Real Brasileño", accent: "#2dd4bf", icon: <IconGlyph glyph="R$" /> },
     ],
   },
-] as const;
+];
+
+const MARKET_CARDS = [
+  { key: "oil", label: "Petróleo (USO)", unit: "ETF · sigue al WTI", accent: "#a16207", icon: <IconDroplet /> },
+  { key: "gold", label: "Oro (GLD)", unit: "ETF · sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
+  { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8", icon: <IconTrend /> },
+  { key: "dow", label: "Dow Jones (DIA)", unit: "ETF", accent: "#818cf8", icon: <IconTrend /> },
+  { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399", icon: <IconTrend /> },
+];
 
 export default function App() {
-  const { state, refresh } = useCotizaciones();
+  const { state, refresh: refreshCotizaciones } = useCotizaciones();
+  const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const { theme, toggleTheme } = useTheme();
+
+  function refreshAll() {
+    refreshCotizaciones();
+    refreshMarkets();
+  }
 
   return (
     <div className="app">
@@ -57,38 +87,36 @@ export default function App() {
                 </svg>
               ) : (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z"
-                  />
+                  <path fill="currentColor" d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z" />
                 </svg>
               )}
             </button>
 
-            <button className="refreshAllBtn" onClick={() => refresh()} type="button">
+            <button className="refreshAllBtn" onClick={refreshAll} type="button">
               <span className="refreshAllBtn__icon" aria-hidden="true">↻</span> Actualizar
             </button>
           </div>
         </div>
 
         <p className="subtitle">
-          Cotizaciones del dólar, euro y real en Argentina, en tiempo real{" "}
+          Cotizaciones y mercados en tiempo real{" "}
           <span className="sourcePill" title="API pública de cotizaciones">
             fuente: DolarAPI
           </span>
         </p>
       </header>
 
-      {SECTIONS.map((section) => (
+      {CURRENCY_SECTIONS.map((section) => (
         <section key={section.title} className="quoteSection">
           <h2 className="sectionTitle">
             <span>{section.title}</span>
           </h2>
           <div className="grid">
-            {section.cards.map(({ key, label, accent }) => (
+            {section.cards.map(({ key, label, accent, icon }) => (
               <QuoteCard
                 key={key}
                 label={label}
+                icon={icon}
                 accent={accent}
                 data={state[key]?.data ?? null}
                 previousVenta={state[key]?.previousVenta ?? null}
@@ -99,11 +127,38 @@ export default function App() {
         </section>
       ))}
 
+      <section className="quoteSection">
+        <h2 className="sectionTitle">
+          <span>Mercados</span>
+        </h2>
+        <div className="grid">
+          <RiesgoPaisCard
+            icon={<IconPulse />}
+            accent="#ef4444"
+            data={riesgoPais.data}
+            previousValor={riesgoPais.previousValor}
+            status={riesgoPais.status}
+          />
+          {MARKET_CARDS.map(({ key, label, unit, accent, icon }) => (
+            <MarketCard
+              key={key}
+              label={label}
+              icon={icon}
+              unit={unit}
+              accent={accent}
+              data={markets[key]?.data ?? null}
+              status={markets[key]?.status ?? "loading"}
+            />
+          ))}
+        </div>
+      </section>
+
       <footer className="footer">
         <small className="footerNote">
-          Esta página consulta DolarAPI (dolarapi.com) cada 5 minutos. "Act." indica cuándo la propia
-          fuente actualizó ese valor por última vez, no cuándo lo viste vos — por eso Oficial y
-          Mayorista suelen mostrar una hora más antigua que Blue o Cripto, que se mueven todo el día.
+          Dólar/euro/real vía DolarAPI (dolarapi.com) · Riesgo País vía ArgentinaDatos (argentinadatos.com)
+          · Petróleo, oro e índices vía Twelve Data (twelvedata.com), usando ETFs líquidos (USO, GLD, DIA)
+          como proxy. Todo se actualiza cada 5 minutos. "Act." indica cuándo la propia fuente actualizó ese
+          valor, no cuándo lo viste vos — por eso algunas tarjetas muestran horas distintas entre sí.
         </small>
       </footer>
     </div>

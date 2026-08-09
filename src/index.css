@@ -5,31 +5,35 @@
 
   color-scheme: dark;
 
-  --bg: #121212;
-  --bg-glow-a: rgba(74, 222, 128, 0.07);
-  --bg-glow-b: rgba(120, 190, 255, 0.07);
-  --text: rgba(255, 255, 255, 0.87);
-  --text-strong: rgba(255, 255, 255, 0.96);
-  --text-muted: rgba(255, 255, 255, 0.55);
-  --text-faint: rgba(255, 255, 255, 0.45);
-  --card-bg: rgba(255, 255, 255, 0.025);
-  --card-bg-hover: rgba(255, 255, 255, 0.045);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --pill-bg: rgba(255, 255, 255, 0.05);
-  --pill-border: rgba(255, 255, 255, 0.14);
+  --bg: #101012;
+  --bg-glow-a: rgba(74, 222, 128, 0.08);
+  --bg-glow-b: rgba(120, 190, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.9);
+  --text-strong: rgba(255, 255, 255, 0.98);
+  --text-muted: rgba(255, 255, 255, 0.62);
+  --text-faint: rgba(255, 255, 255, 0.52);
+  --card-bg: rgba(255, 255, 255, 0.045);
+  --card-bg-hover: rgba(255, 255, 255, 0.07);
+  --card-border: rgba(255, 255, 255, 0.14);
+  --pill-bg: rgba(255, 255, 255, 0.06);
+  --pill-border: rgba(255, 255, 255, 0.16);
   --btn-bg: rgba(255, 255, 255, 0.1);
-  --btn-bg-hover: rgba(255, 255, 255, 0.15);
+  --btn-bg-hover: rgba(255, 255, 255, 0.16);
   --btn-border: rgba(255, 255, 255, 0.2);
-  --btn-border-hover: rgba(255, 255, 255, 0.3);
-  --price-block-bg: rgba(255, 255, 255, 0.04);
-  --shadow-card: 0 8px 24px rgb(0 0 0 / 18%);
-  --shadow-card-hover: 0 14px 32px rgb(0 0 0 / 28%);
-  --skeleton-a: rgba(255, 255, 255, 0.05);
-  --skeleton-b: rgba(255, 255, 255, 0.11);
+  --btn-border-hover: rgba(255, 255, 255, 0.32);
+  --price-block-bg: rgba(255, 255, 255, 0.06);
+  --card-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 8px 24px rgb(0 0 0 / 30%);
+  --shadow-card-hover: 0 16px 36px rgb(0 0 0 / 42%);
+  --skeleton-a: rgba(255, 255, 255, 0.06);
+  --skeleton-b: rgba(255, 255, 255, 0.14);
   --link: #78beff;
   --link-hover: #4ade80;
   --positive: #4ade80;
   --negative: #f87171;
+  --risk-medium: #eab308;
+  --risk-high: #f97316;
+  --accent-contrast-filter: none;
 
   color: var(--text);
   background-color: var(--bg);
@@ -46,10 +50,10 @@
   --bg: #f4f6f8;
   --bg-glow-a: rgba(74, 222, 128, 0.12);
   --bg-glow-b: rgba(120, 190, 255, 0.12);
-  --text: rgba(15, 23, 32, 0.88);
+  --text: rgba(15, 23, 32, 0.9);
   --text-strong: #10151c;
-  --text-muted: rgba(15, 23, 32, 0.55);
-  --text-faint: rgba(15, 23, 32, 0.45);
+  --text-muted: rgba(15, 23, 32, 0.64);
+  --text-faint: rgba(15, 23, 32, 0.54);
   --card-bg: #ffffff;
   --card-bg-hover: #ffffff;
   --card-border: rgba(15, 23, 32, 0.1);
@@ -59,7 +63,8 @@
   --btn-bg-hover: rgba(15, 23, 32, 0.1);
   --btn-border: rgba(15, 23, 32, 0.14);
   --btn-border-hover: rgba(15, 23, 32, 0.22);
-  --price-block-bg: rgba(15, 23, 32, 0.04);
+  --price-block-bg: rgba(15, 23, 32, 0.05);
+  --card-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --shadow-card: 0 8px 24px rgb(15 23 32 / 8%);
   --shadow-card-hover: 0 14px 32px rgb(15 23 32 / 12%);
   --skeleton-a: rgba(15, 23, 32, 0.06);
@@ -68,6 +73,9 @@
   --link-hover: #178a4c;
   --positive: #16a34a;
   --negative: #dc2626;
+  --risk-medium: #a16207;
+  --risk-high: #c2410c;
+  --accent-contrast-filter: brightness(0.72) saturate(1.15);
 }
 
 a {
@@ -110,7 +118,12 @@ button {
 button:hover {
   border-color: var(--btn-border-hover);
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus {
+  outline: none;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #78beff;
+  outline-offset: 2px;
+  border-radius: 6px;
 }
