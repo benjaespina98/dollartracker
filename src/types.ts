@@ -1,5 +1,5 @@
 export interface Cotizacion {
-  moneda: "USD" | "EUR";
+  moneda: "USD" | "EUR" | "BRL";
   casa: string;
   nombre: string;
   compra: number;

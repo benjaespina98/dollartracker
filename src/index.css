@@ -1,11 +1,38 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #121212;
+
+  --bg: #121212;
+  --bg-glow-a: rgba(74, 222, 128, 0.07);
+  --bg-glow-b: rgba(120, 190, 255, 0.07);
+  --text: rgba(255, 255, 255, 0.87);
+  --text-strong: rgba(255, 255, 255, 0.96);
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-faint: rgba(255, 255, 255, 0.45);
+  --card-bg: rgba(255, 255, 255, 0.025);
+  --card-bg-hover: rgba(255, 255, 255, 0.045);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --pill-bg: rgba(255, 255, 255, 0.05);
+  --pill-border: rgba(255, 255, 255, 0.14);
+  --btn-bg: rgba(255, 255, 255, 0.1);
+  --btn-bg-hover: rgba(255, 255, 255, 0.15);
+  --btn-border: rgba(255, 255, 255, 0.2);
+  --btn-border-hover: rgba(255, 255, 255, 0.3);
+  --price-block-bg: rgba(255, 255, 255, 0.04);
+  --shadow-card: 0 8px 24px rgb(0 0 0 / 18%);
+  --shadow-card-hover: 0 14px 32px rgb(0 0 0 / 28%);
+  --skeleton-a: rgba(255, 255, 255, 0.05);
+  --skeleton-b: rgba(255, 255, 255, 0.11);
+  --link: #78beff;
+  --link-hover: #4ade80;
+  --positive: #4ade80;
+  --negative: #f87171;
+
+  color: var(--text);
+  background-color: var(--bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,19 +40,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f4f6f8;
+  --bg-glow-a: rgba(74, 222, 128, 0.12);
+  --bg-glow-b: rgba(120, 190, 255, 0.12);
+  --text: rgba(15, 23, 32, 0.88);
+  --text-strong: #10151c;
+  --text-muted: rgba(15, 23, 32, 0.55);
+  --text-faint: rgba(15, 23, 32, 0.45);
+  --card-bg: #ffffff;
+  --card-bg-hover: #ffffff;
+  --card-border: rgba(15, 23, 32, 0.1);
+  --pill-bg: rgba(15, 23, 32, 0.05);
+  --pill-border: rgba(15, 23, 32, 0.12);
+  --btn-bg: rgba(15, 23, 32, 0.06);
+  --btn-bg-hover: rgba(15, 23, 32, 0.1);
+  --btn-border: rgba(15, 23, 32, 0.14);
+  --btn-border-hover: rgba(15, 23, 32, 0.22);
+  --price-block-bg: rgba(15, 23, 32, 0.04);
+  --shadow-card: 0 8px 24px rgb(15 23 32 / 8%);
+  --shadow-card-hover: 0 14px 32px rgb(15 23 32 / 12%);
+  --skeleton-a: rgba(15, 23, 32, 0.06);
+  --skeleton-b: rgba(15, 23, 32, 0.12);
+  --link: #1d6fd8;
+  --link-hover: #178a4c;
+  --positive: #16a34a;
+  --negative: #dc2626;
+}
+
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--link);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--link-hover);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 88% 4%, var(--bg-glow-a), transparent 45%),
+    radial-gradient(circle at 6% 92%, var(--bg-glow-b), transparent 45%);
+  background-attachment: fixed;
+  transition: background-color 0.25s;
 }
 
 h1 {
@@ -40,27 +102,15 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--btn-bg);
+  color: var(--text);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s, color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--btn-border-hover);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
