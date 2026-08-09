@@ -9,6 +9,7 @@ const ENDPOINTS: Record<string, string> = {
   cripto: "https://dolarapi.com/v1/dolares/cripto",
   tarjeta: "https://dolarapi.com/v1/dolares/tarjeta",
   eur_oficial: "https://dolarapi.com/v1/cotizaciones/eur",
+  brl_oficial: "https://dolarapi.com/v1/cotizaciones/brl",
 };
 
 export type CotizacionesState = Record<
