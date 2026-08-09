@@ -28,10 +28,10 @@ const CURRENCY_SECTIONS = [
 ] as const;
 
 const MARKET_CARDS = [
-  { key: "oil", label: "Petróleo (WTI)", unit: "por barril", accent: "#a16207" },
-  { key: "gold", label: "Oro", unit: "por onza troy", accent: "#eab308" },
+  { key: "oil", label: "Petróleo (USO)", unit: "ETF · sigue al WTI", accent: "#a16207" },
+  { key: "gold", label: "Oro (GLD)", unit: "ETF · sigue al oro spot", accent: "#eab308" },
   { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8" },
-  { key: "dow", label: "Dow Jones", unit: "índice", accent: "#818cf8" },
+  { key: "dow", label: "Dow Jones (DIA)", unit: "ETF", accent: "#818cf8" },
   { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399" },
 ] as const;
 
@@ -140,9 +140,9 @@ export default function App() {
       <footer className="footer">
         <small className="footerNote">
           Dólar/euro/real vía DolarAPI (dolarapi.com) · Riesgo País vía ArgentinaDatos (argentinadatos.com)
-          · Petróleo, oro e índices vía Yahoo Finance. Todo se actualiza cada 5 minutos. "Act." indica
-          cuándo la propia fuente actualizó ese valor, no cuándo lo viste vos — por eso algunas tarjetas
-          muestran horas distintas entre sí.
+          · Petróleo, oro e índices vía Twelve Data (twelvedata.com), usando ETFs líquidos (USO, GLD, DIA)
+          como proxy. Todo se actualiza cada 5 minutos. "Act." indica cuándo la propia fuente actualizó ese
+          valor, no cuándo lo viste vos — por eso algunas tarjetas muestran horas distintas entre sí.
         </small>
       </footer>
     </div>
