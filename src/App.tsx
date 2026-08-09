@@ -1,9 +1,12 @@
 import "./App.css";
+import MarketCard from "./components/MarketCard";
 import QuoteCard from "./components/QuoteCard";
+import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import { useCotizaciones } from "./useCotizaciones";
+import { useMarketData } from "./useMarketData";
 import { useTheme } from "./useTheme";
 
-const SECTIONS = [
+const CURRENCY_SECTIONS = [
   {
     title: "Dólar",
     cards: [
@@ -24,9 +27,23 @@ const SECTIONS = [
   },
 ] as const;
 
+const MARKET_CARDS = [
+  { key: "oil", label: "Petróleo (WTI)", unit: "por barril", accent: "#a16207" },
+  { key: "gold", label: "Oro", unit: "por onza troy", accent: "#eab308" },
+  { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8" },
+  { key: "dow", label: "Dow Jones", unit: "índice", accent: "#818cf8" },
+  { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399" },
+] as const;
+
 export default function App() {
-  const { state, refresh } = useCotizaciones();
+  const { state, refresh: refreshCotizaciones } = useCotizaciones();
+  const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const { theme, toggleTheme } = useTheme();
+
+  function refreshAll() {
+    refreshCotizaciones();
+    refreshMarkets();
+  }
 
   return (
     <div className="app">
@@ -57,29 +74,26 @@ export default function App() {
                 </svg>
               ) : (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z"
-                  />
+                  <path fill="currentColor" d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z" />
                 </svg>
               )}
             </button>
 
-            <button className="refreshAllBtn" onClick={() => refresh()} type="button">
+            <button className="refreshAllBtn" onClick={refreshAll} type="button">
               <span className="refreshAllBtn__icon" aria-hidden="true">↻</span> Actualizar
             </button>
           </div>
         </div>
 
         <p className="subtitle">
-          Cotizaciones del dólar, euro y real en Argentina, en tiempo real{" "}
+          Cotizaciones y mercados en tiempo real{" "}
           <span className="sourcePill" title="API pública de cotizaciones">
             fuente: DolarAPI
           </span>
         </p>
       </header>
 
-      {SECTIONS.map((section) => (
+      {CURRENCY_SECTIONS.map((section) => (
         <section key={section.title} className="quoteSection">
           <h2 className="sectionTitle">
             <span>{section.title}</span>
@@ -99,11 +113,36 @@ export default function App() {
         </section>
       ))}
 
+      <section className="quoteSection">
+        <h2 className="sectionTitle">
+          <span>Mercados</span>
+        </h2>
+        <div className="grid">
+          <RiesgoPaisCard
+            accent="#ef4444"
+            data={riesgoPais.data}
+            previousValor={riesgoPais.previousValor}
+            status={riesgoPais.status}
+          />
+          {MARKET_CARDS.map(({ key, label, unit, accent }) => (
+            <MarketCard
+              key={key}
+              label={label}
+              unit={unit}
+              accent={accent}
+              data={markets[key]?.data ?? null}
+              status={markets[key]?.status ?? "loading"}
+            />
+          ))}
+        </div>
+      </section>
+
       <footer className="footer">
         <small className="footerNote">
-          Esta página consulta DolarAPI (dolarapi.com) cada 5 minutos. "Act." indica cuándo la propia
-          fuente actualizó ese valor por última vez, no cuándo lo viste vos — por eso Oficial y
-          Mayorista suelen mostrar una hora más antigua que Blue o Cripto, que se mueven todo el día.
+          Dólar/euro/real vía DolarAPI (dolarapi.com) · Riesgo País vía ArgentinaDatos (argentinadatos.com)
+          · Petróleo, oro e índices vía Yahoo Finance. Todo se actualiza cada 5 minutos. "Act." indica
+          cuándo la propia fuente actualizó ese valor, no cuándo lo viste vos — por eso algunas tarjetas
+          muestran horas distintas entre sí.
         </small>
       </footer>
     </div>

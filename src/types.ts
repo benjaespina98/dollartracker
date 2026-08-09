@@ -7,9 +7,17 @@ export interface Cotizacion {
   fechaActualizacion: string;
 }
 
-export interface QuoteCardConfig {
-  key: string;
-  icon: string;
-  label: string;
-  url: string;
+export interface RiesgoPais {
+  valor: number;
+  fecha: string;
+}
+
+export interface MarketQuote {
+  symbol: string;
+  currency: string;
+  price: number;
+  previousClose: number | null;
+  change: number | null;
+  changePercent: number | null;
+  marketTime: number | null;
 }

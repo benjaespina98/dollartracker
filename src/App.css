@@ -15,7 +15,7 @@
 
 .sectionTitle {
   display: flex;
-  align-items: center;
+   align-items: center;
   gap: 14px;
   margin: 0 0 16px;
   font-size: 0.8rem;
@@ -164,14 +164,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   align-items: stretch;
 }
 
 @media (min-width: 560px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 18px;
   }
 }
@@ -195,6 +194,7 @@
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  container-type: inline-size;
 }
 
 .quoteHeader {
@@ -313,6 +313,26 @@
   }
 }
 
+.marketPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 4px 6px;
+}
+
+.marketPrice__value {
+  font-size: clamp(1.3rem, 5vw, 1.6rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.marketPrice__unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .quotePrices {
   display: flex;
   gap: 10px;
@@ -409,5 +429,29 @@
 
   .quotePriceBlock {
     padding: 9px 10px;
+  }
+}
+
+/* Cuando la tarjeta queda angosta (ej. 2 columnas en mobile), apilamos
+   compra/venta en vez de dejar que el texto se corte */
+@container (max-width: 210px) {
+  .quotePrices {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .quotePriceBlock {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+  }
+
+  .quotePriceLabel {
+    font-size: 0.64rem;
+  }
+
+  .quoteTitle {
+    font-size: 0.92rem;
   }
 }
