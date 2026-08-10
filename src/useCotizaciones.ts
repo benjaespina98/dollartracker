@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { loadFromCache, saveToCache } from "./offlineCache";
 import type { Cotizacion } from "./types";
 
 const ENDPOINTS: Record<string, string> = {
@@ -12,15 +13,20 @@ const ENDPOINTS: Record<string, string> = {
   brl_oficial: "https://dolarapi.com/v1/cotizaciones/brl",
 };
 
+export type CotizacionStatus = "loading" | "ready" | "stale" | "error";
+
 export type CotizacionesState = Record<
   string,
-  { data: Cotizacion | null; previousVenta: number | null; status: "loading" | "ready" | "error" }
+  { data: Cotizacion | null; previousVenta: number | null; status: CotizacionStatus }
 >;
 
 export function useCotizaciones() {
   const [state, setState] = useState<CotizacionesState>(() =>
     Object.fromEntries(
-      Object.keys(ENDPOINTS).map((key) => [key, { data: null, previousVenta: null, status: "loading" as const }])
+      Object.keys(ENDPOINTS).map((key) => [
+        key,
+        { data: loadFromCache<Cotizacion>(key), previousVenta: null, status: "loading" as const },
+      ])
     )
   );
   const previousValues = useRef<Record<string, number>>({});
@@ -40,6 +46,7 @@ export function useCotizaciones() {
           const res = await fetch(url);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data: Cotizacion = await res.json();
+          saveToCache(key, data);
           setState((prev) => ({
             ...prev,
             [key]: {
@@ -50,7 +57,13 @@ export function useCotizaciones() {
           }));
           previousValues.current[key] = data.venta;
         } catch {
-          setState((prev) => ({ ...prev, [key]: { ...prev[key], status: "error" } }));
+          const cached = loadFromCache<Cotizacion>(key);
+          setState((prev) => ({
+            ...prev,
+            [key]: cached
+              ? { data: cached, previousVenta: previousValues.current[key] ?? null, status: "stale" }
+              : { ...prev[key], status: "error" },
+          }));
         }
       })
     );

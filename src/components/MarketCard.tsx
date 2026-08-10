@@ -7,7 +7,7 @@ interface Props {
   unit: string;
   accent: string;
   data: MarketQuote | null;
-  status: "loading" | "ready" | "error";
+  status: "loading" | "ready" | "stale" | "error";
 }
 
 const priceFormatter = new Intl.NumberFormat("es-AR", {
@@ -104,7 +104,12 @@ export default function MarketCard({ label, icon, unit, accent, data, status }: 
             </div>
 
             <div className="quoteMeta">
-              {data.changePercent !== null && Math.abs(data.changePercent) > 0.001 && (
+              {status === "stale" && (
+                <span className="offlineTag" title="No se pudo actualizar; este es el último valor guardado en este dispositivo">
+                  ⚠ Sin conexión
+                </span>
+              )}
+              {status !== "stale" && data.changePercent !== null && Math.abs(data.changePercent) > 0.001 && (
                 <span className={`quoteVariation ${data.changePercent > 0 ? "up" : "down"}`}>
                   {data.changePercent > 0 ? "▲" : "▼"} {Math.abs(data.changePercent).toFixed(2)}%
                 </span>

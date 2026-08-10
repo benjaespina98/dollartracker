@@ -490,6 +490,20 @@
   background: color-mix(in srgb, var(--negative) 16%, transparent);
 }
 
+/* Marca que el dato mostrado es el último guardado localmente y no pudo refrescarse */
+.offlineTag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  cursor: default;
+  color: var(--risk-medium);
+  background: color-mix(in srgb, var(--risk-medium) 16%, transparent);
+}
+
 .quoteUpdated {
   color: var(--text-faint);
   margin-left: auto;

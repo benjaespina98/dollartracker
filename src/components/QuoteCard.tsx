@@ -7,7 +7,7 @@ interface Props {
   accent: string;
   data: Cotizacion | null;
   previousVenta: number | null;
-  status: "loading" | "ready" | "error";
+  status: "loading" | "ready" | "stale" | "error";
 }
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -128,7 +128,12 @@ export default function QuoteCard({ label, icon, accent, data, previousVenta, st
             </div>
 
             <div className="quoteMeta">
-              {variation !== null && Math.abs(variation) > 0.001 && (
+              {status === "stale" && (
+                <span className="offlineTag" title="No se pudo actualizar; este es el último valor guardado en este dispositivo">
+                  ⚠ Sin conexión
+                </span>
+              )}
+              {status !== "stale" && variation !== null && Math.abs(variation) > 0.001 && (
                 <span className={`quoteVariation ${variation > 0 ? "up" : "down"}`}>
                   {variation > 0 ? "▲" : "▼"} {Math.abs(variation).toFixed(2)}%
                 </span>

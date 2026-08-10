@@ -13,13 +13,15 @@ export default defineConfig({
         id: '/',
         name: 'DollarTracker',
         short_name: 'DollarTracker',
-        description: 'Dollar rate tracking for Argentina',
+        description:
+          'Cotizaciones del dólar (oficial, blue, MEP, CCL, cripto, tarjeta), euro, real brasileño, riesgo país y mercados internacionales, en tiempo real.',
         lang: 'es-AR',
-        theme_color: '#121212',
-        background_color: '#121212',
+        theme_color: '#101012',
+        background_color: '#101012',
         display: 'standalone',
         scope: '/',
         start_url: '/',
+        categories: ['finance', 'business'],
         icons: [
           {
             src: 'pwa-192x192.png',
