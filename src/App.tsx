@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import ConverterBar from "./components/ConverterBar";
+import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
 import MarketCard from "./components/MarketCard";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
@@ -90,6 +91,8 @@ export default function App() {
   const [montoTexto, setMontoTexto] = useState("");
   const [origen, setOrigen] = useState<MonedaOrigen>("ARS");
   const monto = parsearMonto(montoTexto);
+  const [mostrarInfoApp, setMostrarInfoApp] = useState(false);
+  const [mostrarInfoConversor, setMostrarInfoConversor] = useState(false);
 
   function refreshAll() {
     refreshCotizaciones();
@@ -136,15 +139,45 @@ export default function App() {
           </div>
         </div>
 
-        <p className="subtitle">Cotizaciones y mercados en tiempo real</p>
+        <div className="subtitleRow">
+          <p className="subtitle">Cotizaciones y mercados en tiempo real.</p>
+          <CardInfoButton
+            activo={mostrarInfoApp}
+            onToggle={() => setMostrarInfoApp((v) => !v)}
+            label="Acerca de DollarTracker"
+          />
+        </div>
+        {mostrarInfoApp && (
+          <CardInfoPanel>
+            DollarTracker junta en un solo lugar las cotizaciones del dólar y otras monedas (DolarAPI), el
+            riesgo país y sus históricos (ArgentinaDatos) y mercados internacionales (Twelve Data). No opera ni
+            recomienda inversiones: es solo un panel de referencia informativo, sin login ni backend propio —
+            todo se calcula en tu dispositivo.
+          </CardInfoPanel>
+        )}
       </header>
 
+      <div className="converterHeader">
+        <h2 className="converterTitle">Cotizador</h2>
+        <CardInfoButton
+          activo={mostrarInfoConversor}
+          onToggle={() => setMostrarInfoConversor((v) => !v)}
+          label="Cómo funciona el cotizador"
+        />
+      </div>
       <ConverterBar
         monto={montoTexto}
         origen={origen}
         onMontoChange={setMontoTexto}
         onOrigenChange={setOrigen}
       />
+      {mostrarInfoConversor && (
+        <CardInfoPanel>
+          Escribí un monto y elegí en qué moneda lo tenés: cada tarjeta va a mostrar cuánto te da a esa
+          cotización, usando la punta de compra o de venta según corresponda. Es el mismo cálculo que harías
+          vos con la calculadora, aplicado a todas las cotizaciones a la vez.
+        </CardInfoPanel>
+      )}
 
       {CURRENCY_SECTIONS.map((section) => (
         <section key={section.title} className="quoteSection">
@@ -219,11 +252,21 @@ export default function App() {
       </section>
 
       <footer className="footer">
-        <small className="footerNote">
-          Cotizaciones: DolarAPI · Riesgo país e histórico: ArgentinaDatos · Mercados: Twelve Data.
-          <br />
-          "Act." es cuándo la fuente actualizó ese valor, no cuándo lo abriste vos.
-        </small>
+        <div className="footerBrand">
+          <span className="footerBrand__mark" aria-hidden="true">$</span>
+          <span className="footerBrand__name">
+            DollarTracker<sup>™</sup>
+          </span>
+        </div>
+        <p className="footerNote">
+          Fuentes de datos: DolarAPI (cotizaciones), ArgentinaDatos (riesgo país e históricos) y Twelve Data
+          (mercados internacionales). Los valores son de referencia y pueden diferir de los de tu entidad
+          financiera; nada de lo aquí publicado constituye asesoramiento financiero.
+        </p>
+        <p className="footerNote footerNote--muted">
+          "Actualizado a las" indica cuándo la fuente publicó ese valor, no el momento en que abriste la app.
+          Sin cuentas, sin backend propio: todos los cálculos se hacen en tu dispositivo.
+        </p>
       </footer>
     </div>
   );

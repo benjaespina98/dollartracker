@@ -1,8 +1,10 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
 import { convertir, formatearMoneda, type MonedaOrigen } from "../conversion";
 import { cierreAnterior } from "../fechas";
 import { recortarRango, tieneHistorico, useHistoricoDolar, type RangoDias } from "../useHistorico";
+import { useModalCard } from "../useModalCard";
 import type { Cotizacion } from "../types";
+import { CardBackdrop, CardCloseButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import SparklineRow from "./SparklineRow";
 
@@ -57,12 +59,19 @@ export default function QuoteCard({
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [expandida, setExpandida] = useState(false);
+  const [mostrarInfo, setMostrarInfo] = useState(false);
   const [rango, setRango] = useState<RangoDias>(30);
 
   const historico = useHistoricoDolar(casa);
   const puedeVerHistorico = tieneHistorico(casa);
   // Sin datos no hay nada que desplegar: la tarjeta no debe parecer clickeable
   const puedeExpandirse = !!data && (historico?.length ?? 0) >= 2;
+
+  const cerrar = useCallback(() => {
+    setExpandida(false);
+    setMostrarInfo(false);
+  }, []);
+  useModalCard(expandida, cerrar);
   // El mini siempre muestra 30 días; el rango elegido solo afecta al grande
   const serieMini = historico ? recortarRango(historico, 30) : null;
 
@@ -117,10 +126,12 @@ export default function QuoteCard({
   }
 
   return (
-    <section
-      className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
-      style={{ "--accent": accent } as CSSProperties}
-    >
+    <>
+      {expandida && <CardBackdrop onClose={cerrar} />}
+      <section
+        className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+        style={{ "--accent": accent } as CSSProperties}
+      >
       <header className="quoteHeader">
         <div className="quoteTitleGroup">
           <span className="quoteIcon">{icon}</span>
@@ -129,7 +140,17 @@ export default function QuoteCard({
             <span aria-hidden="true">{label}</span>
           </h2>
         </div>
-        {data && (
+        {expandida && (
+          <>
+            <CardInfoButton
+              activo={mostrarInfo}
+              onToggle={() => setMostrarInfo((v) => !v)}
+              label={`Qué estoy viendo: ${nombre}`}
+            />
+            <CardCloseButton onClose={cerrar} label={`Cerrar histórico de ${nombre}`} />
+          </>
+        )}
+        {data && !expandida && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}
             onClick={handleShare}
@@ -194,6 +215,14 @@ export default function QuoteCard({
 
         {data && (
           <>
+            {expandida && mostrarInfo && (
+              <CardInfoPanel>
+                El gráfico muestra el valor de venta al cierre de cada día, con el mínimo y el máximo del
+                período elegido. La cotización actual la publica DolarAPI; la serie histórica, ArgentinaDatos.
+                Es un valor de referencia: puede diferir del que te ofrezca tu banco, billetera o casa de cambio.
+              </CardInfoPanel>
+            )}
+
             {convertido !== null ? (
               <div className="convertedBlock">
                 <span className="convertedBlock__value">
@@ -229,16 +258,26 @@ export default function QuoteCard({
 
             <div className="quoteMeta">
               {status === "stale" && (
-                <span className="offlineTag" title="No se pudo actualizar; este es el último valor guardado en este dispositivo">
-                  ⚠ Sin conexión
+                <span
+                  className="offlineTag"
+                  title={`No se pudo actualizar; este es el último valor guardado en este dispositivo el ${fullDateFormatter.format(
+                    new Date(data.fechaActualizacion)
+                  )} hs`}
+                >
+                  ⚠ Modo sin conexión · datos de {timeFormatter.format(new Date(data.fechaActualizacion))} hs
                 </span>
               )}
-              {status !== "stale" && variation !== null && Math.abs(variation) > 0.001 && (
-                <span
-                  className={`quoteVariation ${variation > 0 ? "up" : "down"}`}
-                  title={variationTitle}
-                >
-                  {variation > 0 ? "▲" : "▼"} {Math.abs(variation).toFixed(2)}%
+              {status !== "stale" && variation !== null && (
+                <span className="quoteVariationGroup">
+                  <span
+                    className={`quoteVariation ${
+                      variation > 0.001 ? "up" : variation < -0.001 ? "down" : "flat"
+                    }`}
+                    title={variationTitle}
+                  >
+                    {variation > 0.001 ? "▲" : variation < -0.001 ? "▼" : "●"} {Math.abs(variation).toFixed(2)}%
+                  </span>
+                  <span className="quoteVariationLabel">vs. Cierre Ayer</span>
                 </span>
               )}
               <span
@@ -247,7 +286,7 @@ export default function QuoteCard({
                   new Date(data.fechaActualizacion)
                 )} hs. No todas las cotizaciones se actualizan a la misma frecuencia.`}
               >
-                Act. {timeFormatter.format(new Date(data.fechaActualizacion))} hs
+                Actualizado a las {timeFormatter.format(new Date(data.fechaActualizacion))} hs
               </span>
             </div>
 
@@ -262,6 +301,7 @@ export default function QuoteCard({
           </>
         )}
       </div>
-    </section>
+      </section>
+    </>
   );
 }
