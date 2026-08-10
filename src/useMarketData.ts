@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadFromCache, saveToCache } from "./offlineCache";
+import { ESPERA_CUPO_MS } from "./useHistorico";
 import type { MarketQuote, RiesgoPais } from "./types";
 
-const MARKET_KEYS = ["oil", "gold", "spy", "dow", "nasdaq"] as const;
+const MARKET_KEYS = ["oil", "gold", "spy", "dow", "nasdaq", "soja", "maiz", "trigo"] as const;
 
 const RIESGO_PAIS_URL = "https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo";
 const RIESGO_PAIS_CACHE_KEY = "riesgoPais";
@@ -13,6 +14,18 @@ export type MarketStatus = "loading" | "ready" | "stale" | "error";
 interface MarketDataState {
   riesgoPais: { data: RiesgoPais | null; previousValor: number | null; status: MarketStatus };
   markets: Record<string, { data: MarketQuote | null; status: MarketStatus }>;
+}
+
+async function pedirMercado(): Promise<Record<string, MarketQuote | null>> {
+  const res = await fetch("/api/market");
+  if (!res.ok) {
+    // El proxy manda el motivo concreto en el cuerpo (key inválida, sin
+    // créditos, con su pista). Sin esto la única señal es un "No se pudo
+    // obtener el dato" en la tarjeta, que no dice nada.
+    console.warn("[DollarTracker] /api/market falló:", res.status, await res.json().catch(() => null));
+    throw new Error(`HTTP ${res.status}`);
+  }
+  return res.json();
 }
 
 function initialState(): MarketDataState {
@@ -63,12 +76,18 @@ export function useMarketData() {
           }));
         }
       })(),
-      // Un solo pedido a nuestro proxy trae los 5 símbolos juntos (menos créditos gastados en Twelve Data)
+      // Un solo pedido a nuestro proxy trae los 8 símbolos juntos (menos créditos gastados en Twelve Data)
       (async () => {
         try {
-          const res = await fetch("/api/market");
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const payload: Record<string, MarketQuote | null> = await res.json();
+          let payload: Record<string, MarketQuote | null>;
+          try {
+            payload = await pedirMercado();
+          } catch {
+            // Puede haber chocado con /api/history contra el límite de 8
+            // créditos por minuto de Twelve Data; al minuto se renueva el cupo.
+            await new Promise((resolve) => setTimeout(resolve, ESPERA_CUPO_MS));
+            payload = await pedirMercado();
+          }
           // Twelve Data puede resolver algunos símbolos y otros no. Guardamos
           // el merge con lo que ya teníamos para que un símbolo que falló hoy
           // no borre del cache el último valor bueno que sí habíamos traído.
@@ -111,9 +130,9 @@ export function useMarketData() {
 
   useEffect(() => {
     fetchAll();
-    // Cada 10 min: el proxy cachea 15 en el CDN, así que refrescar más seguido
+    // Cada 15 min: el proxy cachea 30 en el CDN, así que refrescar más seguido
     // no trae datos nuevos y solo gasta créditos del plan gratuito.
-    const interval = setInterval(fetchAll, 10 * 60 * 1000);
+    const interval = setInterval(fetchAll, 15 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchAll]);
 

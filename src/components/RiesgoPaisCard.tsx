@@ -1,5 +1,8 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { recortarRango, useHistoricoRiesgoPais, type RangoDias } from "../useHistorico";
 import type { RiesgoPais } from "../types";
+import HistoricoPanel from "./HistoricoPanel";
+import SparklineRow from "./SparklineRow";
 
 interface Props {
   icon: ReactNode;
@@ -26,6 +29,13 @@ function getCategory(valor: number): { label: string; tone: "low" | "medium" | "
 
 export default function RiesgoPaisCard({ icon, accent, data, previousValor, status }: Props) {
   const [copied, setCopied] = useState(false);
+  const [expandida, setExpandida] = useState(false);
+  const [rango, setRango] = useState<RangoDias>(30);
+
+  const historico = useHistoricoRiesgoPais();
+  // Sin datos no hay nada que desplegar: la tarjeta no debe parecer clickeable
+  const puedeExpandirse = !!data && (historico?.length ?? 0) >= 2;
+  const serieMini = historico ? recortarRango(historico, 30) : null;
 
   const diff = data && previousValor !== null ? data.valor - previousValor : null;
 
@@ -52,7 +62,10 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
   }
 
   return (
-    <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
+    <section
+      className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+      style={{ "--accent": accent } as CSSProperties}
+    >
       <header className="quoteHeader">
         <div className="quoteTitleGroup">
           <span className="quoteIcon">{icon}</span>
@@ -80,7 +93,26 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
         )}
       </header>
 
-      <div className={`quoteBody quoteBody--${status}`}>
+      {/* El botón de compartir vive en el header, fuera de este div, así que
+          podemos hacer clickeable todo el cuerpo sin anidar controles. */}
+      <div
+        className={`quoteBody quoteBody--${status} ${puedeExpandirse ? "quoteBody--expandible" : ""}`}
+        onClick={puedeExpandirse ? () => setExpandida((v) => !v) : undefined}
+        onKeyDown={
+          puedeExpandirse
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setExpandida((v) => !v);
+                }
+              }
+            : undefined
+        }
+        role={puedeExpandirse ? "button" : undefined}
+        tabIndex={puedeExpandirse ? 0 : undefined}
+        aria-expanded={puedeExpandirse ? expandida : undefined}
+        aria-label={puedeExpandirse ? "Riesgo País: ver histórico" : undefined}
+      >
         {status === "loading" && !data && (
           <div className="skeleton" aria-label="Cargando riesgo país">
             <span className="skeletonBlock" />
@@ -100,6 +132,13 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
                     <span className="riesgoBlock__unit">puntos básicos</span>
                   </div>
                 </div>
+
+                {/* Hueco reservado para que la tarjeta no salte cuando llega la serie */}
+                <SparklineRow
+                  valores={serieMini?.map((p) => p.valor) ?? null}
+                  expandida={expandida}
+                  expandible={puedeExpandirse}
+                />
 
                 <div className="quoteMeta">
                   {status === "stale" ? (
@@ -122,10 +161,21 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
                       {diff > 0 ? "▲" : "▼"} {Math.abs(diff)} pb
                     </span>
                   )}
+                  {/* Va dentro de quoteMeta como en las otras tarjetas: antes
+                      colgaba suelto abajo y dejaba un hueco raro en desktop */}
+                  <span className="quoteUpdated" title={`Último dato informado: ${data.fecha}`}>
+                    Cierre del {dateFormatter.format(new Date(`${data.fecha}T12:00:00`))}
+                  </span>
                 </div>
-                <span className="quoteUpdated riesgoDate" title={`Último dato informado: ${data.fecha}`}>
-                  Cierre del {dateFormatter.format(new Date(`${data.fecha}T12:00:00`))}
-                </span>
+
+                {expandida && historico && (
+                  <HistoricoPanel
+                    serie={historico}
+                    rango={rango}
+                    onRangoChange={setRango}
+                    formatValor={(valor) => `${valueFormatter.format(Math.round(valor))} pb`}
+                  />
+                )}
               </>
             );
           })()}

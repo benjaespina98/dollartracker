@@ -1,5 +1,8 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { recortarRango, type RangoDias, type SeriePunto } from "../useHistorico";
 import type { MarketQuote } from "../types";
+import HistoricoPanel from "./HistoricoPanel";
+import SparklineRow from "./SparklineRow";
 
 interface Props {
   label: string;
@@ -8,6 +11,8 @@ interface Props {
   accent: string;
   data: MarketQuote | null;
   status: "loading" | "ready" | "stale" | "error";
+  /** Serie diaria del símbolo, null mientras carga o si falló */
+  historico: SeriePunto[] | null;
 }
 
 const priceFormatter = new Intl.NumberFormat("es-AR", {
@@ -31,9 +36,15 @@ const fullDateFormatter = new Intl.DateTimeFormat("es-AR", {
   hourCycle: "h23",
 });
 
-export default function MarketCard({ label, icon, unit, accent, data, status }: Props) {
+export default function MarketCard({ label, icon, unit, accent, data, status, historico }: Props) {
   const [copied, setCopied] = useState(false);
+  const [expandida, setExpandida] = useState(false);
+  const [rango, setRango] = useState<RangoDias>(30);
   const marketDate = data?.marketTime ? new Date(data.marketTime * 1000) : null;
+
+  // Sin datos no hay nada que desplegar: la tarjeta no debe parecer clickeable
+  const puedeExpandirse = !!data && (historico?.length ?? 0) >= 2;
+  const serieMini = historico ? recortarRango(historico, 30) : null;
 
   async function handleShare() {
     if (!data) return;
@@ -60,7 +71,10 @@ export default function MarketCard({ label, icon, unit, accent, data, status }: 
   }
 
   return (
-    <section className="quoteCard" style={{ "--accent": accent } as CSSProperties}>
+    <section
+      className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+      style={{ "--accent": accent } as CSSProperties}
+    >
       <header className="quoteHeader">
         <div className="quoteTitleGroup">
           <span className="quoteIcon">{icon}</span>
@@ -88,7 +102,26 @@ export default function MarketCard({ label, icon, unit, accent, data, status }: 
         )}
       </header>
 
-      <div className={`quoteBody quoteBody--${status}`}>
+      {/* El botón de compartir vive en el header, fuera de este div, así que
+          podemos hacer clickeable todo el cuerpo sin anidar controles. */}
+      <div
+        className={`quoteBody quoteBody--${status} ${puedeExpandirse ? "quoteBody--expandible" : ""}`}
+        onClick={puedeExpandirse ? () => setExpandida((v) => !v) : undefined}
+        onKeyDown={
+          puedeExpandirse
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setExpandida((v) => !v);
+                }
+              }
+            : undefined
+        }
+        role={puedeExpandirse ? "button" : undefined}
+        tabIndex={puedeExpandirse ? 0 : undefined}
+        aria-expanded={puedeExpandirse ? expandida : undefined}
+        aria-label={puedeExpandirse ? `${label}: ver histórico` : undefined}
+      >
         {status === "loading" && !data && (
           <div className="skeleton" aria-label="Cargando cotización">
             <span className="skeletonBlock" />
@@ -102,6 +135,13 @@ export default function MarketCard({ label, icon, unit, accent, data, status }: 
               <span className="marketPrice__value">{priceFormatter.format(data.price)}</span>
               <span className="marketPrice__unit">{unit}</span>
             </div>
+
+            {/* Hueco reservado para que la tarjeta no salte cuando llega la serie */}
+            <SparklineRow
+              valores={serieMini?.map((p) => p.valor) ?? null}
+              expandida={expandida}
+              expandible={puedeExpandirse}
+            />
 
             <div className="quoteMeta">
               {status === "stale" && (
@@ -120,6 +160,15 @@ export default function MarketCard({ label, icon, unit, accent, data, status }: 
                 </span>
               )}
             </div>
+
+            {expandida && historico && (
+              <HistoricoPanel
+                serie={historico}
+                rango={rango}
+                onRangoChange={setRango}
+                formatValor={(valor) => priceFormatter.format(valor)}
+              />
+            )}
           </>
         )}
       </div>
