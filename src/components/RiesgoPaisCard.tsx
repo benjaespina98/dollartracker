@@ -6,7 +6,7 @@ interface Props {
   accent: string;
   data: RiesgoPais | null;
   previousValor: number | null;
-  status: "loading" | "ready" | "error";
+  status: "loading" | "ready" | "stale" | "error";
 }
 
 const valueFormatter = new Intl.NumberFormat("es-AR");
@@ -102,13 +102,22 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
                 </div>
 
                 <div className="quoteMeta">
-                  <span
-                    className={`riesgoTag riesgoTag--${category.tone}`}
-                    title="Categoría orientativa según umbrales de mercado habituales, no es un dato oficial"
-                  >
-                    {category.label}
-                  </span>
-                  {diff !== null && diff !== 0 && (
+                  {status === "stale" ? (
+                    <span
+                      className="offlineTag"
+                      title="No se pudo actualizar; este es el último valor guardado en este dispositivo"
+                    >
+                      ⚠ Sin conexión
+                    </span>
+                  ) : (
+                    <span
+                      className={`riesgoTag riesgoTag--${category.tone}`}
+                      title="Categoría orientativa según umbrales de mercado habituales, no es un dato oficial"
+                    >
+                      {category.label}
+                    </span>
+                  )}
+                  {status !== "stale" && diff !== null && diff !== 0 && (
                     <span className={`quoteVariation ${diff > 0 ? "up" : "down"}`}>
                       {diff > 0 ? "▲" : "▼"} {Math.abs(diff)} pb
                     </span>
