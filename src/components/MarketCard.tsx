@@ -1,6 +1,8 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
 import { recortarRango, type RangoDias, type SeriePunto } from "../useHistorico";
+import { useModalCard } from "../useModalCard";
 import type { MarketQuote } from "../types";
+import { CardBackdrop, CardCloseButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import SparklineRow from "./SparklineRow";
 
@@ -39,12 +41,19 @@ const fullDateFormatter = new Intl.DateTimeFormat("es-AR", {
 export default function MarketCard({ label, icon, unit, accent, data, status, historico }: Props) {
   const [copied, setCopied] = useState(false);
   const [expandida, setExpandida] = useState(false);
+  const [mostrarInfo, setMostrarInfo] = useState(false);
   const [rango, setRango] = useState<RangoDias>(30);
   const marketDate = data?.marketTime ? new Date(data.marketTime * 1000) : null;
 
   // Sin datos no hay nada que desplegar: la tarjeta no debe parecer clickeable
   const puedeExpandirse = !!data && (historico?.length ?? 0) >= 2;
   const serieMini = historico ? recortarRango(historico, 30) : null;
+
+  const cerrar = useCallback(() => {
+    setExpandida(false);
+    setMostrarInfo(false);
+  }, []);
+  useModalCard(expandida, cerrar);
 
   async function handleShare() {
     if (!data) return;
@@ -71,16 +80,28 @@ export default function MarketCard({ label, icon, unit, accent, data, status, hi
   }
 
   return (
-    <section
-      className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
-      style={{ "--accent": accent } as CSSProperties}
-    >
+    <>
+      {expandida && <CardBackdrop onClose={cerrar} />}
+      <section
+        className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+        style={{ "--accent": accent } as CSSProperties}
+      >
       <header className="quoteHeader">
         <div className="quoteTitleGroup">
           <span className="quoteIcon">{icon}</span>
           <h2 className="quoteTitle">{label}</h2>
         </div>
-        {data && (
+        {expandida && (
+          <>
+            <CardInfoButton
+              activo={mostrarInfo}
+              onToggle={() => setMostrarInfo((v) => !v)}
+              label={`Qué estoy viendo: ${label}`}
+            />
+            <CardCloseButton onClose={cerrar} label={`Cerrar histórico de ${label}`} />
+          </>
+        )}
+        {data && !expandida && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}
             onClick={handleShare}
@@ -131,6 +152,14 @@ export default function MarketCard({ label, icon, unit, accent, data, status, hi
 
         {data && (
           <>
+            {expandida && mostrarInfo && (
+              <CardInfoPanel>
+                El gráfico muestra el precio de cierre diario del ETF <strong>{unit.split(" ·")[0]}</strong>,
+                usado como referencia del activo, con su mínimo y máximo del período elegido. Datos de Twelve
+                Data. No es asesoramiento financiero.
+              </CardInfoPanel>
+            )}
+
             <div className="marketPrice">
               <span className="marketPrice__value">{priceFormatter.format(data.price)}</span>
               <span className="marketPrice__unit">{unit}</span>
@@ -145,18 +174,33 @@ export default function MarketCard({ label, icon, unit, accent, data, status, hi
 
             <div className="quoteMeta">
               {status === "stale" && (
-                <span className="offlineTag" title="No se pudo actualizar; este es el último valor guardado en este dispositivo">
-                  ⚠ Sin conexión
+                <span
+                  className="offlineTag"
+                  title={
+                    marketDate
+                      ? `No se pudo actualizar; este es el último valor guardado en este dispositivo del ${fullDateFormatter.format(marketDate)} hs`
+                      : "No se pudo actualizar; este es el último valor guardado en este dispositivo"
+                  }
+                >
+                  ⚠ Modo sin conexión{marketDate ? ` · datos de ${timeFormatter.format(marketDate)} hs` : ""}
                 </span>
               )}
-              {status !== "stale" && data.changePercent !== null && Math.abs(data.changePercent) > 0.001 && (
-                <span className={`quoteVariation ${data.changePercent > 0 ? "up" : "down"}`}>
-                  {data.changePercent > 0 ? "▲" : "▼"} {Math.abs(data.changePercent).toFixed(2)}%
+              {status !== "stale" && data.changePercent !== null && (
+                <span className="quoteVariationGroup">
+                  <span
+                    className={`quoteVariation ${
+                      data.changePercent > 0.001 ? "up" : data.changePercent < -0.001 ? "down" : "flat"
+                    }`}
+                  >
+                    {data.changePercent > 0.001 ? "▲" : data.changePercent < -0.001 ? "▼" : "●"}{" "}
+                    {Math.abs(data.changePercent).toFixed(2)}%
+                  </span>
+                  <span className="quoteVariationLabel">vs. Cierre Ayer</span>
                 </span>
               )}
               {marketDate && (
                 <span className="quoteUpdated" title={`Último cierre de mercado: ${fullDateFormatter.format(marketDate)} hs`}>
-                  Act. {timeFormatter.format(marketDate)} hs
+                  Actualizado a las {timeFormatter.format(marketDate)} hs
                 </span>
               )}
             </div>
@@ -172,6 +216,7 @@ export default function MarketCard({ label, icon, unit, accent, data, status, hi
           </>
         )}
       </div>
-    </section>
+      </section>
+    </>
   );
 }

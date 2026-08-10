@@ -6,6 +6,9 @@
   padding: calc(28px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
     calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   font-family: "Inter", system-ui, sans-serif;
+  /* Fuente tabular para los montos de compra/venta: en fintech los números
+     alineados en columna se leen mucho más rápido que en una proporcional. */
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 }
 
 .header {
@@ -145,14 +148,35 @@
   }
 }
 
-.subtitle {
+.subtitleRow {
   margin: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.subtitle {
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.converterHeader {
   display: flex;
-  gap: 10px;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 26px 0 10px;
+}
+
+.converterTitle {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
 }
 
 .grid {
@@ -242,6 +266,7 @@
   justify-content: center;
   width: 34px;
   height: 34px;
+  padding: 0;
   border-radius: 9px;
   border: 1px solid transparent;
   background: transparent;
@@ -281,7 +306,12 @@
 .quoteBody:hover {
   transform: translateY(-3px);
   background: var(--card-bg-hover);
-  box-shadow: var(--shadow-card-hover), var(--card-inset-highlight);
+  box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+    var(--card-inset-highlight);
+}
+
+.quoteBody--expandible:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 .quoteBody--error {
@@ -339,6 +369,12 @@
   .monedaTab {
     transition: none;
   }
+
+  .cardBackdrop,
+  .quoteCard--expandida,
+  .infoPanel {
+    animation: none;
+  }
 }
 
 .riesgoBlock {
@@ -365,6 +401,7 @@
 }
 
 .riesgoBlock__value {
+  font-family: var(--font-mono);
   font-size: clamp(1.3rem, 8cqi, 1.6rem);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -418,6 +455,7 @@
 }
 
 .marketPrice__value {
+  font-family: var(--font-mono);
   font-size: clamp(1.3rem, 8cqi, 1.6rem);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -463,6 +501,7 @@
 }
 
 .quotePriceValue {
+  font-family: var(--font-mono);
   font-size: clamp(0.95rem, 7cqi, 1.15rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -501,6 +540,32 @@
   background: color-mix(in srgb, var(--negative) 16%, transparent);
 }
 
+/* Sin cambio contra el cierre anterior: mismo tratamiento visual que ▲/▼
+   pero en gris neutro, para que la ausencia de badge deje de leerse como
+   "no hay dato" y las tarjetas sean consistentes entre sí */
+.quoteVariation.flat {
+  color: var(--text-muted);
+  background: var(--price-block-bg);
+}
+
+/* Envuelve el badge de variación y su etiqueta aclaratoria, para que quede
+   claro contra qué se está comparando el porcentaje */
+.quoteVariationGroup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.quoteVariationLabel {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  padding-left: 2px;
+}
+
 /* Marca que el dato mostrado es el último guardado localmente y no pudo refrescarse */
 .offlineTag {
   font-size: 0.72rem;
@@ -529,7 +594,7 @@
 .converter {
   display: flex;
   flex-direction: column;
-  margin: 18px 0 4px;
+  margin: 0 0 4px;
   border-radius: 14px;
   border: 1px solid var(--card-border);
   background: var(--card-bg);
@@ -659,6 +724,7 @@
 }
 
 .convertedBlock__value {
+  font-family: var(--font-mono);
   font-size: clamp(1.05rem, 9cqi, 1.35rem);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -735,10 +801,150 @@
   outline-offset: 2px;
 }
 
-/* La tarjeta abierta ocupa todo el ancho de la grilla: un gráfico de 130px de
-   alto en una columna de 190px no se leería. */
+/* Fondo oscurecido detrás de la tarjeta expandida. Vive fuera del grid (fixed,
+   cubre toda la pantalla) así que un clic afuera de la tarjeta la cierra sin
+   pelear con el resto de la grilla. */
+.cardBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 8, 12, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: backdropIn 0.22s ease-out both;
+  cursor: pointer;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* La tarjeta abierta se despega de la grilla y flota centrada en la
+   pantalla, tipo modal/hero, con el gráfico histórico completo a la vista. */
 .quoteCard--expandida {
-  grid-column: 1 / -1;
+  position: fixed;
+  z-index: 50;
+  top: 50%;
+  left: 50%;
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(90vh, 760px);
+  transform: translate(-50%, -50%);
+  animation: cardExpandIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardExpandIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.quoteCard--expandida .quoteBody {
+  height: auto;
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+  justify-content: flex-start;
+  box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 48px -12px color-mix(in srgb, var(--accent) 55%, transparent), var(--card-inset-highlight);
+}
+
+.quoteCard--expandida .quoteBody:hover {
+  transform: none;
+}
+
+.closeBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid var(--card-border);
+  background: var(--btn-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.closeBtn:hover {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+}
+
+.closeBtn:active {
+  transform: scale(0.93);
+}
+
+.infoBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.infoBtn:hover {
+  background: var(--btn-bg);
+  color: var(--text);
+}
+
+.infoBtn:active {
+  transform: scale(0.93);
+}
+
+.infoBtn--activo {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  filter: var(--accent-contrast-filter);
+}
+
+/* Cuadro con la explicación de qué se está mostrando, desplegado por el
+   botón (i). Va arriba del todo del contenido, antes del precio. */
+.infoPanel {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--price-block-bg);
+  border: 1px solid var(--card-border);
+  animation: infoPanelIn 0.18s ease-out both;
+}
+
+@keyframes infoPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 400px) {
+  .quoteCard--expandida {
+    width: calc(100vw - 24px);
+  }
 }
 
 .historico {
@@ -797,13 +1003,57 @@
 }
 
 .footer {
-  margin-top: 28px;
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.footerBrand__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #4ade80, #78beff);
+  color: #121212;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.footerBrand__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+.footerBrand__name sup {
+  font-size: 0.6em;
+  color: var(--text-faint);
 }
 
 .footerNote {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  max-width: 68ch;
+}
+
+.footerNote--muted {
   color: var(--text-faint);
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.78rem;
 }
 
 @media (max-width: 400px) {

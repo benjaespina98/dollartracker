@@ -1,6 +1,9 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
+import { cierreAnterior } from "../fechas";
 import { recortarRango, useHistoricoRiesgoPais, type RangoDias } from "../useHistorico";
+import { useModalCard } from "../useModalCard";
 import type { RiesgoPais } from "../types";
+import { CardBackdrop, CardCloseButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import SparklineRow from "./SparklineRow";
 
@@ -30,6 +33,7 @@ function getCategory(valor: number): { label: string; tone: "low" | "medium" | "
 export default function RiesgoPaisCard({ icon, accent, data, previousValor, status }: Props) {
   const [copied, setCopied] = useState(false);
   const [expandida, setExpandida] = useState(false);
+  const [mostrarInfo, setMostrarInfo] = useState(false);
   const [rango, setRango] = useState<RangoDias>(30);
 
   const historico = useHistoricoRiesgoPais();
@@ -37,7 +41,23 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
   const puedeExpandirse = !!data && (historico?.length ?? 0) >= 2;
   const serieMini = historico ? recortarRango(historico, 30) : null;
 
-  const diff = data && previousValor !== null ? data.valor - previousValor : null;
+  // Preferimos el cierre anterior del histórico (siempre disponible) sobre
+  // previousValor (solo existe después del primer refresh de esta sesión):
+  // si no, al abrir la app recién no había con qué comparar y el ▲/▼ no
+  // aparecía hasta el siguiente refresh automático.
+  const cierrePrevio = cierreAnterior(historico);
+  const diff =
+    data && cierrePrevio
+      ? data.valor - cierrePrevio.valor
+      : data && previousValor !== null
+        ? data.valor - previousValor
+        : null;
+
+  const cerrar = useCallback(() => {
+    setExpandida(false);
+    setMostrarInfo(false);
+  }, []);
+  useModalCard(expandida, cerrar);
 
   async function handleShare() {
     if (!data) return;
@@ -62,16 +82,28 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
   }
 
   return (
-    <section
-      className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
-      style={{ "--accent": accent } as CSSProperties}
-    >
+    <>
+      {expandida && <CardBackdrop onClose={cerrar} />}
+      <section
+        className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+        style={{ "--accent": accent } as CSSProperties}
+      >
       <header className="quoteHeader">
         <div className="quoteTitleGroup">
           <span className="quoteIcon">{icon}</span>
           <h2 className="quoteTitle">Riesgo País</h2>
         </div>
-        {data && (
+        {expandida && (
+          <>
+            <CardInfoButton
+              activo={mostrarInfo}
+              onToggle={() => setMostrarInfo((v) => !v)}
+              label="Qué estoy viendo: riesgo país"
+            />
+            <CardCloseButton onClose={cerrar} label="Cerrar histórico de riesgo país" />
+          </>
+        )}
+        {data && !expandida && (
           <button
             className={`shareBtn ${copied ? "shareBtn--copied" : ""}`}
             onClick={handleShare}
@@ -125,6 +157,14 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
             const category = getCategory(data.valor);
             return (
               <>
+                {expandida && mostrarInfo && (
+                  <CardInfoPanel>
+                    El EMBI+ mide, en puntos básicos, cuánto más pagaría Argentina que el Tesoro de EE. UU. para
+                    financiarse: a mayor valor, mayor riesgo de default percibido por el mercado. El gráfico
+                    muestra su cierre diario, con mínimo y máximo del período. Datos de ArgentinaDatos.
+                  </CardInfoPanel>
+                )}
+
                 <div className="riesgoBlock">
                   <span className="riesgoBlock__label">EMBI+ Argentina</span>
                   <div className="riesgoBlock__row">
@@ -144,9 +184,11 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
                   {status === "stale" ? (
                     <span
                       className="offlineTag"
-                      title="No se pudo actualizar; este es el último valor guardado en este dispositivo"
+                      title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${dateFormatter.format(
+                        new Date(`${data.fecha}T12:00:00`)
+                      )}`}
                     >
-                      ⚠ Sin conexión
+                      ⚠ Modo sin conexión · datos del {dateFormatter.format(new Date(`${data.fecha}T12:00:00`))}
                     </span>
                   ) : (
                     <span
@@ -156,9 +198,12 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
                       {category.label}
                     </span>
                   )}
-                  {status !== "stale" && diff !== null && diff !== 0 && (
-                    <span className={`quoteVariation ${diff > 0 ? "up" : "down"}`}>
-                      {diff > 0 ? "▲" : "▼"} {Math.abs(diff)} pb
+                  {status !== "stale" && diff !== null && (
+                    <span className="quoteVariationGroup">
+                      <span className={`quoteVariation ${diff > 0 ? "up" : diff < 0 ? "down" : "flat"}`}>
+                        {diff > 0 ? "▲" : diff < 0 ? "▼" : "●"} {Math.abs(diff)} pb
+                      </span>
+                      <span className="quoteVariationLabel">vs. Cierre Ayer</span>
                     </span>
                   )}
                   {/* Va dentro de quoteMeta como en las otras tarjetas: antes
@@ -180,6 +225,7 @@ export default function RiesgoPaisCard({ icon, accent, data, previousValor, stat
             );
           })()}
       </div>
-    </section>
+      </section>
+    </>
   );
 }
