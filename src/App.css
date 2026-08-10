@@ -1,7 +1,10 @@
 .app {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 28px 16px 48px;
+  /* Los env(safe-area-inset-*) valen 0 en navegador y en Android; solo suman
+     en la PWA instalada en iPhone, donde la barra de estado se superpone. */
+  padding: calc(28px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -457,8 +460,9 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* El precio es el dato principal: nunca se recorta ni se encoge.
+     Si falta lugar, el que cede es la etiqueta (COMPRA / VENTA). */
+  flex-shrink: 0;
   color: var(--text-strong);
 }
 
@@ -547,6 +551,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
     padding: 7px 10px;
   }
 
@@ -556,6 +561,11 @@
 
   .quotePriceLabel {
     font-size: 0.68rem;
+    /* La etiqueta sí puede recortarse antes que el precio */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .quoteTitle {
@@ -563,12 +573,40 @@
   }
 }
 
-@container (max-width: 210px) {
+/* Por debajo de ~235px (celular en 2 columnas) ya no entran etiqueta y precio
+   en la misma línea: la etiqueta empujaba al precio hasta cortarlo en
+   "$ 1.47...". Volvemos a apilar, así el número usa todo el ancho útil. */
+@container (max-width: 235px) {
+  .quotePriceBlock {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px 10px;
+  }
+
   .quotePriceLabel {
     font-size: 0.64rem;
   }
 
+  .quotePriceValue {
+    font-size: clamp(1rem, 9.5cqi, 1.12rem);
+  }
+
   .quoteTitle {
     font-size: 0.92rem;
+  }
+
+  .quoteBody {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .marketPrice__value,
+  .riesgoBlock__value {
+    font-size: clamp(1.05rem, 11cqi, 1.3rem);
+  }
+
+  .marketPrice {
+    padding: 4px 2px;
   }
 }
