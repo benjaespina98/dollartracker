@@ -15,10 +15,9 @@
 .quoteSection {
   margin-top: 34px;
 }
-
 .sectionTitle {
   display: flex;
-   align-items: center;
+  align-items: center;
   gap: 14px;
   margin: 0 0 16px;
   font-size: 0.8rem;
@@ -524,26 +523,31 @@
 
 /* ── Barra conversora ─────────────────────────────────────────────────── */
 
+/* Un solo bloque, y no fijo. Antes eran dos cajas apiladas, cada una con su
+   borde y su fondo, sobre una franja con blur que quedaba pegada al scrollear:
+   se leía como un panel ajeno montado sobre la página en vez de parte de ella. */
 .converter {
-  position: sticky;
-  /* Se pega debajo de la barra de estado, no encima */
-  top: env(safe-area-inset-top);
-  z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   margin: 18px 0 4px;
-  padding: 10px 0;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  box-shadow: var(--card-inset-highlight);
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
 
-/* En pantallas anchas el campo y las pestañas entran en la misma línea */
+.converter:focus-within {
+  border-color: var(--btn-border-hover);
+}
+
+/* En pantallas anchas el campo y las pestañas entran en la misma línea,
+   separados por la misma línea divisoria */
 @media (min-width: 620px) {
   .converter {
     flex-direction: row;
-    align-items: center;
-    gap: 10px;
+    align-items: stretch;
   }
 
   .converter__field {
@@ -553,25 +557,20 @@
   .monedaTabs {
     flex-shrink: 0;
     width: 320px;
+    align-items: center;
+    border-top: none;
+    border-left: 1px solid var(--card-border);
   }
 }
 
+/* Sin borde ni fondo propios: el marco lo pone .converter */
 .converter__field {
-  flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 12px;
-  height: 44px;
-  border-radius: 11px;
-  border: 1px solid var(--btn-border);
-  background: var(--card-bg);
-  transition: border-color 0.2s;
-}
-
-.converter__field:focus-within {
-  border-color: var(--btn-border-hover);
+  padding: 0 14px;
+  height: 46px;
 }
 
 .converter__prefix {
@@ -615,14 +614,13 @@
   line-height: 1;
 }
 
-/* Segmentado de moneda de origen: las cuatro opciones siempre a la vista */
+/* Segmentado de moneda de origen: las cuatro opciones siempre a la vista.
+   Va dentro del mismo marco que el campo, separado por una línea. */
 .monedaTabs {
   display: flex;
   gap: 4px;
-  padding: 4px;
-  border-radius: 11px;
-  border: 1px solid var(--btn-border);
-  background: var(--card-bg);
+  padding: 6px;
+  border-top: 1px solid var(--card-border);
 }
 
 .monedaTab {
