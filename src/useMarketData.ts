@@ -69,14 +69,25 @@ export function useMarketData() {
           const res = await fetch("/api/market");
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const payload: Record<string, MarketQuote | null> = await res.json();
-          saveToCache(MARKETS_CACHE_KEY, payload);
+          // Twelve Data puede resolver algunos símbolos y otros no. Guardamos
+          // el merge con lo que ya teníamos para que un símbolo que falló hoy
+          // no borre del cache el último valor bueno que sí habíamos traído.
+          const cached = loadFromCache<Record<string, MarketQuote | null>>(MARKETS_CACHE_KEY) ?? {};
+          const merged = Object.fromEntries(
+            MARKET_KEYS.map((key) => [key, payload[key] ?? cached[key] ?? null])
+          );
+          saveToCache(MARKETS_CACHE_KEY, merged);
           setState((prev) => ({
             ...prev,
             markets: Object.fromEntries(
-              MARKET_KEYS.map((key) => [
-                key,
-                { data: payload[key] ?? null, status: payload[key] ? "ready" : "error" },
-              ])
+              MARKET_KEYS.map((key) => {
+                if (payload[key]) return [key, { data: payload[key], status: "ready" as const }];
+                const fallback = cached[key];
+                return [
+                  key,
+                  fallback ? { data: fallback, status: "stale" as const } : { data: null, status: "error" as const },
+                ];
+              })
             ),
           }));
         } catch {
@@ -100,7 +111,9 @@ export function useMarketData() {
 
   useEffect(() => {
     fetchAll();
-    const interval = setInterval(fetchAll, 5 * 60 * 1000);
+    // Cada 10 min: el proxy cachea 15 en el CDN, así que refrescar más seguido
+    // no trae datos nuevos y solo gasta créditos del plan gratuito.
+    const interval = setInterval(fetchAll, 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchAll]);
 
