@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { convertir, formatearMoneda, type MonedaOrigen } from "../conversion";
+import { cierreAnterior } from "../fechas";
 import { recortarRango, tieneHistorico, useHistoricoDolar, type RangoDias } from "../useHistorico";
 import type { Cotizacion } from "../types";
 import HistoricoPanel from "./HistoricoPanel";
@@ -71,18 +72,17 @@ export default function QuoteCard({
   // Con el histórico disponible calculamos lo mismo: contra el último cierre
   // previo a hoy. Euro y real no tienen serie, así que ahí seguimos con la
   // variación de sesión y el tooltip lo aclara.
-  const hoyISO = new Date().toISOString().slice(0, 10);
-  const cierreAnterior = historico?.filter((p) => p.fecha < hoyISO).at(-1) ?? null;
+  const cierrePrevio = cierreAnterior(historico);
 
   const variation =
-    data && cierreAnterior && cierreAnterior.valor !== 0
-      ? ((data.venta - cierreAnterior.valor) / cierreAnterior.valor) * 100
+    data && cierrePrevio && cierrePrevio.valor !== 0
+      ? ((data.venta - cierrePrevio.valor) / cierrePrevio.valor) * 100
       : data && previousVenta !== null && previousVenta !== 0
         ? ((data.venta - previousVenta) / previousVenta) * 100
         : null;
 
-  const variationTitle = cierreAnterior
-    ? `Variación de la venta contra el cierre del ${cierreAnterior.fecha.split("-").reverse().slice(0, 2).join("/")} (${currencyFormatter.format(cierreAnterior.valor)})`
+  const variationTitle = cierrePrevio
+    ? `Variación de la venta contra el cierre del ${cierrePrevio.fecha.split("-").reverse().slice(0, 2).join("/")} (${currencyFormatter.format(cierrePrevio.valor)})`
     : "Variación de la venta desde que abriste la app: esta cotización no tiene serie histórica disponible";
 
   // Con monto cargado la tarjeta deja de mostrar compra/venta y pasa a

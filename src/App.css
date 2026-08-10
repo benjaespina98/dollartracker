@@ -318,9 +318,27 @@
   }
 }
 
+/* Respeta a quien pidió menos movimiento en el sistema. Cubre también el
+   levantado de las tarjetas al hover y el giro del chevron, que se agregaron
+   después de que esta regla existiera. */
 @media (prefers-reduced-motion: reduce) {
   .skeletonBlock {
     animation: none;
+  }
+
+  .quoteBody,
+  .quoteBody:hover,
+  .refreshAllBtn:active,
+  .themeToggleBtn:active,
+  .refreshAllBtn:hover .refreshAllBtn__icon {
+    transform: none;
+  }
+
+  .sparklineChevron,
+  .quoteBody,
+  .refreshAllBtn__icon,
+  .monedaTab {
+    transition: none;
   }
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { hoyEnArgentina } from "./fechas";
 import { loadFromCache, saveToCache } from "./offlineCache";
 
 // Serie normalizada que consumen el sparkline y el panel expandido, sin
@@ -37,10 +38,6 @@ interface CacheEntry {
   puntos: SeriePunto[];
 }
 
-function hoyISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 // Varias tarjetas piden la misma serie a la vez; sin esto cada una dispararía
 // su propio fetch del mismo recurso.
 const enVuelo = new Map<string, Promise<SeriePunto[]>>();
@@ -51,7 +48,7 @@ async function traerSerie(
   mapear: (crudo: never[]) => SeriePunto[]
 ): Promise<SeriePunto[]> {
   const cached = loadFromCache<CacheEntry>(clave);
-  if (cached?.fetchedAt === hoyISO() && cached.puntos.length > 0) {
+  if (cached?.fetchedAt === hoyEnArgentina() && cached.puntos.length > 0) {
     return cached.puntos;
   }
 
@@ -60,7 +57,7 @@ async function traerSerie(
   const crudo = await res.json();
 
   const puntos = mapear(crudo).slice(-DIAS_A_GUARDAR);
-  saveToCache<CacheEntry>(clave, { fetchedAt: hoyISO(), puntos });
+  saveToCache<CacheEntry>(clave, { fetchedAt: hoyEnArgentina(), puntos });
   return puntos;
 }
 
@@ -154,13 +151,18 @@ export const ESPERA_CUPO_MS = 65_000;
 
 async function pedirMercados(): Promise<Record<string, SeriePunto[]>> {
   const res = await fetch("/api/history");
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    // Mismo motivo que en /api/market: sin esto el fallo del histórico es
+    // completamente silencioso, porque la tarjeta simplemente no dibuja nada.
+    console.warn("[DollarTracker] /api/history falló:", res.status, await res.json().catch(() => null));
+    throw new Error(`HTTP ${res.status}`);
+  }
   return res.json();
 }
 
 async function traerMercados(): Promise<Record<string, SeriePunto[]>> {
   const cached = loadFromCache<CacheMercados>("hist:mercados");
-  if (cached?.fetchedAt === hoyISO() && Object.keys(cached.series).length > 0) {
+  if (cached?.fetchedAt === hoyEnArgentina() && Object.keys(cached.series).length > 0) {
     return cached.series;
   }
 
@@ -172,7 +174,7 @@ async function traerMercados(): Promise<Record<string, SeriePunto[]>> {
     series = await pedirMercados();
   }
 
-  saveToCache<CacheMercados>("hist:mercados", { fetchedAt: hoyISO(), series });
+  saveToCache<CacheMercados>("hist:mercados", { fetchedAt: hoyEnArgentina(), series });
   return series;
 }
 
