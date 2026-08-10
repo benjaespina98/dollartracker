@@ -4,34 +4,27 @@
 // simplificada con CORS abierto para que el frontend estático la consuma.
 export const config = { runtime: "edge" };
 
-// Usamos ETFs líquidos como proxy de cada mercado: son "Stocks/ETFs",
-// cubiertos por el plan gratuito de Twelve Data (commodities/índices "puros"
-// suelen requerir plan pago).
-const SYMBOLS: Record<string, string> = {
-  oil: "USO", // United States Oil Fund → sigue al petróleo WTI
-  gold: "GLD", // SPDR Gold Shares → sigue al oro spot
-  spy: "SPY", // S&P 500
-  dow: "DIA", // SPDR Dow Jones Industrial Average
-  nasdaq: "QQQ", // Nasdaq-100
-};
+import {
+  NO_CACHE,
+  SYMBOLS,
+  SYMBOL_LIST,
+  corsHeaders as headers,
+  detectarErrorUpstream,
+} from "./_symbols";
 
 // El plan gratuito de Twelve Data da 8 créditos por minuto y 800 por día, y
-// cada refresco gasta 5 (uno por símbolo). Con 10 minutos de caché eran hasta
-// 720 créditos diarios: al borde del límite, y cualquier pico dejaba las
-// tarjetas sin datos el resto del día. Con 15 minutos bajamos a ~480, y el
+// cada refresco gasta uno por símbolo. Al sumar soja, maíz y trigo pasamos de
+// 5 a 8 símbolos: con la caché de 15 minutos serían 768 créditos diarios, otra
+// vez al borde del límite (y el CDN de Vercel cachea por región, así que el
+// número real se multiplica). Con 30 minutos quedan ~384, con margen de sobra;
+// los mercados están cerrados la mayor parte del día igual. El
 // stale-while-revalidate largo hace que el CDN siga sirviendo el último valor
 // bueno aunque un refresco puntual falle.
-function corsHeaders(cacheControl = "s-maxage=900, stale-while-revalidate=3600") {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Content-Type": "application/json",
-    "Cache-Control": cacheControl,
-  };
-}
+const CACHE_30MIN = "s-maxage=1800, stale-while-revalidate=7200";
 
-// Los errores no se cachean: si no, un 429 puntual se congelaba en el CDN.
-const NO_CACHE = "no-store";
+function corsHeaders(cacheControl = CACHE_30MIN) {
+  return headers(cacheControl);
+}
 
 interface TwelveDataQuote {
   symbol: string;
@@ -59,8 +52,7 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  const symbolList = Object.values(SYMBOLS).join(",");
-  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbolList)}&apikey=${apiKey}`;
+  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(SYMBOL_LIST)}&apikey=${apiKey}`;
 
   let upstream: Response;
   try {
@@ -72,27 +64,15 @@ export default async function handler(req: Request): Promise<Response> {
     });
   }
 
-  // Twelve Data informa los fallos de dos formas distintas: con un status HTTP
-  // (401 key inválida, 429 sin créditos) o con HTTP 200 y un objeto
-  // { code, message } en el cuerpo. Hay que leer el cuerpo en ambos casos:
-  // devolver un 502 genérico deja el problema imposible de diagnosticar desde
-  // el navegador, que es justo lo que pasaba cuando las tarjetas quedaban vacías.
   const raw: unknown = await upstream.json().catch(() => null);
-  const rawError = raw as { code?: number; message?: string; status?: string } | null;
-
-  if (!upstream.ok || rawError?.status === "error" || (rawError?.code && rawError.code >= 400)) {
-    const status = rawError?.code ?? upstream.status;
+  const error = detectarErrorUpstream(upstream, raw);
+  if (error) {
     return new Response(
       JSON.stringify({
         error: "Twelve Data rechazó el pedido",
-        upstreamStatus: status,
-        upstreamMessage: rawError?.message ?? upstream.statusText,
-        hint:
-          status === 401
-            ? "La API key es inválida o no está bien cargada en Vercel (Settings → Environment Variables → TWELVE_DATA_API_KEY). Recordá redeployar después de cambiarla."
-            : status === 429
-              ? "Se agotaron los créditos del plan gratuito de Twelve Data (8 por minuto / 800 por día). Cada refresco gasta 5, uno por símbolo."
-              : undefined,
+        upstreamStatus: error.status,
+        upstreamMessage: error.message,
+        hint: error.hint,
       }),
       { status: 502, headers: corsHeaders(NO_CACHE) }
     );
@@ -127,14 +107,14 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   // Si no salvamos ni un símbolo fue un fallo, no un resultado: cachear esa
-  // respuesta 15 minutos dejaba todas las tarjetas en error aunque el problema
+  // respuesta 30 minutos dejaba todas las tarjetas en error aunque el problema
   // ya se hubiera resuelto. El cliente prefiere el 502 y usa su copia local.
   const anyResolved = Object.values(payload).some((value) => value !== null);
   if (!anyResolved) {
-    return new Response(
-      JSON.stringify({ error: "Twelve Data no devolvió ninguna cotización", upstreamMessage: rawError?.message }),
-      { status: 502, headers: corsHeaders(NO_CACHE) }
-    );
+    return new Response(JSON.stringify({ error: "Twelve Data no devolvió ninguna cotización" }), {
+      status: 502,
+      headers: corsHeaders(NO_CACHE),
+    });
   }
 
   return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders() });

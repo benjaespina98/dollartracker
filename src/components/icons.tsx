@@ -126,6 +126,40 @@ export function IconTrend(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Soja: vaina con granos
+export function IconSoy(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M6.6 17.4c-2.4-2.4-2.4-6.3 0-8.7l2.1-2.1c2.4-2.4 6.3-2.4 8.7 0s2.4 6.3 0 8.7l-2.1 2.1c-2.4 2.4-6.3 2.4-8.7 0Z" />
+      <path d="m9.5 14.5 1.8-1.8M12.7 11.3l1.8-1.8" />
+    </Svg>
+  );
+}
+
+// Maíz: espiga
+export function IconCorn(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M12 21V10.5" />
+      <path d="M12 10.5c0-4 1.9-7.5 4.7-8.2.7 2.8-.8 6.4-4.7 8.2Z" />
+      <path d="M12 10.5C12 6.5 10.1 3 7.3 2.3 6.6 5.1 8.1 8.7 12 10.5Z" />
+      <path d="M12 16c2.6-.6 4.4-2.4 4.6-4.6-2.3.2-4 1.9-4.6 4.6Z" />
+    </Svg>
+  );
+}
+
+// Trigo: grano con hojas
+export function IconWheat(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M12 21.5V9" />
+      <path d="M12 9c1.9-1.4 1.9-4.1 0-5.5-1.9 1.4-1.9 4.1 0 5.5Z" />
+      <path d="M12 14c1.9-1.4 4.5-.9 5.5 1-2 1.1-4.5.5-5.5-1Z" />
+      <path d="M12 14c-1.9-1.4-4.5-.9-5.5 1 2 1.1 4.5.5 5.5-1Z" />
+    </Svg>
+  );
+}
+
 // Euro / Real: glifo de moneda
 export function IconGlyph({ glyph }: { glyph: string }) {
   return (

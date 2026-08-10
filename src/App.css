@@ -156,16 +156,6 @@
   flex-wrap: wrap;
 }
 
-.sourcePill {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  padding: 4px 10px;
-  border: 1px solid var(--pill-border);
-  border-radius: 999px;
-  background: var(--pill-bg);
-  white-space: nowrap;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -398,15 +388,15 @@
   background: color-mix(in srgb, var(--negative) 16%, transparent);
 }
 
-.riesgoDate {
-  margin-left: 0;
-}
-
+/* Precio y unidad siempre apilados. Cuando iban en línea con flex-wrap, las
+   unidades cortas ("ETF SPY") quedaban al lado del precio y las largas
+   ("ETF GLD · sigue al oro spot") bajaban solas, así que en desktop la grilla
+   se veía despareja de tarjeta a tarjeta. */
 .marketPrice {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   padding: 4px 6px;
 }
 
@@ -512,6 +502,282 @@
   color: var(--text-faint);
   margin-left: auto;
   cursor: default;
+}
+
+/* ── Barra conversora ─────────────────────────────────────────────────── */
+
+.converter {
+  position: sticky;
+  /* Se pega debajo de la barra de estado, no encima */
+  top: env(safe-area-inset-top);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0 4px;
+  padding: 10px 0;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/* En pantallas anchas el campo y las pestañas entran en la misma línea */
+@media (min-width: 620px) {
+  .converter {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .converter__field {
+    flex: 1;
+  }
+
+  .monedaTabs {
+    flex-shrink: 0;
+    width: 320px;
+  }
+}
+
+.converter__field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 44px;
+  border-radius: 11px;
+  border: 1px solid var(--btn-border);
+  background: var(--card-bg);
+  transition: border-color 0.2s;
+}
+
+.converter__field:focus-within {
+  border-color: var(--btn-border-hover);
+}
+
+.converter__prefix {
+  flex-shrink: 0;
+  font-weight: 800;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.converter__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.converter__input::placeholder {
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.converter__clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+  border: none;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+/* Segmentado de moneda de origen: las cuatro opciones siempre a la vista */
+.monedaTabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 11px;
+  border: 1px solid var(--btn-border);
+  background: var(--card-bg);
+}
+
+.monedaTab {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  transition: background 0.18s, color 0.18s;
+}
+
+.monedaTab:hover {
+  border-color: transparent;
+  background: var(--btn-bg);
+  color: var(--text);
+}
+
+.monedaTab--activa,
+.monedaTab--activa:hover {
+  background: var(--link);
+  color: var(--bg);
+}
+
+/* Resultado de la conversión, reemplaza a compra/venta en la tarjeta */
+.convertedBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.convertedBlock__value {
+  font-size: clamp(1.05rem, 9cqi, 1.35rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+.convertedBlock__rate {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Histórico ────────────────────────────────────────────────────────── */
+
+.sparklineWrap {
+  /* El SVG dibuja con currentColor, así hereda el acento de la tarjeta */
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+  opacity: 0.85;
+  /* Alto fijo aunque el gráfico todavía no haya cargado: evita el salto de
+     layout cuando la serie llega unos milisegundos después del precio. */
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dentro de la fila el gráfico cede el ancho que necesita el chevron */
+.sparklineWrap .sparkline {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.sparklineChevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--text-faint);
+  transition: transform 0.2s;
+}
+
+.sparklineChevron--abierto {
+  transform: rotate(180deg);
+}
+
+/* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla
+   ("Real", "MEP") pero se anuncian completos. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sparkline {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.quoteBody--expandible {
+  cursor: pointer;
+}
+
+.quoteBody--expandible:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+/* La tarjeta abierta ocupa todo el ancho de la grilla: un gráfico de 130px de
+   alto en una columna de 190px no se leería. */
+.quoteCard--expandida {
+  grid-column: 1 / -1;
+}
+
+.historico {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--card-border);
+}
+
+.historico__chart {
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+  padding-top: 6px;
+}
+
+.historico__extremos,
+.historico__fechas {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.historico__extremos {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.historico__fechas {
+  color: var(--text-faint);
+}
+
+.historico__rangos {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.rangoBtn {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid var(--btn-border);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.rangoBtn--activo {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
 }
 
 .footer {

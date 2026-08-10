@@ -7,6 +7,13 @@ export interface Cotizacion {
   fechaActualizacion: string;
 }
 
+// Un día de la serie histórica de ArgentinaDatos (un punto por día hábil)
+export interface HistoricoPunto {
+  fecha: string;
+  compra: number;
+  venta: number;
+}
+
 export interface RiesgoPais {
   valor: number;
   fecha: string;
