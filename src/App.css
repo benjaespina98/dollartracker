@@ -596,6 +596,27 @@
     font-size: 0.92rem;
   }
 
+  /* El título compite en el header con el icono y el botón de compartir, que
+     entre ambos se llevaban ~70px de los ~190px de la tarjeta. Achicándolos
+     un poco entran títulos como "Real Brasileño" o "Dow Jones" sin cortarse. */
+  .quoteHeader {
+    padding: 0 2px;
+  }
+
+  .quoteTitleGroup {
+    gap: 7px;
+  }
+
+  .quoteIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .shareBtn {
+    width: 28px;
+    height: 28px;
+  }
+
   .quoteBody {
     padding: 12px;
     gap: 10px;

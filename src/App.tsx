@@ -40,12 +40,14 @@ const CURRENCY_SECTIONS = [
   },
 ];
 
+// El ticker del ETF va en la línea de abajo, no en el título: en mobile la
+// tarjeta mide ~190px y "Dow Jones (DIA)" no entraba en una línea.
 const MARKET_CARDS = [
-  { key: "oil", label: "Petróleo (USO)", unit: "ETF · sigue al WTI", accent: "#a16207", icon: <IconDroplet /> },
-  { key: "gold", label: "Oro (GLD)", unit: "ETF · sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
-  { key: "spy", label: "S&P 500 (SPY)", unit: "ETF", accent: "#38bdf8", icon: <IconTrend /> },
-  { key: "dow", label: "Dow Jones (DIA)", unit: "ETF", accent: "#818cf8", icon: <IconTrend /> },
-  { key: "nasdaq", label: "Nasdaq (QQQ)", unit: "ETF", accent: "#34d399", icon: <IconTrend /> },
+  { key: "oil", label: "Petróleo", unit: "ETF USO · sigue al WTI", accent: "#a16207", icon: <IconDroplet /> },
+  { key: "gold", label: "Oro", unit: "ETF GLD · sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
+  { key: "spy", label: "S&P 500", unit: "ETF SPY", accent: "#38bdf8", icon: <IconTrend /> },
+  { key: "dow", label: "Dow Jones", unit: "ETF DIA", accent: "#818cf8", icon: <IconTrend /> },
+  { key: "nasdaq", label: "Nasdaq", unit: "ETF QQQ", accent: "#34d399", icon: <IconTrend /> },
 ];
 
 export default function App() {
@@ -155,10 +157,9 @@ export default function App() {
 
       <footer className="footer">
         <small className="footerNote">
-          Dólar/euro/real vía DolarAPI (dolarapi.com) · Riesgo País vía ArgentinaDatos (argentinadatos.com)
-          · Petróleo, oro e índices vía Twelve Data (twelvedata.com), usando ETFs líquidos (USO, GLD, DIA)
-          como proxy. Todo se actualiza cada 5 minutos. "Act." indica cuándo la propia fuente actualizó ese
-          valor, no cuándo lo viste vos — por eso algunas tarjetas muestran horas distintas entre sí.
+          Fuentes: DolarAPI · ArgentinaDatos · Twelve Data.
+          <br />
+          "Act." es cuándo la fuente actualizó ese valor, no cuándo lo abriste vos.
         </small>
       </footer>
     </div>
