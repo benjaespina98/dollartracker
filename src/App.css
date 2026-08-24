@@ -3,7 +3,7 @@
   margin: 0 auto;
   /* Los env(safe-area-inset-*) valen 0 en navegador y en Android; solo suman
      en la PWA instalada en iPhone, donde la barra de estado se superpone. */
-  padding: calc(28px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+  padding: calc(24px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
     calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   font-family: "Inter", system-ui, sans-serif;
   /* Fuente tabular para los montos de compra/venta: en fintech los números
@@ -11,19 +11,175 @@
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 }
 
-.header {
-  margin-bottom: 8px;
+/* ── Encabezado ───────────────────────────────────────────────────────── */
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.quoteSection {
-  margin-top: 34px;
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandText {
+  min-width: 0;
+}
+
+.brandMark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4ade80, #78beff);
+  color: #08090c;
+  font-weight: 800;
+  font-size: 1.35rem;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 35%);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+  background: linear-gradient(90deg, #4ade80, #78beff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  filter: var(--accent-contrast-filter);
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.refreshAllBtn,
+.themeToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 10px;
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.refreshAllBtn {
+  /* Ancho fijo: "Actualizar" y "Actualizando" miden distinto y el botón
+     saltaba de tamaño justo mientras se lo estaba tocando. */
+  min-width: 142px;
+}
+
+.themeToggleBtn {
+  width: 40px;
+  padding: 0;
+}
+
+/* En el header el (i) convive con el toggle de tema y "Actualizar": si se
+   queda en los 34px que usa dentro de las tarjetas, la fila queda despareja. */
+.headerActions .infoBtn {
+  width: 40px;
+  height: 40px;
+  border-color: var(--btn-border);
+}
+
+.refreshAllBtn:hover,
+.themeToggleBtn:hover {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+}
+
+.refreshAllBtn:active,
+.themeToggleBtn:active {
+  transform: scale(0.97);
+}
+
+.refreshAllBtn__icon {
+  flex-shrink: 0;
+  transition: transform 0.4s;
+}
+
+.refreshAllBtn:hover:not(:disabled) .refreshAllBtn__icon {
+  transform: rotate(180deg);
+}
+
+.refreshAllBtn:disabled {
+  opacity: 0.75;
+  transform: none;
+}
+
+/* Girar mientras se traen los datos: sin esto, tocar "Actualizar" no producía
+   ninguna señal durante uno o dos segundos y daban ganas de tocarlo de nuevo. */
+.refreshAllBtn--cargando .refreshAllBtn__icon {
+  animation: girar 0.9s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* En pantalla angosta la marca se queda con la línea de arriba y los botones
+   ocupan la de abajo, con "Actualizar" al ancho completo (es el que más se
+   toca). */
+@media (max-width: 560px) {
+  .brand {
+    flex: 1 1 100%;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .refreshAllBtn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ── Secciones ────────────────────────────────────────────────────────── */
+
+.quoteSection {
+  margin-top: 30px;
+}
+
 .sectionTitle {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 0 0 16px;
-  font-size: 0.8rem;
+  margin: 0 0 14px;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -37,146 +193,8 @@
   background: linear-gradient(90deg, var(--card-border), transparent);
 }
 
-.headerTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.brandMark {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, #4ade80, #78beff);
-  color: #121212;
-  font-weight: 800;
-  font-size: 1.3rem;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 25%);
-}
-
-.title {
-  margin: 0;
-  font-size: clamp(1.65rem, 5vw, 2.35rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  font-weight: 800;
-  background: linear-gradient(90deg, #4ade80, #78beff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
-  filter: var(--accent-contrast-filter);
-}
-
-.refreshAllBtn,
-.themeToggleBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: var(--btn-bg);
-  border: 1px solid var(--btn-border);
-  border-radius: 9px;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.themeToggleBtn {
-  padding: 10px;
-  width: 40px;
-}
-
-.refreshAllBtn__icon {
-  display: inline-block;
-  transition: transform 0.4s;
-}
-
-.refreshAllBtn:hover,
-.themeToggleBtn:hover {
-  background: var(--btn-bg-hover);
-  border-color: var(--btn-border-hover);
-}
-
-.refreshAllBtn:hover .refreshAllBtn__icon {
-  transform: rotate(180deg);
-}
-
-.refreshAllBtn:active,
-.themeToggleBtn:active {
-  transform: scale(0.97);
-}
-
-@media (max-width: 420px) {
-  .headerTop {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .headerActions {
-    justify-content: stretch;
-  }
-
-  .refreshAllBtn {
-    flex: 1;
-  }
-}
-
-.subtitleRow {
-  margin: 14px 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-.converterHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+.sectionTitle--converter {
   margin: 26px 0 10px;
-}
-
-.converterTitle {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-faint);
 }
 
 .grid {
@@ -188,7 +206,7 @@
 
 @media (min-width: 560px) {
   .grid {
-    gap: 18px;
+    gap: 16px;
   }
 }
 
@@ -204,22 +222,24 @@
   }
 }
 
-/* Card del widget */
+/* ── Tarjeta ──────────────────────────────────────────────────────────── */
+
 .quoteCard {
   --accent: #78beff;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
   height: 100%;
   container-type: inline-size;
 }
 
 .quoteHeader {
-  padding: 0 6px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-height: 34px;
 }
 
 .quoteTitleGroup {
@@ -238,7 +258,7 @@
   height: 26px;
   border-radius: 8px;
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
   filter: var(--accent-contrast-filter);
 }
 
@@ -250,7 +270,7 @@
 
 .quoteTitle {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-strong);
@@ -259,7 +279,9 @@
   white-space: nowrap;
 }
 
-.shareBtn {
+.shareBtn,
+.infoBtn,
+.closeBtn {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -268,45 +290,81 @@
   height: 34px;
   padding: 0;
   border-radius: 9px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.shareBtn,
+.infoBtn {
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-faint);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.shareBtn:hover {
+.shareBtn:hover,
+.infoBtn:hover {
   background: var(--btn-bg);
   border-color: var(--card-border);
   color: var(--text);
 }
 
-.shareBtn--copied {
+.shareBtn:active,
+.infoBtn:active,
+.closeBtn:active {
+  transform: scale(0.93);
+}
+
+.shareBtn--copied,
+.shareBtn--copied:hover {
   color: var(--positive);
+}
+
+.infoBtn--activo,
+.infoBtn--activo:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: transparent;
+  filter: var(--accent-contrast-filter);
+}
+
+.closeBtn {
+  border: 1px solid var(--card-border);
+  background: var(--btn-bg);
+  color: var(--text);
+}
+
+.closeBtn:hover {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
 }
 
 /* Contenedor de datos de cotización */
 .quoteBody {
   position: relative;
-  border-radius: 14px;
+  border-radius: 15px;
   border: 1px solid var(--card-border);
   border-top: 2px solid var(--accent);
   background: var(--card-bg);
   box-shadow: var(--shadow-card), var(--card-inset-highlight);
-  padding: 18px;
-  min-height: 132px;
+  padding: 16px;
+  min-height: 150px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 14px;
+  gap: 13px;
   transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
-.quoteBody:hover {
+/* El levantado al pasar el mouse solo lo hacen las tarjetas que abren algo.
+   En las demás era una promesa falsa: se movían y no pasaba nada. */
+.quoteBody--expandible {
+  cursor: pointer;
+}
+
+.quoteBody--expandible:hover {
   transform: translateY(-3px);
   background: var(--card-bg-hover);
-  box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+  box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent),
     var(--card-inset-highlight);
 }
 
@@ -314,13 +372,22 @@
   transform: translateY(-1px) scale(0.99);
 }
 
+/* En pantallas táctiles el :hover se queda "pegado" después de tocar */
+@media (hover: none) {
+  .quoteBody--expandible:hover {
+    transform: none;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-card), var(--card-inset-highlight);
+  }
+}
+
 .quoteBody--error {
-  border-color: rgba(248, 113, 113, 0.35);
+  border-color: color-mix(in srgb, var(--negative) 35%, transparent);
 }
 
 .quoteError {
   color: var(--negative);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   text-align: center;
 }
 
@@ -347,79 +414,114 @@
   }
 }
 
-/* Respeta a quien pidió menos movimiento en el sistema. Cubre también el
-   levantado de las tarjetas al hover y el giro del chevron, que se agregaron
-   después de que esta regla existiera. */
-@media (prefers-reduced-motion: reduce) {
-  .skeletonBlock {
-    animation: none;
-  }
+/* ── Bloques de valor ─────────────────────────────────────────────────── */
 
-  .quoteBody,
-  .quoteBody:hover,
-  .refreshAllBtn:active,
-  .themeToggleBtn:active,
-  .refreshAllBtn:hover .refreshAllBtn__icon {
-    transform: none;
-  }
-
-  .sparklineChevron,
-  .quoteBody,
-  .refreshAllBtn__icon,
-  .monedaTab {
-    transition: none;
-  }
-
-  .cardBackdrop,
-  .quoteCard--expandida,
-  .infoPanel {
-    animation: none;
-  }
+.quotePrices {
+  display: flex;
+  gap: 10px;
 }
 
-.riesgoBlock {
+.quotePriceBlock {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
+  gap: 4px;
+  padding: 10px 12px;
   border-radius: 10px;
   background: var(--price-block-bg);
 }
 
-.riesgoBlock__label {
-  font-size: 0.68rem;
+.quotePriceBlock--venta {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.quotePriceLabel {
+  font-size: 0.66rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
 }
 
-.riesgoBlock__row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
+.quotePriceValue {
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 7cqi, 1.15rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  /* El precio es el dato principal: nunca se recorta ni se encoge.
+     Si falta lugar, el que cede es la etiqueta (COMPRA / VENTA). */
+  flex-shrink: 0;
+  color: var(--text-strong);
 }
 
+.quotePriceValue--accent {
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+/* Precio y ticker apilados. Cuando iban en línea, los tickers cortos quedaban
+   al lado del precio y los largos bajaban solos: la grilla se veía despareja
+   de tarjeta a tarjeta. */
+.marketPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 2px 4px;
+}
+
+.marketPrice__value,
 .riesgoBlock__value {
   font-family: var(--font-mono);
   font-size: clamp(1.3rem, 8cqi, 1.6rem);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
   color: var(--accent);
   filter: var(--accent-contrast-filter);
 }
 
+/* El ticker del ETF, como chip: identifica el instrumento sin robarle
+   protagonismo al precio. Qué sigue cada uno se explica en el panel (i). */
+.marketPrice__unit {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  background: var(--price-block-bg);
+  border-radius: 5px;
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.riesgoBlock {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--price-block-bg);
+}
+
+.riesgoBlock__row {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
 .riesgoBlock__unit {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
 .riesgoTag {
-  font-size: 0.72rem;
+  margin-left: auto;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 999px;
   cursor: default;
+  white-space: nowrap;
 }
 
 .riesgoTag--low {
@@ -442,92 +544,52 @@
   background: color-mix(in srgb, var(--negative) 16%, transparent);
 }
 
-/* Precio y unidad siempre apilados. Cuando iban en línea con flex-wrap, las
-   unidades cortas ("ETF SPY") quedaban al lado del precio y las largas
-   ("ETF GLD · sigue al oro spot") bajaban solas, así que en desktop la grilla
-   se veía despareja de tarjeta a tarjeta. */
-.marketPrice {
+/* Resultado de la conversión, reemplaza a compra/venta en la tarjeta */
+.convertedBlock {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 4px 6px;
-}
-
-.marketPrice__value {
-  font-family: var(--font-mono);
-  font-size: clamp(1.3rem, 8cqi, 1.6rem);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
-}
-
-.marketPrice__unit {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.quotePrices {
-  display: flex;
-  gap: 10px;
-}
-
-.quotePriceBlock {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: var(--price-block-bg);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
 }
 
-.quotePriceBlock--venta {
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-.quotePriceValue--accent {
+.convertedBlock__value {
+  font-family: var(--font-mono);
+  font-size: clamp(1.05rem, 9cqi, 1.35rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--accent);
   filter: var(--accent-contrast-filter);
 }
 
-.quotePriceLabel {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.convertedBlock__rate {
+  font-size: 0.7rem;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.quotePriceValue {
-  font-family: var(--font-mono);
-  font-size: clamp(0.95rem, 7cqi, 1.15rem);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  /* El precio es el dato principal: nunca se recorta ni se encoge.
-     Si falta lugar, el que cede es la etiqueta (COMPRA / VENTA). */
-  flex-shrink: 0;
-  color: var(--text-strong);
-}
+/* ── Fila inferior de la tarjeta ──────────────────────────────────────── */
 
 .quoteMeta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   flex-wrap: wrap;
 }
 
 .quoteVariation {
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   display: inline-flex;
   align-items: center;
   gap: 3px;
   padding: 2px 8px;
   border-radius: 999px;
+  cursor: default;
 }
 
 .quoteVariation.up {
@@ -548,31 +610,13 @@
   background: var(--price-block-bg);
 }
 
-/* Envuelve el badge de variación y su etiqueta aclaratoria, para que quede
-   claro contra qué se está comparando el porcentaje */
-.quoteVariationGroup {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.quoteVariationLabel {
-  font-size: 0.62rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-  padding-left: 2px;
-}
-
 /* Marca que el dato mostrado es el último guardado localmente y no pudo refrescarse */
 .offlineTag {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   padding: 2px 8px;
   border-radius: 999px;
   cursor: default;
@@ -580,9 +624,15 @@
   background: color-mix(in srgb, var(--risk-medium) 16%, transparent);
 }
 
+/* Un reloj y la hora. Antes cada tarjeta decía "Actualizado a las 12:30 hs":
+   la misma leyenda dieciséis veces en pantalla. */
 .quoteUpdated {
-  color: var(--text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-left: auto;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
   cursor: default;
 }
 
@@ -594,11 +644,10 @@
 .converter {
   display: flex;
   flex-direction: column;
-  margin: 0 0 4px;
   border-radius: 14px;
   border: 1px solid var(--card-border);
   background: var(--card-bg);
-  box-shadow: var(--card-inset-highlight);
+  box-shadow: var(--shadow-card), var(--card-inset-highlight);
   overflow: hidden;
   transition: border-color 0.2s;
 }
@@ -635,7 +684,7 @@
   align-items: center;
   gap: 8px;
   padding: 0 14px;
-  height: 46px;
+  height: 50px;
 }
 
 .converter__prefix {
@@ -668,8 +717,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border-radius: 999px;
   border: none;
@@ -677,6 +726,12 @@
   color: var(--text-muted);
   font-size: 0.72rem;
   line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.converter__clear:hover {
+  background: var(--btn-bg-hover);
+  color: var(--text);
 }
 
 /* Segmentado de moneda de origen: las cuatro opciones siempre a la vista.
@@ -690,7 +745,7 @@
 
 .monedaTab {
   flex: 1;
-  padding: 7px 4px;
+  padding: 8px 4px;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -702,7 +757,6 @@
 }
 
 .monedaTab:hover {
-  border-color: transparent;
   background: var(--btn-bg);
   color: var(--text);
 }
@@ -711,32 +765,6 @@
 .monedaTab--activa:hover {
   background: var(--link);
   color: var(--bg);
-}
-
-/* Resultado de la conversión, reemplaza a compra/venta en la tarjeta */
-.convertedBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-.convertedBlock__value {
-  font-family: var(--font-mono);
-  font-size: clamp(1.05rem, 9cqi, 1.35rem);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
-}
-
-.convertedBlock__rate {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ── Histórico ────────────────────────────────────────────────────────── */
@@ -761,6 +789,12 @@
   min-width: 0;
 }
 
+.sparkline {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
 .sparklineChevron {
   flex-shrink: 0;
   margin-left: auto;
@@ -772,34 +806,69 @@
   transform: rotate(180deg);
 }
 
-/* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla
-   ("Real", "MEP") pero se anuncian completos. */
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
+.historico {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--card-border);
 }
 
-.sparkline {
-  display: block;
-  width: 100%;
-  overflow: visible;
+.historico__chart {
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+  padding-top: 6px;
 }
 
-.quoteBody--expandible {
-  cursor: pointer;
+.historico__extremos,
+.historico__fechas {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.quoteBody--expandible:focus-visible {
-  outline: 2px solid var(--link);
-  outline-offset: 2px;
+.historico__extremos {
+  color: var(--text-muted);
+  font-weight: 600;
 }
+
+.historico__fechas {
+  color: var(--text-faint);
+}
+
+.historico__rangos {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.rangoBtn {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid var(--btn-border);
+  background: transparent;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.rangoBtn:hover {
+  border-color: var(--btn-border-hover);
+  color: var(--text);
+}
+
+.rangoBtn--activo,
+.rangoBtn--activo:hover {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+/* ── Tarjeta expandida ────────────────────────────────────────────────── */
 
 /* Fondo oscurecido detrás de la tarjeta expandida. Vive fuera del grid (fixed,
    cubre toda la pantalla) así que un clic afuera de la tarjeta la cierra sin
@@ -808,7 +877,7 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(6, 8, 12, 0.6);
+  background: rgba(4, 5, 8, 0.68);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: backdropIn 0.22s ease-out both;
@@ -853,81 +922,33 @@
   max-height: min(90vh, 760px);
   overflow-y: auto;
   justify-content: flex-start;
+  cursor: default;
   box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
     0 0 48px -12px color-mix(in srgb, var(--accent) 55%, transparent), var(--card-inset-highlight);
 }
 
-.quoteCard--expandida .quoteBody:hover {
-  transform: none;
-}
-
-.closeBtn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border-radius: 9px;
-  border: 1px solid var(--card-border);
-  background: var(--btn-bg);
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
-}
-
-.closeBtn:hover {
-  background: var(--btn-bg-hover);
-  border-color: var(--btn-border-hover);
-}
-
-.closeBtn:active {
-  transform: scale(0.93);
-}
-
-.infoBtn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border-radius: 9px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-faint);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
-}
-
-.infoBtn:hover {
-  background: var(--btn-bg);
-  color: var(--text);
-}
-
-.infoBtn:active {
-  transform: scale(0.93);
-}
-
-.infoBtn--activo {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  filter: var(--accent-contrast-filter);
+@media (max-width: 400px) {
+  .quoteCard--expandida {
+    width: calc(100vw - 24px);
+  }
 }
 
 /* Cuadro con la explicación de qué se está mostrando, desplegado por el
    botón (i). Va arriba del todo del contenido, antes del precio. */
 .infoPanel {
   font-size: 0.8rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--text-muted);
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 11px 13px;
+  margin-top: 10px;
+  border-radius: 11px;
   background: var(--price-block-bg);
   border: 1px solid var(--card-border);
   animation: infoPanelIn 0.18s ease-out both;
+}
+
+.quoteBody .infoPanel {
+  margin-top: 0;
 }
 
 @keyframes infoPanelIn {
@@ -941,70 +962,11 @@
   }
 }
 
-@media (max-width: 400px) {
-  .quoteCard--expandida {
-    width: calc(100vw - 24px);
-  }
-}
-
-.historico {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-top: 4px;
-  border-top: 1px solid var(--card-border);
-}
-
-.historico__chart {
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
-  padding-top: 6px;
-}
-
-.historico__extremos,
-.historico__fechas {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.historico__extremos {
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.historico__fechas {
-  color: var(--text-faint);
-}
-
-.historico__rangos {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.rangoBtn {
-  flex: 1;
-  padding: 6px 4px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  border-radius: 8px;
-  border: 1px solid var(--btn-border);
-  background: transparent;
-  color: var(--text-muted);
-}
-
-.rangoBtn--activo {
-  border-color: transparent;
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
-}
+/* ── Pie ──────────────────────────────────────────────────────────────── */
 
 .footer {
   margin-top: 40px;
-  padding-top: 22px;
+  padding-top: 20px;
   border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
@@ -1015,7 +977,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 2px;
 }
 
 .footerBrand__mark {
@@ -1026,7 +987,7 @@
   height: 22px;
   border-radius: 7px;
   background: linear-gradient(135deg, #4ade80, #78beff);
-  color: #121212;
+  color: #08090c;
   font-weight: 800;
   font-size: 0.8rem;
 }
@@ -1045,30 +1006,59 @@
 
 .footerNote {
   margin: 0;
-  color: var(--text-muted);
-  font-size: 0.82rem;
+  color: var(--text-faint);
+  font-size: 0.78rem;
   line-height: 1.55;
   max-width: 68ch;
 }
 
-.footerNote--muted {
-  color: var(--text-faint);
-  font-size: 0.78rem;
+/* ── Utilidades ───────────────────────────────────────────────────────── */
+
+/* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla
+   ("Real", "MEP") pero se anuncian completos. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
-@media (max-width: 400px) {
-  .quoteBody {
-    padding: 14px;
+/* Respeta a quien pidió menos movimiento en el sistema */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonBlock,
+  .refreshAllBtn--cargando .refreshAllBtn__icon,
+  .cardBackdrop,
+  .quoteCard--expandida,
+  .infoPanel {
+    animation: none;
   }
 
-  .quotePrices {
-    gap: 8px;
+  .quoteBody,
+  .quoteBody--expandible:hover,
+  .quoteBody--expandible:active,
+  .refreshAllBtn:active,
+  .themeToggleBtn:active,
+  .refreshAllBtn:hover .refreshAllBtn__icon,
+  .shareBtn:active,
+  .infoBtn:active,
+  .closeBtn:active {
+    transform: none;
   }
 
-  .quotePriceBlock {
-    padding: 9px 10px;
+  .sparklineChevron,
+  .quoteBody,
+  .refreshAllBtn__icon,
+  .monedaTab {
+    transition: none;
   }
 }
+
+/* ── Tarjetas angostas ────────────────────────────────────────────────── */
 
 /* Cuando la tarjeta queda angosta (mobile en 2 columnas, o el grid de
    4 columnas en desktop), apilamos compra/venta en una fila cada uno
@@ -1092,7 +1082,6 @@
   }
 
   .quotePriceLabel {
-    font-size: 0.68rem;
     /* La etiqueta sí puede recortarse antes que el precio */
     min-width: 0;
     overflow: hidden;
@@ -1117,7 +1106,7 @@
   }
 
   .quotePriceLabel {
-    font-size: 0.64rem;
+    font-size: 0.62rem;
   }
 
   .quotePriceValue {
@@ -1125,12 +1114,12 @@
   }
 
   .quoteTitle {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
   }
 
   /* El título compite en el header con el icono y el botón de compartir, que
      entre ambos se llevaban ~70px de los ~190px de la tarjeta. Achicándolos
-     un poco entran títulos como "Real Brasileño" o "Dow Jones" sin cortarse. */
+     un poco entran títulos como "Dow Jones" sin cortarse. */
   .quoteHeader {
     padding: 0 2px;
   }
@@ -1145,8 +1134,8 @@
   }
 
   .shareBtn {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
 
   .quoteBody {
@@ -1159,7 +1148,12 @@
     font-size: clamp(1.05rem, 11cqi, 1.3rem);
   }
 
-  .marketPrice {
-    padding: 4px 2px;
+  .riesgoTag {
+    /* No hay lugar para el chip al lado del número: pasa abajo */
+    margin-left: 0;
+  }
+
+  .quoteMeta {
+    gap: 6px;
   }
 }

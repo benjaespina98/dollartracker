@@ -16,8 +16,8 @@ export default defineConfig({
         description:
           'Cotizaciones del dólar (oficial, blue, MEP, CCL, cripto, tarjeta), euro, real brasileño, riesgo país y mercados internacionales, en tiempo real.',
         lang: 'es-AR',
-        theme_color: '#101012',
-        background_color: '#101012',
+        theme_color: '#08090c',
+        background_color: '#08090c',
         display: 'standalone',
         scope: '/',
         start_url: '/',

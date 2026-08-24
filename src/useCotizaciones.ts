@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { loadFromCache, saveToCache } from "./offlineCache";
 import type { Cotizacion } from "./types";
 
@@ -15,21 +15,17 @@ const ENDPOINTS: Record<string, string> = {
 
 export type CotizacionStatus = "loading" | "ready" | "stale" | "error";
 
-export type CotizacionesState = Record<
-  string,
-  { data: Cotizacion | null; previousVenta: number | null; status: CotizacionStatus }
->;
+export type CotizacionesState = Record<string, { data: Cotizacion | null; status: CotizacionStatus }>;
 
 export function useCotizaciones() {
   const [state, setState] = useState<CotizacionesState>(() =>
     Object.fromEntries(
       Object.keys(ENDPOINTS).map((key) => [
         key,
-        { data: loadFromCache<Cotizacion>(key), previousVenta: null, status: "loading" as const },
+        { data: loadFromCache<Cotizacion>(key), status: "loading" as const },
       ])
     )
   );
-  const previousValues = useRef<Record<string, number>>({});
 
   const fetchAll = useCallback(async () => {
     setState((prev) => {
@@ -49,20 +45,13 @@ export function useCotizaciones() {
           saveToCache(key, data);
           setState((prev) => ({
             ...prev,
-            [key]: {
-              data,
-              previousVenta: previousValues.current[key] ?? null,
-              status: "ready",
-            },
+            [key]: { data, status: "ready" },
           }));
-          previousValues.current[key] = data.venta;
         } catch {
           const cached = loadFromCache<Cotizacion>(key);
           setState((prev) => ({
             ...prev,
-            [key]: cached
-              ? { data: cached, previousVenta: previousValues.current[key] ?? null, status: "stale" }
-              : { ...prev[key], status: "error" },
+            [key]: cached ? { data: cached, status: "stale" } : { ...prev[key], status: "error" },
           }));
         }
       })

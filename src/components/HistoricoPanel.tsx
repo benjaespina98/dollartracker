@@ -36,8 +36,7 @@ export default function HistoricoPanel({ serie, rango, onRangoChange, formatValo
         <span>{formatFecha(recorte[recorte.length - 1].fecha)}</span>
       </div>
 
-      {/* stopPropagation: si no, elegir un rango cerraría la tarjeta */}
-      <div className="historico__rangos" onClick={(e) => e.stopPropagation()}>
+      <div className="historico__rangos" role="group" aria-label="Período del gráfico">
         {RANGOS.map(({ dias, label }) => (
           <button
             key={dias}
