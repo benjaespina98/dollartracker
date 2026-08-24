@@ -217,8 +217,12 @@ export const RANGOS: { dias: RangoDias; label: string }[] = [
 ];
 
 export function recortarRango(puntos: SeriePunto[], dias: RangoDias): SeriePunto[] {
-  const corte = new Date();
-  corte.setDate(corte.getDate() - dias);
+  // La ventana se cuenta desde el día argentino. Con new Date() + toISOString()
+  // el corte se adelantaba un día entre las 21 hs y la medianoche de acá, que
+  // es exactamente el mismo error que fechas.ts ya había corregido para la
+  // variación diaria.
+  const corte = new Date(`${hoyEnArgentina()}T12:00:00Z`);
+  corte.setUTCDate(corte.getUTCDate() - dias);
   const corteISO = corte.toISOString().slice(0, 10);
   const recorte = puntos.filter((p) => p.fecha >= corteISO);
   // Si la serie viene con huecos (feriados largos), garantizamos al menos dos

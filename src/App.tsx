@@ -64,20 +64,21 @@ const CURRENCY_SECTIONS = [
   },
 ];
 
-// El ticker del ETF va en la línea de abajo, no en el título: en mobile la
-// tarjeta mide ~190px y "Dow Jones (DIA)" no entraba en una línea.
-const MARKET_CARDS = [
-  { key: "oil", label: "Petróleo", unit: "ETF USO · sigue al WTI", accent: "#a16207", icon: <IconDroplet /> },
-  { key: "gold", label: "Oro", unit: "ETF GLD · sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
-  { key: "spy", label: "S&P 500", unit: "ETF SPY", accent: "#38bdf8", icon: <IconTrend /> },
-  { key: "dow", label: "Dow Jones", unit: "ETF DIA", accent: "#818cf8", icon: <IconTrend /> },
-  { key: "nasdaq", label: "Nasdaq", unit: "ETF QQQ", accent: "#34d399", icon: <IconTrend /> },
+// Bajo el precio va solo el ticker del ETF: la frase completa ("sigue al
+// petróleo WTI") era una leyenda repetida en las ocho tarjetas que en mobile
+// no entraba. Ahora vive en el panel (i) de la tarjeta abierta.
+const MERCADOS = [
+  { key: "oil", label: "Petróleo", ticker: "USO", detalle: "Sigue al petróleo WTI", accent: "#a16207", icon: <IconDroplet /> },
+  { key: "gold", label: "Oro", ticker: "GLD", detalle: "Sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
+  { key: "spy", label: "S&P 500", ticker: "SPY", detalle: "Sigue al índice S&P 500", accent: "#38bdf8", icon: <IconTrend /> },
+  { key: "dow", label: "Dow Jones", ticker: "DIA", detalle: "Sigue al Dow Jones Industrial Average", accent: "#818cf8", icon: <IconTrend /> },
+  { key: "nasdaq", label: "Nasdaq", ticker: "QQQ", detalle: "Sigue al Nasdaq-100", accent: "#34d399", icon: <IconTrend /> },
 ];
 
-const GRANOS_CARDS = [
-  { key: "soja", label: "Soja", unit: "ETF SOYB · futuros Chicago", accent: "#84cc16", icon: <IconSoy /> },
-  { key: "maiz", label: "Maíz", unit: "ETF CORN · futuros Chicago", accent: "#fbbf24", icon: <IconCorn /> },
-  { key: "trigo", label: "Trigo", unit: "ETF WEAT · futuros Chicago", accent: "#d97706", icon: <IconWheat /> },
+const GRANOS = [
+  { key: "soja", label: "Soja", ticker: "SOYB", detalle: "Sigue los futuros de soja de Chicago", accent: "#84cc16", icon: <IconSoy /> },
+  { key: "maiz", label: "Maíz", ticker: "CORN", detalle: "Sigue los futuros de maíz de Chicago", accent: "#fbbf24", icon: <IconCorn /> },
+  { key: "trigo", label: "Trigo", ticker: "WEAT", detalle: "Sigue los futuros de trigo de Chicago", accent: "#d97706", icon: <IconWheat /> },
 ];
 
 export default function App() {
@@ -92,11 +93,34 @@ export default function App() {
   const [origen, setOrigen] = useState<MonedaOrigen>("ARS");
   const monto = parsearMonto(montoTexto);
   const [mostrarInfoApp, setMostrarInfoApp] = useState(false);
-  const [mostrarInfoConversor, setMostrarInfoConversor] = useState(false);
+  const [refrescando, setRefrescando] = useState(false);
 
-  function refreshAll() {
-    refreshCotizaciones();
-    refreshMarkets();
+  // Antes el botón no daba ninguna señal: se tocaba, no pasaba nada visible
+  // durante uno o dos segundos y la reacción natural era volver a tocarlo.
+  async function refreshAll() {
+    if (refrescando) return;
+    setRefrescando(true);
+    try {
+      await Promise.all([refreshCotizaciones(), refreshMarkets()]);
+    } finally {
+      setRefrescando(false);
+    }
+  }
+
+  function renderMercado({ key, label, ticker, detalle, accent, icon }: (typeof MERCADOS)[number]) {
+    return (
+      <MarketCard
+        key={key}
+        label={label}
+        icon={icon}
+        ticker={ticker}
+        detalle={detalle}
+        accent={accent}
+        data={markets[key]?.data ?? null}
+        status={markets[key]?.status ?? "loading"}
+        historico={historicoMercados?.[key] ?? null}
+      />
+    );
   }
 
   return (
@@ -105,10 +129,19 @@ export default function App() {
         <div className="headerTop">
           <div className="brand">
             <span className="brandMark" aria-hidden="true">$</span>
-            <h1 className="title">DollarTracker</h1>
+            <div className="brandText">
+              <h1 className="title">DollarTracker</h1>
+              <p className="subtitle">Cotizaciones y mercados en tiempo real</p>
+            </div>
           </div>
 
           <div className="headerActions">
+            <CardInfoButton
+              activo={mostrarInfoApp}
+              onToggle={() => setMostrarInfoApp((v) => !v)}
+              label="Acerca de DollarTracker"
+            />
+
             <button
               className="themeToggleBtn"
               onClick={toggleTheme}
@@ -133,51 +166,60 @@ export default function App() {
               )}
             </button>
 
-            <button className="refreshAllBtn" onClick={refreshAll} type="button">
-              <span className="refreshAllBtn__icon" aria-hidden="true">↻</span> Actualizar
+            <button
+              className={`refreshAllBtn ${refrescando ? "refreshAllBtn--cargando" : ""}`}
+              onClick={refreshAll}
+              type="button"
+              disabled={refrescando}
+            >
+              <svg
+                className="refreshAllBtn__icon"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 11.5a8 8 0 1 0-.8 4.5"
+                />
+                <path
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 5v6.5h-6"
+                />
+              </svg>
+              {refrescando ? "Actualizando" : "Actualizar"}
             </button>
           </div>
         </div>
 
-        <div className="subtitleRow">
-          <p className="subtitle">Cotizaciones y mercados en tiempo real.</p>
-          <CardInfoButton
-            activo={mostrarInfoApp}
-            onToggle={() => setMostrarInfoApp((v) => !v)}
-            label="Acerca de DollarTracker"
-          />
-        </div>
         {mostrarInfoApp && (
           <CardInfoPanel>
             DollarTracker junta en un solo lugar las cotizaciones del dólar y otras monedas (DolarAPI), el
-            riesgo país y sus históricos (ArgentinaDatos) y mercados internacionales (Twelve Data). No opera ni
-            recomienda inversiones: es solo un panel de referencia informativo, sin login ni backend propio —
-            todo se calcula en tu dispositivo.
+            riesgo país y sus históricos (ArgentinaDatos) y mercados internacionales (Twelve Data). Tocá
+            cualquier tarjeta para ver su histórico. Los valores son de referencia y pueden diferir de los de
+            tu entidad financiera: no opera ni recomienda inversiones. Sin cuentas ni backend propio, todo se
+            calcula en tu dispositivo.
           </CardInfoPanel>
         )}
       </header>
 
-      <div className="converterHeader">
-        <h2 className="converterTitle">Cotizador</h2>
-        <CardInfoButton
-          activo={mostrarInfoConversor}
-          onToggle={() => setMostrarInfoConversor((v) => !v)}
-          label="Cómo funciona el cotizador"
-        />
-      </div>
+      <h2 className="sectionTitle sectionTitle--converter">
+        <span>Cotizador</span>
+      </h2>
       <ConverterBar
         monto={montoTexto}
         origen={origen}
         onMontoChange={setMontoTexto}
         onOrigenChange={setOrigen}
       />
-      {mostrarInfoConversor && (
-        <CardInfoPanel>
-          Escribí un monto y elegí en qué moneda lo tenés: cada tarjeta va a mostrar cuánto te da a esa
-          cotización, usando la punta de compra o de venta según corresponda. Es el mismo cálculo que harías
-          vos con la calculadora, aplicado a todas las cotizaciones a la vez.
-        </CardInfoPanel>
-      )}
 
       {CURRENCY_SECTIONS.map((section) => (
         <section key={section.title} className="quoteSection">
@@ -194,7 +236,6 @@ export default function App() {
                 icon={icon}
                 accent={accent}
                 data={state[key]?.data ?? null}
-                previousVenta={state[key]?.previousVenta ?? null}
                 status={state[key]?.status ?? "loading"}
                 monto={monto}
                 origen={origen}
@@ -213,21 +254,9 @@ export default function App() {
             icon={<IconPulse />}
             accent="#ef4444"
             data={riesgoPais.data}
-            previousValor={riesgoPais.previousValor}
             status={riesgoPais.status}
           />
-          {MARKET_CARDS.map(({ key, label, unit, accent, icon }) => (
-            <MarketCard
-              key={key}
-              label={label}
-              icon={icon}
-              unit={unit}
-              accent={accent}
-              data={markets[key]?.data ?? null}
-              status={markets[key]?.status ?? "loading"}
-              historico={historicoMercados?.[key] ?? null}
-            />
-          ))}
+          {MERCADOS.map(renderMercado)}
         </div>
       </section>
 
@@ -235,20 +264,7 @@ export default function App() {
         <h2 className="sectionTitle">
           <span>Granos</span>
         </h2>
-        <div className="grid">
-          {GRANOS_CARDS.map(({ key, label, unit, accent, icon }) => (
-            <MarketCard
-              key={key}
-              label={label}
-              icon={icon}
-              unit={unit}
-              accent={accent}
-              data={markets[key]?.data ?? null}
-              status={markets[key]?.status ?? "loading"}
-              historico={historicoMercados?.[key] ?? null}
-            />
-          ))}
-        </div>
+        <div className="grid">{GRANOS.map(renderMercado)}</div>
       </section>
 
       <footer className="footer">
@@ -259,13 +275,7 @@ export default function App() {
           </span>
         </div>
         <p className="footerNote">
-          Fuentes de datos: DolarAPI (cotizaciones), ArgentinaDatos (riesgo país e históricos) y Twelve Data
-          (mercados internacionales). Los valores son de referencia y pueden diferir de los de tu entidad
-          financiera; nada de lo aquí publicado constituye asesoramiento financiero.
-        </p>
-        <p className="footerNote footerNote--muted">
-          "Actualizado a las" indica cuándo la fuente publicó ese valor, no el momento en que abriste la app.
-          Sin cuentas, sin backend propio: todos los cálculos se hacen en tu dispositivo.
+          Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
         </p>
       </footer>
     </div>

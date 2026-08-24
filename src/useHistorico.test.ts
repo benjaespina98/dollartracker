@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { hoyEnArgentina } from "./fechas";
 import { recortarRango, tieneHistorico, type SeriePunto } from "./useHistorico";
 
+// La serie se arma desde el día argentino, igual que recortarRango: si se
+// generara con new Date() local, el test fallaría de noche por el desfasaje.
 function serieDeDias(cantidad: number): SeriePunto[] {
+  const hoy = new Date(`${hoyEnArgentina()}T12:00:00Z`);
   return Array.from({ length: cantidad }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (cantidad - 1 - i));
+    const d = new Date(hoy);
+    d.setUTCDate(d.getUTCDate() - (cantidad - 1 - i));
     return { fecha: d.toISOString().slice(0, 10), valor: 1000 + i };
   });
 }

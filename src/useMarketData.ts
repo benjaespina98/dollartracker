@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { loadFromCache, saveToCache } from "./offlineCache";
 import { ESPERA_CUPO_MS } from "./useHistorico";
 import type { MarketQuote, RiesgoPais } from "./types";
@@ -12,7 +12,7 @@ const MARKETS_CACHE_KEY = "markets";
 export type MarketStatus = "loading" | "ready" | "stale" | "error";
 
 interface MarketDataState {
-  riesgoPais: { data: RiesgoPais | null; previousValor: number | null; status: MarketStatus };
+  riesgoPais: { data: RiesgoPais | null; status: MarketStatus };
   markets: Record<string, { data: MarketQuote | null; status: MarketStatus }>;
 }
 
@@ -31,11 +31,7 @@ async function pedirMercado(): Promise<Record<string, MarketQuote | null>> {
 function initialState(): MarketDataState {
   const cachedMarkets = loadFromCache<Record<string, MarketQuote | null>>(MARKETS_CACHE_KEY) ?? {};
   return {
-    riesgoPais: {
-      data: loadFromCache<RiesgoPais>(RIESGO_PAIS_CACHE_KEY),
-      previousValor: null,
-      status: "loading",
-    },
+    riesgoPais: { data: loadFromCache<RiesgoPais>(RIESGO_PAIS_CACHE_KEY), status: "loading" },
     markets: Object.fromEntries(
       MARKET_KEYS.map((key) => [key, { data: cachedMarkets[key] ?? null, status: "loading" as const }])
     ),
@@ -44,7 +40,6 @@ function initialState(): MarketDataState {
 
 export function useMarketData() {
   const [state, setState] = useState<MarketDataState>(initialState);
-  const previousRiesgoPais = useRef<number | null>(null);
 
   const fetchAll = useCallback(async () => {
     setState((prev) => ({
@@ -63,16 +58,13 @@ export function useMarketData() {
           saveToCache(RIESGO_PAIS_CACHE_KEY, data);
           setState((prev) => ({
             ...prev,
-            riesgoPais: { data, previousValor: previousRiesgoPais.current, status: "ready" },
+            riesgoPais: { data, status: "ready" },
           }));
-          previousRiesgoPais.current = data.valor;
         } catch {
           const cached = loadFromCache<RiesgoPais>(RIESGO_PAIS_CACHE_KEY);
           setState((prev) => ({
             ...prev,
-            riesgoPais: cached
-              ? { data: cached, previousValor: previousRiesgoPais.current, status: "stale" }
-              : { ...prev.riesgoPais, status: "error" },
+            riesgoPais: cached ? { data: cached, status: "stale" } : { ...prev.riesgoPais, status: "error" },
           }));
         }
       })(),

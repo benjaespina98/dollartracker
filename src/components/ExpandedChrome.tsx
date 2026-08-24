@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 // Piezas compartidas por las tarjetas expandibles (QuoteCard, MarketCard,
 // RiesgoPaisCard): el fondo oscurecido detrás de la tarjeta centrada, su
@@ -16,11 +16,14 @@ export function CardBackdrop({ onClose }: BackdropProps) {
 interface CloseButtonProps {
   onClose: () => void;
   label: string;
+  /** Al abrirse la tarjeta el foco viene acá, para no perderlo fuera del modal */
+  ref?: Ref<HTMLButtonElement>;
 }
 
-export function CardCloseButton({ onClose, label }: CloseButtonProps) {
+export function CardCloseButton({ onClose, label, ref }: CloseButtonProps) {
   return (
     <button
+      ref={ref}
       className="closeBtn"
       onClick={onClose}
       type="button"
