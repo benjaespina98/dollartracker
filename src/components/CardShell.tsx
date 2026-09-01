@@ -7,8 +7,8 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { recortarRango, type RangoDias, type SeriePunto } from "../useHistorico";
-import { useModalCard } from "../useModalCard";
+import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
+import { useModalCard } from "../hooks/useModalCard";
 import { CardBackdrop, CardCloseButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import ShareButton from "./ShareButton";
@@ -154,7 +154,7 @@ export default function CardShell({
           {status === "loading" && !hayDatos && (
             <div className="skeleton" aria-label={`Cargando ${nombre}`}>
               {Array.from({ length: skeletonBlocks }, (_, i) => (
-                <span key={i} className="skeletonBlock" />
+                <span key={i} className="skeletonBlock" style={{ "--i": i } as CSSProperties} />
               ))}
             </div>
           )}
@@ -163,7 +163,10 @@ export default function CardShell({
           )}
 
           {hayDatos && (
-            <>
+            // Reemplaza al esqueleto con una pequeña transición en vez de un
+            // corte seco: la animación solo corre al montar (el bloque no se
+            // desmonta en refrescos posteriores, mientras hayDatos siga true).
+            <div className="quoteBodyContent">
               {expandida && mostrarInfo && <CardInfoPanel>{info}</CardInfoPanel>}
 
               {children}
@@ -189,7 +192,7 @@ export default function CardShell({
                   formatValor={formatValor}
                 />
               )}
-            </>
+            </div>
           )}
         </div>
       </section>

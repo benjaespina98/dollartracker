@@ -1,3 +1,39 @@
+/* ── Banner de conectividad ───────────────────────────────────────────── */
+
+/* Barra discreta, no un modal ni un toast: informa sin bloquear nada, y
+   desaparece sola en cuanto vuelve la señal (la monta/desmonta NetworkBanner). */
+.networkBanner {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  padding-top: calc(9px + env(safe-area-inset-top));
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--risk-medium);
+  background: color-mix(in srgb, var(--risk-medium) 14%, var(--bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--risk-medium) 30%, transparent);
+  animation: networkBannerIn 0.25s ease-out both;
+}
+
+.networkBanner svg {
+  flex-shrink: 0;
+}
+
+@keyframes networkBannerIn {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .app {
   max-width: 1180px;
   margin: 0 auto;
@@ -307,9 +343,20 @@
   color: var(--text);
 }
 
+/* Solo con mouse: en táctil el :hover queda "pegado" después de tocar, así
+   que el agrandado se vería fijo hasta el próximo toque en cualquier lado. */
+@media (hover: hover) {
+  .shareBtn:hover,
+  .infoBtn:hover,
+  .closeBtn:hover {
+    transform: scale(1.06);
+  }
+}
+
 .shareBtn:active,
 .infoBtn:active,
 .closeBtn:active {
+  transition-duration: 0.1s;
   transform: scale(0.93);
 }
 
@@ -369,6 +416,9 @@
 }
 
 .quoteBody--expandible:active {
+  /* Más corta que la de hover (0.2s): el tap necesita responder al toque
+     mismo, no a un ritmo pensado para el cursor. */
+  transition-duration: 0.1s;
   transform: translateY(-1px) scale(0.99);
 }
 
@@ -403,6 +453,10 @@
   background: linear-gradient(100deg, var(--skeleton-a) 30%, var(--skeleton-b) 50%, var(--skeleton-a) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
+  /* Un pequeño desfasaje entre bloques (compra/venta) para que el shimmer no
+     corra idéntico en los dos a la vez, que se leía como parpadeo sincrónico
+     en vez de una carga en curso. */
+  animation-delay: calc(var(--i, 0) * 0.12s);
 }
 
 @keyframes shimmer {
@@ -411,6 +465,27 @@
   }
   100% {
     background-position: -50% 0;
+  }
+}
+
+/* Envuelve el contenido real de la tarjeta (precio, gráfico, meta) para poder
+   darle una entrada propia cuando reemplaza al esqueleto. display:flex acá en
+   vez de en .quoteBody: mismo layout de antes, un solo nivel más adentro. */
+.quoteBodyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  animation: contentIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes contentIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -447,6 +522,7 @@
   font-family: var(--font-mono);
   font-size: clamp(0.95rem, 7cqi, 1.15rem);
   font-weight: 700;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   /* El precio es el dato principal: nunca se recorta ni se encoge.
@@ -476,6 +552,7 @@
   font-family: var(--font-mono);
   font-size: clamp(1.3rem, 8cqi, 1.6rem);
   font-weight: 800;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   color: var(--accent);
@@ -558,6 +635,7 @@
   font-family: var(--font-mono);
   font-size: clamp(1.05rem, 9cqi, 1.35rem);
   font-weight: 800;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--accent);
@@ -622,6 +700,19 @@
   cursor: default;
   color: var(--risk-medium);
   background: color-mix(in srgb, var(--risk-medium) 16%, transparent);
+}
+
+/* Brecha cambiaria: no es una noticia buena o mala como una suba o baja, así
+   que va en un tono neutro propio en vez del verde/rojo de .quoteVariation. */
+.brechaTag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 999px;
+  cursor: default;
+  color: var(--text-muted);
+  background: var(--price-block-bg);
 }
 
 /* Un reloj y la hora. Antes cada tarjeta decía "Actualizado a las 12:30 hs":
@@ -1034,7 +1125,9 @@
   .refreshAllBtn--cargando .refreshAllBtn__icon,
   .cardBackdrop,
   .quoteCard--expandida,
-  .infoPanel {
+  .infoPanel,
+  .quoteBodyContent,
+  .networkBanner {
     animation: none;
   }
 
@@ -1046,7 +1139,10 @@
   .refreshAllBtn:hover .refreshAllBtn__icon,
   .shareBtn:active,
   .infoBtn:active,
-  .closeBtn:active {
+  .closeBtn:active,
+  .shareBtn:hover,
+  .infoBtn:hover,
+  .closeBtn:hover {
     transform: none;
   }
 

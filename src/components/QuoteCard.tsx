@@ -1,11 +1,11 @@
 import { useMemo, type ReactNode } from "react";
-import { convertir, formatearMoneda, type MonedaOrigen } from "../conversion";
-import { cierreAnterior } from "../fechas";
-import { formatearFechaHora, formatearHora, pesos } from "../format";
-import { tieneHistorico, useHistoricoDolar } from "../useHistorico";
+import { convertir, formatearMoneda, type MonedaOrigen } from "../lib/conversion";
+import { cierreAnterior } from "../lib/fechas";
+import { formatearFechaHora, formatearHaceTiempo, formatearHora, pesos } from "../lib/format";
+import { tieneHistorico, useHistoricoDolar } from "../hooks/useHistorico";
 import type { Cotizacion } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
-import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
+import { BrechaBadge, HoraDato, OfflineTag, Variacion } from "./CardMeta";
 
 interface Props {
   /** Clave de la casa en DolarAPI; también es el slug del histórico */
@@ -17,12 +17,28 @@ interface Props {
   accent: string;
   data: Cotizacion | null;
   status: CardStatus;
+  /** Date.now() de cuando se guardó el dato que se está mostrando, para el "hace X min" del aviso offline */
+  savedAt: number | null;
   /** Monto tipeado en la barra conversora, null si está vacía */
   monto: number | null;
   origen: MonedaOrigen;
+  /** % de brecha contra el dólar oficial; null/undefined en las casas que no la muestran (ver config/cards) */
+  brecha?: number | null;
 }
 
-export default function QuoteCard({ casa, label, nombre, icon, accent, data, status, monto, origen }: Props) {
+export default function QuoteCard({
+  casa,
+  label,
+  nombre,
+  icon,
+  accent,
+  data,
+  status,
+  savedAt,
+  monto,
+  origen,
+  brecha,
+}: Props) {
   const historico = useHistoricoDolar(casa);
 
   // La variación se mide siempre contra el último cierre previo a hoy, igual
@@ -74,6 +90,7 @@ export default function QuoteCard({ casa, label, nombre, icon, accent, data, sta
           {status === "stale" && actualizado && (
             <OfflineTag
               title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(actualizado)} hs`}
+              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
             />
           )}
           {status !== "stale" && variacion !== null && cierrePrevio && (
@@ -85,6 +102,12 @@ export default function QuoteCard({ casa, label, nombre, icon, accent, data, sta
                 .reverse()
                 .slice(0, 2)
                 .join("/")} (${pesos.format(cierrePrevio.valor)})`}
+            />
+          )}
+          {brecha != null && (
+            <BrechaBadge
+              valor={brecha}
+              title={`Brecha entre ${nombre.toLowerCase()} y el dólar oficial`}
             />
           )}
           {actualizado && (

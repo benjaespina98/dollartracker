@@ -1,4 +1,4 @@
-// Los tres elementos de la fila inferior de las tarjetas. Estaban escritos a
+// Los elementos de la fila inferior de las tarjetas. Estaban escritos a
 // mano en cada una, con umbrales y clases repetidos.
 
 interface VariacionProps {
@@ -43,7 +43,13 @@ export function HoraDato({ texto, title }: HoraProps) {
   );
 }
 
-export function OfflineTag({ title }: { title: string }) {
+interface OfflineTagProps {
+  title: string;
+  /** "hace 3 min", del savedAt guardado en el cache local; omitido si nunca se guardó nada */
+  haceTiempo?: string;
+}
+
+export function OfflineTag({ title, haceTiempo }: OfflineTagProps) {
   return (
     <span className="offlineTag" title={title}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -56,7 +62,26 @@ export function OfflineTag({ title }: { title: string }) {
         />
         <circle cx="12" cy="19.5" r="1.2" fill="currentColor" />
       </svg>
-      Sin conexión
+      Sin conexión{haceTiempo && ` · ${haceTiempo}`}
+    </span>
+  );
+}
+
+interface BrechaProps {
+  /** % de diferencia contra el dólar oficial */
+  valor: number;
+  title: string;
+}
+
+// Brecha cambiaria: cuánto más caro sale este dólar que el oficial. A
+// diferencia de Variacion, no es "buena" o "mala" noticia según el signo (la
+// brecha casi siempre es positiva), así que va en un tono neutro propio en
+// vez del verde/rojo de una suba o baja.
+export function BrechaBadge({ valor, title }: BrechaProps) {
+  return (
+    <span className="brechaTag" title={title}>
+      Brecha {valor > 0 ? "+" : ""}
+      {valor.toFixed(1)}%
     </span>
   );
 }

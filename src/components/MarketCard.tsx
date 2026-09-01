@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { dolares, formatearFechaHora, formatearHora } from "../format";
-import type { SeriePunto } from "../useHistorico";
+import { dolares, formatearFechaHora, formatearHaceTiempo, formatearHora } from "../lib/format";
+import type { SeriePunto } from "../hooks/useHistorico";
 import type { MarketQuote } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
@@ -15,11 +15,13 @@ interface Props {
   accent: string;
   data: MarketQuote | null;
   status: CardStatus;
+  /** Date.now() de cuando se guardó el dato que se está mostrando, para el "hace X min" del aviso offline */
+  savedAt: number | null;
   /** Serie diaria del símbolo, null mientras carga o si falló */
   historico: SeriePunto[] | null;
 }
 
-export default function MarketCard({ label, icon, ticker, detalle, accent, data, status, historico }: Props) {
+export default function MarketCard({ label, icon, ticker, detalle, accent, data, status, savedAt, historico }: Props) {
   const cierre = data?.marketTime ? new Date(data.marketTime * 1000) : null;
 
   return (
@@ -56,6 +58,7 @@ export default function MarketCard({ label, icon, ticker, detalle, accent, data,
                   ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(cierre)} hs`
                   : "No se pudo actualizar; este es el último valor guardado en este dispositivo"
               }
+              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
             />
           )}
           {status !== "stale" && data?.changePercent != null && (

@@ -1,4 +1,4 @@
-import { MONEDAS_ORIGEN, formatearMontoTipeado, type MonedaOrigen } from "../conversion";
+import { MONEDAS_ORIGEN, formatearMontoTipeado, type MonedaOrigen } from "../lib/conversion";
 
 interface Props {
   monto: string;

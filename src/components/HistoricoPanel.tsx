@@ -1,4 +1,4 @@
-import { RANGOS, recortarRango, type RangoDias, type SeriePunto } from "../useHistorico";
+import { RANGOS, recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
 import Sparkline from "./Sparkline";
 
 interface Props {
