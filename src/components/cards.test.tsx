@@ -29,6 +29,7 @@ const quote = (props: Partial<Parameters<typeof QuoteCard>[0]> = {}) =>
       accent="#78beff"
       data={cotizacion}
       status="ready"
+      savedAt={null}
       monto={null}
       origen="ARS"
       {...props}
@@ -71,6 +72,22 @@ describe("QuoteCard", () => {
     expect(html).not.toContain("shareBtn");
     expect(html).not.toContain("quoteBody--expandible");
   });
+
+  it("muestra la brecha contra el oficial cuando se la pasan", () => {
+    const html = quote({ brecha: 12.345 });
+    expect(html).toContain("brechaTag");
+    expect(html).toContain("+12.3%"); // toFixed no usa el separador decimal local
+  });
+
+  it("no muestra brecha en las casas que no la calculan", () => {
+    expect(quote()).not.toContain("brechaTag");
+  });
+
+  it("agrega 'hace X min' junto al aviso de sin conexión", () => {
+    const html = quote({ status: "stale", savedAt: Date.now() - 3 * 60_000 });
+    expect(html).toContain("Sin conexión");
+    expect(html).toContain("hace 3 min");
+  });
 });
 
 const market: MarketQuote = {
@@ -94,6 +111,7 @@ describe("MarketCard", () => {
         accent="#eab308"
         data={market}
         status="ready"
+        savedAt={null}
         historico={null}
         {...props}
       />
@@ -117,12 +135,17 @@ describe("MarketCard", () => {
     expect(html).toContain("Sin conexión");
     expect(html).not.toContain("quoteVariation");
   });
+
+  it("suma 'hace X min' cuando conoce el momento del último guardado", () => {
+    const html = render({ status: "stale", savedAt: Date.now() - 90_000 });
+    expect(html).toContain("hace 2 min"); // 90s redondea a 2 min
+  });
 });
 
 describe("RiesgoPaisCard", () => {
   const render = (data: RiesgoPais) =>
     renderToStaticMarkup(
-      <RiesgoPaisCard icon={null} accent="#ef4444" data={data} status="ready" />
+      <RiesgoPaisCard icon={null} accent="#ef4444" data={data} status="ready" savedAt={null} />
     );
 
   it("clasifica el valor según los umbrales de mercado", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hoyEnArgentina } from "./fechas";
+import { hoyEnArgentina } from "../lib/fechas";
 import { recortarRango, tieneHistorico, type SeriePunto } from "./useHistorico";
 
 // La serie se arma desde el día argentino, igual que recortarRango: si se

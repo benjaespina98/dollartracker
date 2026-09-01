@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { cierreAnterior } from "../fechas";
-import { entero, fechaDelDia, formatearDiaMes } from "../format";
-import { useHistoricoRiesgoPais } from "../useHistorico";
+import { cierreAnterior } from "../lib/fechas";
+import { entero, fechaDelDia, formatearDiaMes, formatearHaceTiempo } from "../lib/format";
+import { useHistoricoRiesgoPais } from "../hooks/useHistorico";
 import type { RiesgoPais } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
@@ -12,6 +12,8 @@ interface Props {
   accent: string;
   data: RiesgoPais | null;
   status: CardStatus;
+  /** Date.now() de cuando se guardó el dato que se está mostrando, para el "hace X min" del aviso offline */
+  savedAt: number | null;
 }
 
 // Umbrales informales usados habitualmente para leer el índice de riesgo país
@@ -22,7 +24,7 @@ function getCategory(valor: number): { label: string; tone: "low" | "medium" | "
   return { label: "Crítico", tone: "critical" };
 }
 
-export default function RiesgoPaisCard({ icon, accent, data, status }: Props) {
+export default function RiesgoPaisCard({ icon, accent, data, status, savedAt }: Props) {
   const historico = useHistoricoRiesgoPais();
   const cierrePrevio = useMemo(() => cierreAnterior(historico), [historico]);
 
@@ -53,6 +55,7 @@ export default function RiesgoPaisCard({ icon, accent, data, status }: Props) {
           {status === "stale" && fecha && (
             <OfflineTag
               title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearDiaMes(fecha)}`}
+              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
             />
           )}
           {status !== "stale" && diff !== null && cierrePrevio && (

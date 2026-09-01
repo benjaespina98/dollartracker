@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { hoyEnArgentina } from "./fechas";
-import { loadFromCache, saveToCache } from "./offlineCache";
+import { hoyEnArgentina } from "../lib/fechas";
+import { loadFromCache, saveToCache } from "../lib/offlineCache";
 
 // Serie normalizada que consumen el sparkline y el panel expandido, sin
 // importar de qué fuente venga (dólar, riesgo país o mercados).
@@ -47,7 +47,7 @@ async function traerSerie(
   url: string,
   mapear: (crudo: never[]) => SeriePunto[]
 ): Promise<SeriePunto[]> {
-  const cached = loadFromCache<CacheEntry>(clave);
+  const cached = loadFromCache<CacheEntry>(clave)?.data;
   if (cached?.fetchedAt === hoyEnArgentina() && cached.puntos.length > 0) {
     return cached.puntos;
   }
@@ -161,7 +161,7 @@ async function pedirMercados(): Promise<Record<string, SeriePunto[]>> {
 }
 
 async function traerMercados(): Promise<Record<string, SeriePunto[]>> {
-  const cached = loadFromCache<CacheMercados>("hist:mercados");
+  const cached = loadFromCache<CacheMercados>("hist:mercados")?.data;
   if (cached?.fetchedAt === hoyEnArgentina() && Object.keys(cached.series).length > 0) {
     return cached.series;
   }
