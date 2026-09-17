@@ -87,6 +87,21 @@ export default function CardShell({
     setExpandida(true);
   }, []);
 
+  // Antes el botón (i) solo aparecía con la tarjeta ya abierta: para
+  // encontrarlo primero había que descubrir, sin ninguna pista, que la
+  // tarjeta se podía tocar. Ahora vive siempre en el header y, en una
+  // tarjeta con histórico, tocarlo hace las dos cosas a la vez: abre el
+  // detalle y muestra la explicación ahí adentro, así quien lo toca
+  // descubre de una que la tarjeta se expande.
+  const alternarInfo = useCallback(() => {
+    if (!expandida && puedeExpandirse) {
+      abrir();
+      setMostrarInfo(true);
+    } else {
+      setMostrarInfo((v) => !v);
+    }
+  }, [expandida, puedeExpandirse, abrir]);
+
   useModalCard(expandida, cerrar);
 
   useEffect(() => {
@@ -115,18 +130,18 @@ export default function CardShell({
               <span aria-hidden={nombre !== label}>{label}</span>
             </h3>
           </div>
-          {expandida ? (
-            <>
-              <CardInfoButton
-                activo={mostrarInfo}
-                onToggle={() => setMostrarInfo((v) => !v)}
-                label={`Qué estoy viendo: ${nombre}`}
-              />
+          <div className="quoteHeaderActions">
+            <CardInfoButton
+              activo={mostrarInfo}
+              onToggle={alternarInfo}
+              label={`Qué estoy viendo: ${nombre}`}
+            />
+            {expandida ? (
               <CardCloseButton ref={cerrarRef} onClose={cerrar} label={`Cerrar ${nombre}`} />
-            </>
-          ) : (
-            shareText && <ShareButton texto={shareText} label={`Compartir ${nombre}`} />
-          )}
+            ) : (
+              shareText && <ShareButton texto={shareText} label={`Compartir ${nombre}`} />
+            )}
+          </div>
         </header>
 
         {/* El botón de compartir vive en el header, fuera de este div, así que
@@ -151,6 +166,12 @@ export default function CardShell({
           tabIndex={abrible ? 0 : undefined}
           aria-label={abrible ? `${nombre}: ver histórico` : undefined}
         >
+          {/* Independiente de si hay datos o de si la tarjeta está expandida:
+              la explicación de qué es esta cifra no depende de haberla podido
+              traer recién, y en las tarjetas sin histórico (euro, real) es la
+              única forma de llegar a leerla, porque nunca se abren en modal. */}
+          {mostrarInfo && <CardInfoPanel>{info}</CardInfoPanel>}
+
           {status === "loading" && !hayDatos && (
             <div className="skeleton" aria-label={`Cargando ${nombre}`}>
               {Array.from({ length: skeletonBlocks }, (_, i) => (
@@ -167,8 +188,6 @@ export default function CardShell({
             // corte seco: la animación solo corre al montar (el bloque no se
             // desmonta en refrescos posteriores, mientras hayDatos siga true).
             <div className="quoteBodyContent">
-              {expandida && mostrarInfo && <CardInfoPanel>{info}</CardInfoPanel>}
-
               {children}
 
               {/* El hueco se reserva desde el vamos aunque la serie todavía no

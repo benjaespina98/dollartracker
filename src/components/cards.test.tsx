@@ -66,11 +66,20 @@ describe("QuoteCard", () => {
     expect(quote()).not.toContain("quoteVariation");
   });
 
-  it("no ofrece compartir ni abrir el histórico mientras no hay datos", () => {
+  it("el botón (i) está visible aunque la tarjeta esté colapsada", () => {
+    // Antes solo aparecía con la tarjeta ya abierta: para encontrarlo primero
+    // había que descubrir, sin ninguna pista, que se podía tocar la tarjeta.
+    const html = quote();
+    expect(html).not.toContain("quoteCard--expandida");
+    expect(html).toContain("infoBtn");
+  });
+
+  it("no ofrece compartir ni abrir el histórico mientras no hay datos, pero sí explicar qué es", () => {
     const html = quote({ data: null, status: "error" });
     expect(html).toContain("No se pudo obtener el dato");
     expect(html).not.toContain("shareBtn");
     expect(html).not.toContain("quoteBody--expandible");
+    expect(html).toContain("infoBtn");
   });
 
   it("muestra la brecha contra el oficial cuando se la pasan", () => {

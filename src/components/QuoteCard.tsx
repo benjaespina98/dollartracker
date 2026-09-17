@@ -80,9 +80,18 @@ export default function QuoteCard({
       }
       info={
         <>
-          El gráfico muestra el valor de venta al cierre de cada día, con el mínimo y el máximo del período
-          elegido. La cotización actual la publica DolarAPI; la serie histórica, ArgentinaDatos. Es un valor de
-          referencia: puede diferir del que te ofrezca tu banco, billetera o casa de cambio.
+          {tieneHistorico(casa) ? (
+            <>
+              El gráfico muestra el valor de venta al cierre de cada día, con el mínimo y el máximo del período
+              elegido. La cotización actual la publica DolarAPI; la serie histórica, ArgentinaDatos.{" "}
+            </>
+          ) : (
+            // Euro y real no tienen serie en ArgentinaDatos (ver useHistorico):
+            // sin esto, la explicación hablaba de un gráfico que esta tarjeta
+            // nunca muestra.
+            "DolarAPI publica esta cotización, pero no tiene un histórico diario para graficar. "
+          )}
+          Es un valor de referencia: puede diferir del que te ofrezca tu banco, billetera o casa de cambio.
         </>
       }
       meta={

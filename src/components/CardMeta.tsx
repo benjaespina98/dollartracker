@@ -29,7 +29,10 @@ interface HoraProps {
 }
 
 // Antes decía "Actualizado a las 12:30 hs" en cada una de las 16 tarjetas.
-// El reloj dice lo mismo ocupando un cuarto del ancho.
+// El reloj dice lo mismo ocupando un cuarto del ancho. La etiqueta "Dato" era
+// solo para lectores de pantalla: a simple vista quedaba una hora pelada, sin
+// forma de saber si era "la última vez que mi app consultó" o "cuándo publicó
+// este valor la fuente" (es esto último). Ahora se ve, aunque sea chica.
 export function HoraDato({ texto, title }: HoraProps) {
   return (
     <span className="quoteUpdated" title={title}>
@@ -37,7 +40,7 @@ export function HoraDato({ texto, title }: HoraProps) {
         <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
         <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M12 7.5V12l3 2" />
       </svg>
-      <span className="visuallyHidden">Dato de las </span>
+      <span className="quoteUpdated__label">Dato</span>
       {texto}
     </span>
   );

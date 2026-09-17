@@ -285,6 +285,15 @@
   min-width: 0;
 }
 
+/* El (i) ahora convive con compartir (o con la X, ya expandida): antes el
+   header tenía como mucho un botón a la derecha del título. */
+.quoteHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .quoteIcon {
   flex-shrink: 0;
   display: inline-flex;
@@ -727,6 +736,16 @@
   cursor: default;
 }
 
+/* Aclara que la hora es la de la fuente, no la de "hace X que actualicé": sin
+   esta palabra, una hora pelada se leía como cualquiera de las dos cosas. */
+.quoteUpdated__label {
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
 /* ── Barra conversora ─────────────────────────────────────────────────── */
 
 /* Un solo bloque, y no fijo. Antes eran dos cajas apiladas, cada una con su
@@ -864,7 +883,6 @@
   /* El SVG dibuja con currentColor, así hereda el acento de la tarjeta */
   color: var(--accent);
   filter: var(--accent-contrast-filter);
-  opacity: 0.85;
   /* Alto fijo aunque el gráfico todavía no haya cargado: evita el salto de
      layout cuando la serie llega unos milisegundos después del precio. */
   height: 26px;
@@ -873,11 +891,15 @@
   gap: 8px;
 }
 
-/* Dentro de la fila el gráfico cede el ancho que necesita el chevron */
+/* Dentro de la fila el gráfico cede el ancho que necesita el chip, y se
+   atenúa solo él: si la atenuación fuera del wrap entero, el chip (que
+   necesita leerse como un control tocable) quedaba igual de apagado que la
+   línea de fondo. */
 .sparklineWrap .sparkline {
   flex: 1;
   width: auto;
   min-width: 0;
+  opacity: 0.85;
 }
 
 .sparkline {
@@ -886,15 +908,46 @@
   overflow: visible;
 }
 
-.sparklineChevron {
+/* Chip de "tocá para ver el histórico": fondo propio con el acento de la
+   tarjeta, para que se lea como un control y no como una flechita suelta al
+   lado del gráfico. */
+.sparklineChip {
   flex-shrink: 0;
   margin-left: auto;
-  color: var(--text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  filter: var(--accent-contrast-filter);
+}
+
+.sparklineChip svg {
   transition: transform 0.2s;
 }
 
-.sparklineChevron--abierto {
+.sparklineChip--abierto svg {
   transform: rotate(180deg);
+}
+
+.sparklineChip__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* En tarjetas angostas (mobile en 2 columnas, o el grid de 4 en desktop) el
+   texto le sacaría todo el ancho al mini gráfico: se achica al ícono solo. */
+@container (max-width: 300px) {
+  .sparklineChip {
+    padding: 4px;
+  }
+
+  .sparklineChip__label {
+    display: none;
+  }
 }
 
 .historico {
@@ -1229,7 +1282,8 @@
     height: 22px;
   }
 
-  .shareBtn {
+  .shareBtn,
+  .infoBtn {
     width: 30px;
     height: 30px;
   }
