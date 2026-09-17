@@ -32,6 +32,8 @@ const quote = (props: Partial<Parameters<typeof QuoteCard>[0]> = {}) =>
       savedAt={null}
       monto={null}
       origen="ARS"
+      favorito={false}
+      onToggleFavorito={() => {}}
       {...props}
     />
   );
@@ -97,6 +99,11 @@ describe("QuoteCard", () => {
     expect(html).toContain("Sin conexión");
     expect(html).toContain("hace 3 min");
   });
+
+  it("marca la estrella como activa cuando la tarjeta es favorita", () => {
+    expect(quote({ favorito: false })).not.toContain("favBtn--activo");
+    expect(quote({ favorito: true })).toContain("favBtn--activo");
+  });
 });
 
 const market: MarketQuote = {
@@ -122,6 +129,8 @@ describe("MarketCard", () => {
         status="ready"
         savedAt={null}
         historico={null}
+        favorito={false}
+        onToggleFavorito={() => {}}
         {...props}
       />
     );
@@ -154,7 +163,15 @@ describe("MarketCard", () => {
 describe("RiesgoPaisCard", () => {
   const render = (data: RiesgoPais) =>
     renderToStaticMarkup(
-      <RiesgoPaisCard icon={null} accent="#ef4444" data={data} status="ready" savedAt={null} />
+      <RiesgoPaisCard
+        icon={null}
+        accent="#ef4444"
+        data={data}
+        status="ready"
+        savedAt={null}
+        favorito={false}
+        onToggleFavorito={() => {}}
+      />
     );
 
   it("clasifica el valor según los umbrales de mercado", () => {

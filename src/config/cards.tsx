@@ -83,10 +83,19 @@ export const CURRENCY_SECTIONS: CurrencySection[] = [
   },
 ];
 
+export interface MarketCardConfig {
+  key: string;
+  label: string;
+  ticker: string;
+  detalle: string;
+  accent: string;
+  icon: ReactNode;
+}
+
 // Bajo el precio va solo el ticker del ETF: la frase completa ("sigue al
 // petróleo WTI") era una leyenda repetida en las ocho tarjetas que en mobile
 // no entraba. Ahora vive en el panel (i) de la tarjeta abierta.
-export const MERCADOS = [
+export const MERCADOS: MarketCardConfig[] = [
   { key: "oil", label: "Petróleo", ticker: "USO", detalle: "Sigue al petróleo WTI", accent: "#a16207", icon: <IconDroplet /> },
   { key: "gold", label: "Oro", ticker: "GLD", detalle: "Sigue al oro spot", accent: "#eab308", icon: <IconIngot /> },
   { key: "spy", label: "S&P 500", ticker: "SPY", detalle: "Sigue al índice S&P 500", accent: "#38bdf8", icon: <IconTrend /> },
@@ -94,7 +103,7 @@ export const MERCADOS = [
   { key: "nasdaq", label: "Nasdaq", ticker: "QQQ", detalle: "Sigue al Nasdaq-100", accent: "#34d399", icon: <IconTrend /> },
 ];
 
-export const GRANOS = [
+export const GRANOS: MarketCardConfig[] = [
   { key: "soja", label: "Soja", ticker: "SOYB", detalle: "Sigue los futuros de soja de Chicago", accent: "#84cc16", icon: <IconSoy /> },
   { key: "maiz", label: "Maíz", ticker: "CORN", detalle: "Sigue los futuros de maíz de Chicago", accent: "#fbbf24", icon: <IconCorn /> },
   { key: "trigo", label: "Trigo", ticker: "WEAT", detalle: "Sigue los futuros de trigo de Chicago", accent: "#d97706", icon: <IconWheat /> },

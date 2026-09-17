@@ -69,6 +69,36 @@ export function CardInfoButton({ activo, onToggle, label }: InfoButtonProps) {
   );
 }
 
+interface FavoritoButtonProps {
+  activo: boolean;
+  onToggle: () => void;
+  label: string;
+}
+
+// Estrella para marcar/desmarcar favorito. Vive en el header igual que el
+// (i): así se puede favoritear una tarjeta sin tener que abrirla primero.
+export function CardFavoritoButton({ activo, onToggle, label }: FavoritoButtonProps) {
+  return (
+    <button
+      className={`favBtn ${activo ? "favBtn--activo" : ""}`}
+      onClick={onToggle}
+      type="button"
+      aria-label={label}
+      aria-pressed={activo}
+      title={activo ? "Quitar de favoritos" : "Agregar a favoritos"}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill={activo ? "currentColor" : "none"} aria-hidden="true">
+        <path
+          d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.1 6.6-5.8-3.1-5.8 3.1 1.1-6.6-4.8-4.6 6.6-.9Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 interface InfoPanelProps {
   children: ReactNode;
 }

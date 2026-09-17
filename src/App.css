@@ -112,7 +112,8 @@
 }
 
 .refreshAllBtn,
-.themeToggleBtn {
+.themeToggleBtn,
+.resumenBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -141,6 +142,11 @@
   padding: 0;
 }
 
+.resumenBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* En el header el (i) convive con el toggle de tema y "Actualizar": si se
    queda en los 34px que usa dentro de las tarjetas, la fila queda despareja. */
 .headerActions .infoBtn {
@@ -150,7 +156,8 @@
 }
 
 .refreshAllBtn:hover,
-.themeToggleBtn:hover {
+.themeToggleBtn:hover,
+.resumenBtn:hover:not(:disabled) {
   background: var(--btn-bg-hover);
   border-color: var(--btn-border-hover);
 }
@@ -201,6 +208,17 @@
   .refreshAllBtn {
     flex: 1;
     min-width: 0;
+  }
+
+  /* Sin la palabra "Resumen"/"Generando…" no entraban los cuatro botones del
+     header en una fila de celular; el ícono solo alcanza. */
+  .resumenBtn {
+    padding: 0;
+    width: 40px;
+  }
+
+  .resumenBtn__label {
+    display: none;
   }
 }
 
@@ -256,6 +274,50 @@
   .grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/* ── Favoritos ────────────────────────────────────────────────────────── */
+
+/* Slot de un favorito dentro de la grilla: la tarjeta en sí no sabe que está
+   en esta sección (es el mismo componente que en su sección de origen), así
+   que las flechas de reordenar viven en un wrapper propio, no en la tarjeta. */
+.favSlot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+}
+
+.favSlot__controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.favMoveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  font-size: 0.65rem;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.favMoveBtn:hover:not(:disabled) {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+  color: var(--text);
+}
+
+.favMoveBtn:disabled {
+  opacity: 0.35;
 }
 
 /* ── Tarjeta ──────────────────────────────────────────────────────────── */
@@ -326,6 +388,7 @@
 
 .shareBtn,
 .infoBtn,
+.favBtn,
 .closeBtn {
   flex-shrink: 0;
   display: inline-flex;
@@ -339,14 +402,16 @@
 }
 
 .shareBtn,
-.infoBtn {
+.infoBtn,
+.favBtn {
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-faint);
 }
 
 .shareBtn:hover,
-.infoBtn:hover {
+.infoBtn:hover,
+.favBtn:hover {
   background: var(--btn-bg);
   border-color: var(--card-border);
   color: var(--text);
@@ -357,6 +422,7 @@
 @media (hover: hover) {
   .shareBtn:hover,
   .infoBtn:hover,
+  .favBtn:hover,
   .closeBtn:hover {
     transform: scale(1.06);
   }
@@ -364,6 +430,7 @@
 
 .shareBtn:active,
 .infoBtn:active,
+.favBtn:active,
 .closeBtn:active {
   transition-duration: 0.1s;
   transform: scale(0.93);
@@ -380,6 +447,16 @@
   background: color-mix(in srgb, var(--accent) 16%, transparent);
   border-color: transparent;
   filter: var(--accent-contrast-filter);
+}
+
+/* Dorado fijo en vez del acento de la tarjeta: a diferencia del (i), "favorito"
+   es un concepto transversal a toda la app (la estrella tiene que reconocerse
+   igual en las diecisiete tarjetas, cada una con su propio color). */
+.favBtn--activo,
+.favBtn--activo:hover {
+  color: var(--risk-medium);
+  background: color-mix(in srgb, var(--risk-medium) 16%, transparent);
+  border-color: transparent;
 }
 
 .closeBtn {
@@ -1266,26 +1343,40 @@
     font-size: 0.9rem;
   }
 
-  /* El título compite en el header con el icono y el botón de compartir, que
-     entre ambos se llevaban ~70px de los ~190px de la tarjeta. Achicándolos
-     un poco entran títulos como "Dow Jones" sin cortarse. */
+  /* El título compite en el header con el ícono y hasta tres botones
+     (favorito, info, compartir/cerrar): entre todos se llevaban más de la
+     mitad de los ~190px de la tarjeta y el título quedaba en "B…"/"T…".
+     Achicándolos entran títulos cortos ("Blue", "MEP") enteros; los largos
+     ("Dow Jones", "Riesgo País") siguen recortándose, pero de forma legible. */
   .quoteHeader {
-    padding: 0 2px;
+    padding: 0;
   }
 
   .quoteTitleGroup {
-    gap: 7px;
+    gap: 5px;
   }
 
   .quoteIcon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .shareBtn,
-  .infoBtn {
-    width: 30px;
-    height: 30px;
+  .infoBtn,
+  .favBtn {
+    width: 27px;
+    height: 27px;
+  }
+
+  .shareBtn svg,
+  .infoBtn svg,
+  .favBtn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .quoteHeaderActions {
+    gap: 2px;
   }
 
   .quoteBody {

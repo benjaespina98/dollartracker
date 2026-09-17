@@ -19,9 +19,23 @@ interface Props {
   savedAt: number | null;
   /** Serie diaria del símbolo, null mientras carga o si falló */
   historico: SeriePunto[] | null;
+  favorito: boolean;
+  onToggleFavorito: () => void;
 }
 
-export default function MarketCard({ label, icon, ticker, detalle, accent, data, status, savedAt, historico }: Props) {
+export default function MarketCard({
+  label,
+  icon,
+  ticker,
+  detalle,
+  accent,
+  data,
+  status,
+  savedAt,
+  historico,
+  favorito,
+  onToggleFavorito,
+}: Props) {
   const cierre = data?.marketTime ? new Date(data.marketTime * 1000) : null;
 
   return (
@@ -31,6 +45,8 @@ export default function MarketCard({ label, icon, ticker, detalle, accent, data,
       accent={accent}
       status={status}
       hayDatos={!!data}
+      favorito={favorito}
+      onToggleFavorito={onToggleFavorito}
       serie={historico}
       formatValor={(valor) => dolares.format(valor)}
       shareText={

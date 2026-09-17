@@ -24,6 +24,8 @@ interface Props {
   origen: MonedaOrigen;
   /** % de brecha contra el dólar oficial; null/undefined en las casas que no la muestran (ver config/cards) */
   brecha?: number | null;
+  favorito: boolean;
+  onToggleFavorito: () => void;
 }
 
 export default function QuoteCard({
@@ -38,6 +40,8 @@ export default function QuoteCard({
   monto,
   origen,
   brecha,
+  favorito,
+  onToggleFavorito,
 }: Props) {
   const historico = useHistoricoDolar(casa);
 
@@ -70,6 +74,8 @@ export default function QuoteCard({
       status={status}
       hayDatos={!!data}
       skeletonBlocks={2}
+      favorito={favorito}
+      onToggleFavorito={onToggleFavorito}
       serie={historico}
       conGrafico={tieneHistorico(casa)}
       formatValor={(valor) => pesos.format(valor)}

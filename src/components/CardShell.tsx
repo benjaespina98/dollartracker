@@ -9,7 +9,7 @@ import {
 } from "react";
 import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
 import { useModalCard } from "../hooks/useModalCard";
-import { CardBackdrop, CardCloseButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
+import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import ShareButton from "./ShareButton";
 import SparklineRow from "./SparklineRow";
@@ -38,6 +38,8 @@ interface Props {
   children: ReactNode;
   /** Fila inferior: variación, hora del dato, estado offline */
   meta: ReactNode;
+  favorito: boolean;
+  onToggleFavorito: () => void;
 }
 
 // Carcasa común de las tres tarjetas (cotización, mercado, riesgo país). Antes
@@ -59,6 +61,8 @@ export default function CardShell({
   skeletonBlocks = 1,
   children,
   meta,
+  favorito,
+  onToggleFavorito,
 }: Props) {
   const [expandida, setExpandida] = useState(false);
   const [mostrarInfo, setMostrarInfo] = useState(false);
@@ -131,6 +135,11 @@ export default function CardShell({
             </h3>
           </div>
           <div className="quoteHeaderActions">
+            <CardFavoritoButton
+              activo={favorito}
+              onToggle={onToggleFavorito}
+              label={favorito ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
+            />
             <CardInfoButton
               activo={mostrarInfo}
               onToggle={alternarInfo}

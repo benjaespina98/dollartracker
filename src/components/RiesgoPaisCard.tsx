@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { cierreAnterior } from "../lib/fechas";
 import { entero, fechaDelDia, formatearDiaMes, formatearHaceTiempo } from "../lib/format";
+import { categoriaRiesgoPais } from "../lib/riesgoPais";
 import { useHistoricoRiesgoPais } from "../hooks/useHistorico";
 import type { RiesgoPais } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
@@ -14,22 +15,16 @@ interface Props {
   status: CardStatus;
   /** Date.now() de cuando se guardó el dato que se está mostrando, para el "hace X min" del aviso offline */
   savedAt: number | null;
+  favorito: boolean;
+  onToggleFavorito: () => void;
 }
 
-// Umbrales informales usados habitualmente para leer el índice de riesgo país
-function getCategory(valor: number): { label: string; tone: "low" | "medium" | "high" | "critical" } {
-  if (valor < 400) return { label: "Bajo", tone: "low" };
-  if (valor < 800) return { label: "Moderado", tone: "medium" };
-  if (valor < 1500) return { label: "Alto", tone: "high" };
-  return { label: "Crítico", tone: "critical" };
-}
-
-export default function RiesgoPaisCard({ icon, accent, data, status, savedAt }: Props) {
+export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, favorito, onToggleFavorito }: Props) {
   const historico = useHistoricoRiesgoPais();
   const cierrePrevio = useMemo(() => cierreAnterior(historico), [historico]);
 
   const diff = data && cierrePrevio ? data.valor - cierrePrevio.valor : null;
-  const categoria = data ? getCategory(data.valor) : null;
+  const categoria = data ? categoriaRiesgoPais(data.valor) : null;
   const fecha = data ? fechaDelDia(data.fecha) : null;
 
   return (
@@ -39,6 +34,8 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt }: 
       accent={accent}
       status={status}
       hayDatos={!!data}
+      favorito={favorito}
+      onToggleFavorito={onToggleFavorito}
       serie={historico}
       formatValor={(valor) => `${entero.format(Math.round(valor))} pb`}
       shareText={data ? `Riesgo País: ${entero.format(data.valor)} puntos básicos — DollarTracker` : null}

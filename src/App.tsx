@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "./App.css";
+import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
 import { IconPulse } from "./components/icons";
@@ -7,18 +8,29 @@ import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
-import { CURRENCY_SECTIONS, GRANOS, MERCADOS } from "./config/cards";
+import { CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useCotizaciones } from "./hooks/useCotizaciones";
+import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
 import { useTheme } from "./hooks/useTheme";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
+import { prepararResumen } from "./lib/resumenImagen";
+
+// Un solo lugar para ir de "clave de favorito" (casa, key de mercado/grano, o
+// el literal "riesgoPais") a su configuración estática, sin repetir el
+// .find/.get en cada lugar que necesita renderizar una tarjeta por su clave.
+const MONEDA_POR_KEY = new Map<string, CurrencyCardConfig>(
+  CURRENCY_SECTIONS.flatMap((seccion) => seccion.cards).map((c) => [c.key, c])
+);
+const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS].map((m) => [m.key, m]));
 
 export default function App() {
   const { state, refresh: refreshCotizaciones } = useCotizaciones();
   const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
   const { theme, toggleTheme } = useTheme();
+  const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
 
   // Guardamos el texto crudo que se tipeó (no el número) para no pelear con el
   // cursor mientras se escribe "1.234,5"; el parseo se hace acá una sola vez.
@@ -32,6 +44,14 @@ export default function App() {
   // oficial todavía no llegó o vale 0, ninguna tarjeta muestra el badge.
   const ventaOficial = state.oficial?.data?.venta ?? null;
 
+  // dibujarResumen recién lee esto al tocar "Resumen", pero recalcularlo acá
+  // en cada refresco de cotizaciones (y no en cada tecla del conversor, que no
+  // lo toca) es barato y evita rearmarlo desde cero en el click.
+  const resumenDatos = useMemo(
+    () => prepararResumen(state, riesgoPais.data),
+    [state, riesgoPais.data]
+  );
+
   // Antes el botón no daba ninguna señal: se tocaba, no pasaba nada visible
   // durante uno o dos segundos y la reacción natural era volver a tocarlo.
   async function refreshAll() {
@@ -44,7 +64,7 @@ export default function App() {
     }
   }
 
-  function renderMercado({ key, label, ticker, detalle, accent, icon }: (typeof MERCADOS)[number]) {
+  function renderMercado({ key, label, ticker, detalle, accent, icon }: MarketCardConfig) {
     return (
       <MarketCard
         key={key}
@@ -57,8 +77,68 @@ export default function App() {
         status={markets[key]?.status ?? "loading"}
         savedAt={markets[key]?.savedAt ?? null}
         historico={historicoMercados?.[key] ?? null}
+        favorito={esFavorito(key)}
+        onToggleFavorito={() => toggleFavorito(key)}
       />
     );
+  }
+
+  function renderMoneda({ key, label, nombre, accent, icon, conBrecha }: CurrencyCardConfig) {
+    const ventaCasa = state[key]?.data?.venta ?? null;
+    const brecha =
+      conBrecha && ventaOficial && ventaCasa ? ((ventaCasa - ventaOficial) / ventaOficial) * 100 : null;
+
+    return (
+      <QuoteCard
+        key={key}
+        casa={key}
+        label={label}
+        nombre={nombre}
+        icon={icon}
+        accent={accent}
+        data={state[key]?.data ?? null}
+        status={state[key]?.status ?? "loading"}
+        savedAt={state[key]?.savedAt ?? null}
+        monto={monto}
+        origen={origen}
+        brecha={brecha}
+        favorito={esFavorito(key)}
+        onToggleFavorito={() => toggleFavorito(key)}
+      />
+    );
+  }
+
+  function renderRiesgoPais() {
+    return (
+      <RiesgoPaisCard
+        key="riesgoPais"
+        icon={<IconPulse />}
+        accent="#ef4444"
+        data={riesgoPais.data}
+        status={riesgoPais.status}
+        savedAt={riesgoPais.savedAt}
+        favorito={esFavorito("riesgoPais")}
+        onToggleFavorito={() => toggleFavorito("riesgoPais")}
+      />
+    );
+  }
+
+  // Dispatcher para la sección de Favoritos: cualquier tarjeta de la app se
+  // puede favoritear, así que hace falta poder renderizar "la tarjeta que sea"
+  // a partir de su sola clave, reusando exactamente el mismo render que usa
+  // su sección de origen (misma data, mismo comportamiento).
+  function renderPorClave(key: string) {
+    if (key === "riesgoPais") return renderRiesgoPais();
+    const moneda = MONEDA_POR_KEY.get(key);
+    if (moneda) return renderMoneda(moneda);
+    const mercado = MERCADO_POR_KEY.get(key);
+    if (mercado) return renderMercado(mercado);
+    return null; // favorito guardado de una clave que ya no existe
+  }
+
+  function nombreDeClave(key: string): string {
+    if (key === "riesgoPais") return "Riesgo País";
+    return MONEDA_POR_KEY.get(key)?.nombre ?? MERCADO_POR_KEY.get(key)?.label ?? key;
   }
 
   return (
@@ -81,6 +161,8 @@ export default function App() {
                 onToggle={() => setMostrarInfoApp((v) => !v)}
                 label="Acerca de DollarTracker"
               />
+
+              <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
 
               <button
                 className="themeToggleBtn"
@@ -151,6 +233,46 @@ export default function App() {
           )}
         </header>
 
+        {favoritos.length > 0 && (
+          <section className="quoteSection">
+            <h2 className="sectionTitle">
+              <span>★ Favoritos</span>
+            </h2>
+            <div className="grid">
+              {favoritos.map((key, i) => {
+                const tarjeta = renderPorClave(key);
+                if (!tarjeta) return null; // clave de una versión vieja de la app
+
+                return (
+                  <div className="favSlot" key={key}>
+                    <div className="favSlot__controls" role="group" aria-label={`Reordenar ${nombreDeClave(key)}`}>
+                      <button
+                        type="button"
+                        className="favMoveBtn"
+                        onClick={() => mover(key, -1)}
+                        disabled={i === 0}
+                        aria-label={`Subir ${nombreDeClave(key)}`}
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        className="favMoveBtn"
+                        onClick={() => mover(key, 1)}
+                        disabled={i === favoritos.length - 1}
+                        aria-label={`Bajar ${nombreDeClave(key)}`}
+                      >
+                        ▼
+                      </button>
+                    </div>
+                    {tarjeta}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <h2 className="sectionTitle sectionTitle--converter">
           <span>Cotizador</span>
         </h2>
@@ -166,32 +288,7 @@ export default function App() {
             <h2 className="sectionTitle">
               <span>{section.title}</span>
             </h2>
-            <div className="grid">
-              {section.cards.map(({ key, label, nombre, accent, icon, conBrecha }) => {
-                const ventaCasa = state[key]?.data?.venta ?? null;
-                const brecha =
-                  conBrecha && ventaOficial && ventaCasa
-                    ? ((ventaCasa - ventaOficial) / ventaOficial) * 100
-                    : null;
-
-                return (
-                  <QuoteCard
-                    key={key}
-                    casa={key}
-                    label={label}
-                    nombre={nombre}
-                    icon={icon}
-                    accent={accent}
-                    data={state[key]?.data ?? null}
-                    status={state[key]?.status ?? "loading"}
-                    savedAt={state[key]?.savedAt ?? null}
-                    monto={monto}
-                    origen={origen}
-                    brecha={brecha}
-                  />
-                );
-              })}
-            </div>
+            <div className="grid">{section.cards.map(renderMoneda)}</div>
           </section>
         ))}
 
@@ -200,13 +297,7 @@ export default function App() {
             <span>Mercados</span>
           </h2>
           <div className="grid">
-            <RiesgoPaisCard
-              icon={<IconPulse />}
-              accent="#ef4444"
-              data={riesgoPais.data}
-              status={riesgoPais.status}
-              savedAt={riesgoPais.savedAt}
-            />
+            {renderRiesgoPais()}
             {MERCADOS.map(renderMercado)}
           </div>
         </section>
