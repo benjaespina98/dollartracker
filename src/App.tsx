@@ -3,7 +3,7 @@ import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
-import { IconPulse } from "./components/icons";
+import { BrandMark, IconPulse } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import QuoteCard from "./components/QuoteCard";
@@ -148,7 +148,7 @@ export default function App() {
         <header className="header">
           <div className="headerTop">
             <div className="brand">
-              <span className="brandMark" aria-hidden="true">$</span>
+              <BrandMark size={42} className="brandMark" />
               <div className="brandText">
                 <h1 className="title">DollarTracker</h1>
                 <p className="subtitle">Cotizaciones y mercados en tiempo real</p>
@@ -311,7 +311,7 @@ export default function App() {
 
         <footer className="footer">
           <div className="footerBrand">
-            <span className="footerBrand__mark" aria-hidden="true">$</span>
+            <BrandMark size={22} className="footerBrand__mark" />
             <span className="footerBrand__name">
               DollarTracker<sup>™</sup>
             </span>

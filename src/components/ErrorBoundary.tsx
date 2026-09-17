@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { BrandMark } from "./icons";
 
 interface Props {
   children: ReactNode;
@@ -29,7 +30,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="appCrash">
           <div className="appCrash__card">
-            <span className="appCrash__mark" aria-hidden="true">$</span>
+            <BrandMark size={42} className="appCrash__mark" />
             <h1 className="appCrash__title">Algo se rompió</h1>
             <p className="appCrash__text">
               DollarTracker encontró un error inesperado. Probá recargar la página; si el problema sigue,

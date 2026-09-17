@@ -9,6 +9,7 @@ import {
 } from "react";
 import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
 import { useModalCard } from "../hooks/useModalCard";
+import { useSwipeToClose } from "../hooks/useSwipeToClose";
 import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import HistoricoPanel from "./HistoricoPanel";
 import ShareButton from "./ShareButton";
@@ -113,17 +114,32 @@ export default function CardShell({
     else disparador.current?.focus();
   }, [expandida]);
 
-  // El cuerpo solo abre; para cerrar están la X, el fondo y Escape. Cuando
-  // también cerraba, cualquier clic sobre el gráfico o los botones de rango
-  // hacía desaparecer la tarjeta que se estaba mirando.
+  // El cuerpo solo abre; para cerrar están la X, el fondo, Escape y deslizar
+  // de izquierda a derecha. Cuando el cuerpo también cerraba, cualquier clic
+  // sobre el gráfico o los botones de rango hacía desaparecer la tarjeta que
+  // se estaba mirando.
   const abrible = puedeExpandirse && !expandida;
+
+  const { ref: swipeRef, arrastreX, arrastrando } = useSwipeToClose(expandida, cerrar);
 
   return (
     <>
       {expandida && <CardBackdrop onClose={cerrar} />}
       <section
+        ref={swipeRef}
         className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
-        style={{ "--accent": accent } as CSSProperties}
+        style={
+          {
+            "--accent": accent,
+            ...(expandida
+              ? {
+                  translate: `${arrastreX}px 0`,
+                  opacity: arrastreX > 0 ? Math.max(1 - arrastreX / 280, 0.4) : undefined,
+                  transition: arrastrando ? "none" : "translate 0.2s ease-out, opacity 0.2s ease-out",
+                }
+              : null),
+          } as CSSProperties
+        }
         {...(expandida ? { role: "dialog", "aria-modal": true, "aria-label": nombre } : {})}
       >
         <header className="quoteHeader">

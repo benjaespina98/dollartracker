@@ -68,7 +68,7 @@ const COLOR = {
   textMuted: "rgba(255, 255, 255, 0.6)",
   textFaint: "rgba(255, 255, 255, 0.46)",
   positive: "#4ade80",
-  link: "#78beff",
+  link: "#4ade80",
 };
 
 function redondeado(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -100,22 +100,27 @@ export function dibujarResumen(datos: ResumenDatos): HTMLCanvasElement {
 
   const marginX = 64;
 
-  // Marca
-  const marcaGrad = ctx.createLinearGradient(marginX, 56, marginX + 76, 132);
-  marcaGrad.addColorStop(0, "#4ade80");
-  marcaGrad.addColorStop(1, "#78beff");
-  ctx.fillStyle = marcaGrad;
+  // Marca: la misma placa oscura + línea de cotización verde que el resto de
+  // la app (ver BrandMark en components/icons.tsx), a mano acá porque el
+  // canvas no puede reusar el SVG de React directamente.
+  ctx.fillStyle = COLOR.card;
   redondeado(ctx, marginX, 56, 76, 76, 20);
   ctx.fill();
-  ctx.fillStyle = COLOR.bg;
-  ctx.font = "800 44px Inter, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("$", marginX + 38, 56 + 40);
+  ctx.strokeStyle = "#4ade80";
+  ctx.lineWidth = 5.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(marginX + 16, 56 + 51);
+  ctx.lineTo(marginX + 29, 56 + 34);
+  ctx.lineTo(marginX + 38, 56 + 43);
+  ctx.lineTo(marginX + 60, 56 + 16);
+  ctx.stroke();
 
   ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
   ctx.fillStyle = COLOR.textStrong;
-  ctx.font = "800 52px Inter, sans-serif";
+  ctx.font = "700 52px Sora, Inter, sans-serif";
   ctx.fillText("DollarTracker", marginX + 96, 92);
   ctx.fillStyle = COLOR.textMuted;
   ctx.font = "500 30px Inter, sans-serif";

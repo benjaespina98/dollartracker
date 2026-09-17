@@ -75,33 +75,23 @@
   min-width: 0;
 }
 
+/* La marca (placa oscura + línea verde) ya trae su propio color y forma
+   desde el SVG: acá solo controlamos su lugar en el layout y la sombra. */
 .brandMark {
   flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
+  display: block;
   border-radius: 12px;
-  background: linear-gradient(135deg, #4ade80, #78beff);
-  color: #08090c;
-  font-weight: 800;
-  font-size: 1.35rem;
   box-shadow: 0 6px 18px rgb(0 0 0 / 35%);
 }
 
 .title {
   margin: 0;
+  font-family: "Sora", "Inter", system-ui, sans-serif;
   font-size: clamp(1.5rem, 5vw, 2rem);
   line-height: 1.1;
-  letter-spacing: -0.025em;
-  font-weight: 800;
-  background: linear-gradient(90deg, #4ade80, #78beff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
-  filter: var(--accent-contrast-filter);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--text-strong);
 }
 
 .subtitle {
@@ -1201,19 +1191,12 @@
 }
 
 .footerBrand__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
+  display: block;
   border-radius: 7px;
-  background: linear-gradient(135deg, #4ade80, #78beff);
-  color: #08090c;
-  font-weight: 800;
-  font-size: 0.8rem;
 }
 
 .footerBrand__name {
+  font-family: "Sora", "Inter", system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--text-strong);
@@ -1290,6 +1273,24 @@
    4 columnas en desktop), apilamos compra/venta en una fila cada uno
    en vez de forzar dos columnas apretadas que cortan el texto */
 @container (max-width: 300px) {
+  /* Antes favorito+info+compartir se achicaban para convivir con el título
+     en una sola fila: con los tres, apenas quedaban ~13px de ícono y el
+     título terminaba cortado a "B…"/"T…", y encima los botones quedaban
+     demasiado chicos y pegados para tocarlos con el dedo sin errarle al de
+     al lado. Ahora pasan a su propia fila: el título usa todo el ancho (ya
+     no se corta ni "Riesgo País") y los botones se quedan en su tamaño
+     normal, con más aire entre ellos. */
+  .quoteHeader {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .quoteHeaderActions {
+    flex-basis: 100%;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
   .quotePrices {
     flex-direction: column;
     gap: 6px;
@@ -1343,42 +1344,6 @@
     font-size: 0.9rem;
   }
 
-  /* El título compite en el header con el ícono y hasta tres botones
-     (favorito, info, compartir/cerrar): entre todos se llevaban más de la
-     mitad de los ~190px de la tarjeta y el título quedaba en "B…"/"T…".
-     Achicándolos entran títulos cortos ("Blue", "MEP") enteros; los largos
-     ("Dow Jones", "Riesgo País") siguen recortándose, pero de forma legible. */
-  .quoteHeader {
-    padding: 0;
-  }
-
-  .quoteTitleGroup {
-    gap: 5px;
-  }
-
-  .quoteIcon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .shareBtn,
-  .infoBtn,
-  .favBtn {
-    width: 27px;
-    height: 27px;
-  }
-
-  .shareBtn svg,
-  .infoBtn svg,
-  .favBtn svg {
-    width: 13px;
-    height: 13px;
-  }
-
-  .quoteHeaderActions {
-    gap: 2px;
-  }
-
   .quoteBody {
     padding: 12px;
     gap: 10px;
@@ -1426,16 +1391,8 @@
 }
 
 .appCrash__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
+  display: block;
   border-radius: 12px;
-  background: linear-gradient(135deg, #4ade80, #78beff);
-  color: #08090c;
-  font-weight: 800;
-  font-size: 1.35rem;
 }
 
 .appCrash__title {

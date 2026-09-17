@@ -168,3 +168,29 @@ export function IconGlyph({ glyph }: { glyph: string }) {
     </span>
   );
 }
+
+interface BrandMarkProps {
+  size?: number;
+  className?: string;
+}
+
+// Marca de la app: placa oscura con una línea de cotización en verde, en vez
+// del "$" con degradé verde-celeste de antes. Un solo componente para las
+// tres veces que aparece en la UI (header, footer, pantalla de error) y de
+// referencia para la versión en <canvas> del resumen para compartir y para
+// los íconos de PWA/favicon: cambiar el diseño de la marca es este archivo,
+// no buscarlo repetido en cuatro lugares.
+export function BrandMark({ size = 42, className }: BrandMarkProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 42 42" fill="none" aria-hidden="true" className={className}>
+      <rect width="42" height="42" rx="12" fill="#121419" />
+      <path
+        d="M9 28l7-9 5 5 12-14"
+        stroke="#4ade80"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
