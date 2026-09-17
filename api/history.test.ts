@@ -133,4 +133,22 @@ describe("/api/history", () => {
     expect(res.status).toBe(500);
     expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
+
+  it("no expone Access-Control-Allow-Origin a un origen no permitido", async () => {
+    const conOrigen = new Request("https://x.test/api/history", {
+      headers: { Origin: "https://evil.example" },
+    });
+    responderCon(200, { USO: { status: "ok", values: [{ datetime: "2026-08-07", close: "118.50" }, { datetime: "2026-08-06", close: "117.20" }] } });
+    const res = await handler(conOrigen);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
+  });
+
+  it("refleja el origen de producción en Access-Control-Allow-Origin", async () => {
+    const conOrigen = new Request("https://x.test/api/history", {
+      headers: { Origin: "https://dollartracker.vercel.app" },
+    });
+    responderCon(200, { USO: { status: "ok", values: [{ datetime: "2026-08-07", close: "118.50" }, { datetime: "2026-08-06", close: "117.20" }] } });
+    const res = await handler(conOrigen);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://dollartracker.vercel.app");
+  });
 });

@@ -1,16 +1,11 @@
 // Vercel Edge Function: pide las cotizaciones a Twelve Data (API oficial,
 // capa gratuita, requiere key) usando la key del lado del servidor —así
 // nunca queda expuesta en el bundle del navegador— y reenvía la respuesta
-// simplificada con CORS abierto para que el frontend estático la consuma.
+// simplificada para que el frontend la consuma (ver corsHeaders en
+// _symbols.ts para qué orígenes puede leerla un tercero).
 export const config = { runtime: "edge" };
 
-import {
-  NO_CACHE,
-  SYMBOLS,
-  SYMBOL_LIST,
-  corsHeaders as headers,
-  detectarErrorUpstream,
-} from "./_symbols";
+import { NO_CACHE, SYMBOLS, SYMBOL_LIST, corsHeaders, detectarErrorUpstream } from "./_symbols";
 
 // El plan gratuito de Twelve Data da 8 créditos por minuto y 800 por día, y
 // cada refresco gasta uno por símbolo. Al sumar soja, maíz y trigo pasamos de
@@ -21,10 +16,6 @@ import {
 // stale-while-revalidate largo hace que el CDN siga sirviendo el último valor
 // bueno aunque un refresco puntual falle.
 const CACHE_30MIN = "s-maxage=1800, stale-while-revalidate=7200";
-
-function corsHeaders(cacheControl = CACHE_30MIN) {
-  return headers(cacheControl);
-}
 
 interface TwelveDataQuote {
   symbol: string;
@@ -40,15 +31,17 @@ interface TwelveDataQuote {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const origin = req.headers.get("origin");
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders() });
+    return new Response(null, { status: 204, headers: corsHeaders(CACHE_30MIN, origin) });
   }
 
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
     return new Response(
       JSON.stringify({ error: "Falta configurar TWELVE_DATA_API_KEY en las variables de entorno de Vercel" }),
-      { status: 500, headers: corsHeaders(NO_CACHE) }
+      { status: 500, headers: corsHeaders(NO_CACHE, origin) }
     );
   }
 
@@ -60,7 +53,7 @@ export default async function handler(req: Request): Promise<Response> {
   } catch {
     return new Response(JSON.stringify({ error: "no se pudo contactar Twelve Data" }), {
       status: 502,
-      headers: corsHeaders(NO_CACHE),
+      headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
@@ -74,7 +67,7 @@ export default async function handler(req: Request): Promise<Response> {
         upstreamMessage: error.message,
         hint: error.hint,
       }),
-      { status: 502, headers: corsHeaders(NO_CACHE) }
+      { status: 502, headers: corsHeaders(NO_CACHE, origin) }
     );
   }
 
@@ -113,9 +106,9 @@ export default async function handler(req: Request): Promise<Response> {
   if (!anyResolved) {
     return new Response(JSON.stringify({ error: "Twelve Data no devolvió ninguna cotización" }), {
       status: 502,
-      headers: corsHeaders(NO_CACHE),
+      headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
-  return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders() });
+  return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders(CACHE_30MIN, origin) });
 }

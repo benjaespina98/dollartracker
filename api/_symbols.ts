@@ -17,13 +17,36 @@ export const SYMBOLS: Record<string, string> = {
 
 export const SYMBOL_LIST = Object.values(SYMBOLS).join(",");
 
-export function corsHeaders(cacheControl: string) {
-  return {
-    "Access-Control-Allow-Origin": "*",
+// El frontend solo llama a estos endpoints con una ruta relativa (mismo
+// origen), donde el header de CORS no influye en nada: el navegador jamás lo
+// mira para un fetch same-origin. Un "*" acá no habilita a la app, solo deja
+// que cualquier otro sitio incruste este proxy en el suyo y gaste, gratis, los
+// créditos compartidos de Twelve Data (8/min, 800/día). Reflejar el origen
+// solo si está en esta lista mantiene la app intacta (local, preview y
+// producción) y bloquea el resto.
+const ALLOWED_ORIGINS = new Set([
+  "https://dollartracker.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+export function corsHeaders(cacheControl: string, origin?: string | null) {
+  // Sin "Vary: Origin" a propósito: el CDN cachea una sola respuesta por URL
+  // (la base de los cálculos de crédito en market.ts/history.ts) y este header
+  // va parejo con eso. Si un pedido con un origen no permitido llega a
+  // computar la respuesta que queda en caché, lo peor que pasa es que ese
+  // Access-Control-Allow-Origin quede pisado hasta el próximo refresco: el
+  // navegador igual exige que coincida con el origen real de quien pide, así
+  // que ningún tercero gana acceso por ese cache compartido.
+  const headers: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Content-Type": "application/json",
     "Cache-Control": cacheControl,
   };
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
 }
 
 // Los errores no se cachean: si no, un 429 puntual se congelaba en el CDN.
