@@ -27,15 +27,17 @@ interface TwelveDataSerie {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const origin = req.headers.get("origin");
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(CACHE_12H) });
+    return new Response(null, { status: 204, headers: corsHeaders(CACHE_12H, origin) });
   }
 
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
     return new Response(
       JSON.stringify({ error: "Falta configurar TWELVE_DATA_API_KEY en las variables de entorno de Vercel" }),
-      { status: 500, headers: corsHeaders(NO_CACHE) }
+      { status: 500, headers: corsHeaders(NO_CACHE, origin) }
     );
   }
 
@@ -49,7 +51,7 @@ export default async function handler(req: Request): Promise<Response> {
   } catch {
     return new Response(JSON.stringify({ error: "no se pudo contactar Twelve Data" }), {
       status: 502,
-      headers: corsHeaders(NO_CACHE),
+      headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
@@ -63,7 +65,7 @@ export default async function handler(req: Request): Promise<Response> {
         upstreamMessage: error.message,
         hint: error.hint,
       }),
-      { status: 502, headers: corsHeaders(NO_CACHE) }
+      { status: 502, headers: corsHeaders(NO_CACHE, origin) }
     );
   }
 
@@ -87,9 +89,9 @@ export default async function handler(req: Request): Promise<Response> {
   if (Object.keys(payload).length === 0) {
     return new Response(JSON.stringify({ error: "Twelve Data no devolvió ninguna serie" }), {
       status: 502,
-      headers: corsHeaders(NO_CACHE),
+      headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
-  return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders(CACHE_12H) });
+  return new Response(JSON.stringify(payload), { status: 200, headers: corsHeaders(CACHE_12H, origin) });
 }
