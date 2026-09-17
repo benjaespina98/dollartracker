@@ -22,6 +22,9 @@ const fechaLarga = new Intl.DateTimeFormat("es-AR", {
   day: "numeric",
   month: "long",
   year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
 });
 
 /**

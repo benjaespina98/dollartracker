@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { canvasABlob, dibujarResumen, type ResumenDatos } from "../lib/resumenImagen";
 
+const URL_APP = "https://dollartracker.vercel.app/";
+
 interface Props {
   datos: ResumenDatos;
   /** Sin al menos el oficial, la imagen saldría casi vacía */
@@ -28,7 +30,11 @@ export default function CompartirResumenButton({ datos, disabled }: Props) {
 
       if (navigator.canShare?.({ files: [archivo] })) {
         try {
-          await navigator.share({ files: [archivo], title: "DollarTracker" });
+          // Sin "title"/"text" fijo: WhatsApp lo mostraba como una línea de
+          // texto suelta ("DollarTracker") al lado de la imagen, sin ningún
+          // link. Pasar la URL de la app en "text" hace que WhatsApp la
+          // detecte y la muestre como un link tocable en vez de texto plano.
+          await navigator.share({ files: [archivo], text: URL_APP });
           return;
         } catch {
           // cancelado por quien comparte: no hace falta bajar el archivo igual
