@@ -56,16 +56,25 @@ export default function CompartirResumenButton({ datos, disabled }: Props) {
       disabled={disabled || generando}
       title="Compartir el resumen del día como imagen"
     >
+      {/* Ícono estándar de "compartir" (flecha saliendo de una bandeja, el
+          mismo lenguaje que usan iOS/Android): antes era un ícono de
+          "imagen" que en celular, sin la palabra "Resumen" al lado, no
+          comunicaba que tocarlo abre el menú de compartir. */}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="3" y="4.5" width="18" height="14" rx="2.2" stroke="currentColor" strokeWidth="2" />
         <path
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="m4 15 4.5-4.5a2 2 0 0 1 2.8 0L15 14.2M13.5 12.8l1.7-1.7a2 2 0 0 1 2.8 0L20 13.2"
+          d="M12 15.5V4M8 8l4-4 4 4"
         />
-        <circle cx="8.2" cy="8.7" r="1.3" fill="currentColor" />
+        <path
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M5 12.5v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
+        />
       </svg>
       <span className="resumenBtn__label">{generando ? "Generando…" : "Resumen"}</span>
     </button>
