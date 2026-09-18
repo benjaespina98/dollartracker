@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -32,5 +33,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
+    {/* Sin UI propia ni cookies: las visitas se ven solo en el dashboard de
+        Vercel de quien es dueño del proyecto, nunca en la app. No hace nada
+        fuera de un deploy en Vercel (en `npm run dev` no manda datos). */}
+    <Analytics />
   </React.StrictMode>,
 )
