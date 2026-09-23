@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
@@ -10,6 +10,7 @@ import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import { CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useCotizaciones } from "./hooks/useCotizaciones";
+import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
@@ -39,6 +40,11 @@ export default function App() {
   const monto = parsearMonto(montoTexto);
   const [mostrarInfoApp, setMostrarInfoApp] = useState(false);
   const [refrescando, setRefrescando] = useState(false);
+
+  // El "Acerca de" del header se cierra tocando afuera del header o con Escape.
+  const headerRef = useRef<HTMLElement | null>(null);
+  const cerrarInfoApp = useCallback(() => setMostrarInfoApp(false), []);
+  useDismiss(mostrarInfoApp, headerRef, cerrarInfoApp);
 
   // Base de la brecha cambiaria (blue/MEP/CCL contra el oficial). Si el
   // oficial todavía no llegó o vale 0, ninguna tarjeta muestra el badge.
@@ -113,7 +119,7 @@ export default function App() {
       <RiesgoPaisCard
         key="riesgoPais"
         icon={<IconPulse />}
-        accent="#ef4444"
+        accent="#f87171"
         data={riesgoPais.data}
         status={riesgoPais.status}
         savedAt={riesgoPais.savedAt}
@@ -145,7 +151,7 @@ export default function App() {
     <>
       <NetworkBanner />
       <div className="app">
-        <header className="header">
+        <header className="header" ref={headerRef}>
           <div className="headerTop">
             <div className="brand">
               <BrandMark size={42} className="brandMark" />

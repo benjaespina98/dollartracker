@@ -15,14 +15,14 @@
   --bg-glow-b: rgba(120, 190, 255, 0.07);
   --text: rgba(255, 255, 255, 0.92);
   --text-strong: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.6);
-  --text-faint: rgba(255, 255, 255, 0.46);
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-faint: rgba(255, 255, 255, 0.58);
   --card-bg: #121419;
   --card-bg-hover: #181b21;
-  --card-border: rgba(255, 255, 255, 0.09);
+  --card-border: rgba(255, 255, 255, 0.13);
   --btn-bg: rgba(255, 255, 255, 0.07);
   --btn-bg-hover: rgba(255, 255, 255, 0.13);
-  --btn-border: rgba(255, 255, 255, 0.12);
+  --btn-border: rgba(255, 255, 255, 0.18);
   --btn-border-hover: rgba(255, 255, 255, 0.26);
   --price-block-bg: rgba(255, 255, 255, 0.05);
   --card-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -57,14 +57,14 @@
   --bg-glow-b: rgba(120, 190, 255, 0.12);
   --text: rgba(15, 23, 32, 0.9);
   --text-strong: #10151c;
-  --text-muted: rgba(15, 23, 32, 0.64);
-  --text-faint: rgba(15, 23, 32, 0.54);
+  --text-muted: rgba(15, 23, 32, 0.78);
+  --text-faint: rgba(15, 23, 32, 0.68);
   --card-bg: #ffffff;
   --card-bg-hover: #ffffff;
-  --card-border: rgba(15, 23, 32, 0.1);
+  --card-border: rgba(15, 23, 32, 0.15);
   --btn-bg: rgba(15, 23, 32, 0.06);
   --btn-bg-hover: rgba(15, 23, 32, 0.1);
-  --btn-border: rgba(15, 23, 32, 0.14);
+  --btn-border: rgba(15, 23, 32, 0.24);
   --btn-border-hover: rgba(15, 23, 32, 0.22);
   --price-block-bg: rgba(15, 23, 32, 0.05);
   --card-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -72,13 +72,13 @@
   --shadow-card-hover: 0 14px 32px rgb(15 23 32 / 12%);
   --skeleton-a: rgba(15, 23, 32, 0.06);
   --skeleton-b: rgba(15, 23, 32, 0.12);
-  --link: #1d6fd8;
-  --link-hover: #178a4c;
-  --positive: #16a34a;
-  --negative: #dc2626;
-  --risk-medium: #a16207;
-  --risk-high: #c2410c;
-  --accent-contrast-filter: brightness(0.72) saturate(1.15);
+  --link: #1a63c2;
+  --link-hover: #157a44;
+  --positive: #166534;
+  --negative: #b91c1c;
+  --risk-medium: #713f12;
+  --risk-high: #b03a0a;
+  --accent-contrast-filter: brightness(0.5) saturate(1.3);
 }
 
 *,

@@ -10,7 +10,13 @@ interface BackdropProps {
 }
 
 export function CardBackdrop({ onClose }: BackdropProps) {
-  return <div className="cardBackdrop" onClick={onClose} aria-hidden="true" />;
+  // El aviso hace visible que el fondo cierra: sin él, la única salida que se
+  // veía era la X. Va en el fondo (no en el popup) porque es lo que se toca.
+  return (
+    <div className="cardBackdrop" onClick={onClose} aria-hidden="true">
+      <span className="cardBackdrop__hint">Tocá afuera para cerrar</span>
+    </div>
+  );
 }
 
 interface CloseButtonProps {

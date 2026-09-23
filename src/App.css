@@ -288,10 +288,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 22px;
+  width: 38px;
+  height: 32px;
   padding: 0;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   line-height: 1;
   border-radius: 6px;
   border: 1px solid var(--btn-border);
@@ -894,8 +894,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border-radius: 999px;
   border: none;
@@ -922,7 +922,7 @@
 
 .monedaTab {
   flex: 1;
-  padding: 8px 4px;
+  padding: 12px 4px;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1056,7 +1056,7 @@
 
 .rangoBtn {
   flex: 1;
-  padding: 8px 4px;
+  padding: 12px 4px;
   font-size: 0.74rem;
   font-weight: 700;
   border-radius: 8px;
@@ -1138,10 +1138,64 @@
     0 0 48px -12px color-mix(in srgb, var(--accent) 55%, transparent), var(--card-inset-highlight);
 }
 
-@media (max-width: 400px) {
+/* En celular el popup ocupaba casi toda la pantalla (12px de margen a los
+   costados y ~40px arriba y abajo): casi no quedaba fondo para tocar afuera y
+   cerrar, así que la X parecía la única salida. Se achica para dejar una
+   franja generosa de fondo, donde además va el aviso "Tocá afuera". */
+@media (max-width: 700px) {
   .quoteCard--expandida {
-    width: calc(100vw - 24px);
+    width: calc(100vw - 40px);
+    max-height: min(76vh, 760px);
   }
+
+  .quoteCard--expandida .quoteBody {
+    max-height: min(76vh, 760px);
+  }
+
+  @supports (height: 100dvh) {
+    .quoteCard--expandida,
+    .quoteCard--expandida .quoteBody {
+      max-height: min(76dvh, 760px);
+    }
+  }
+}
+
+.cardBackdrop__hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* Botones dentro del popup abierto: en el celular los de 34px quedaban
+   chicos y pegados entre sí, fáciles de errarle. */
+.quoteCard--expandida .closeBtn,
+.quoteCard--expandida .infoBtn,
+.quoteCard--expandida .favBtn {
+  width: 40px;
+  height: 40px;
+}
+
+.quoteCard--expandida .quoteHeaderActions {
+  gap: 8px;
+}
+
+/* El título y los botones del popup flotan sobre el fondo oscurecido: en tema
+   claro quedaban oscuros sobre gris. Una base propia les da el contraste. */
+.quoteCard--expandida .quoteHeader {
+  padding: 4px 8px 4px 10px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
 }
 
 /* Cuadro con la explicación de qué se está mostrando, desplegado por el

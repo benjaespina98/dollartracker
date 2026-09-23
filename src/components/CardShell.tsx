@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
+import { useDismiss } from "../hooks/useDismiss";
 import { useModalCard } from "../hooks/useModalCard";
 import { useSwipeToClose } from "../hooks/useSwipeToClose";
 import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
@@ -121,6 +122,11 @@ export default function CardShell({
   const abrible = puedeExpandirse && !expandida;
 
   const { ref: swipeRef, arrastreX, arrastrando } = useSwipeToClose(expandida, cerrar);
+
+  // La explicación en línea (tarjetas sin gráfico, como Euro y Real) se cierra
+  // tocando afuera o con Escape, no solo volviendo a tocar el (i).
+  const cerrarInfo = useCallback(() => setMostrarInfo(false), []);
+  useDismiss(mostrarInfo && !expandida, swipeRef, cerrarInfo);
 
   return (
     <>
