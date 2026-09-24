@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { esPayloadMercado, esRiesgoPais, pedirJson } from "../lib/http";
 import { loadFromCache, saveToCache } from "../lib/offlineCache";
 import type { MarketQuote, RiesgoPais } from "../types";
 import { ESPERA_CUPO_MS } from "./useHistorico";
@@ -18,15 +19,12 @@ interface MarketDataState {
 }
 
 async function pedirRiesgoPais(signal: AbortSignal): Promise<RiesgoPais> {
-  const res = await fetch(RIESGO_PAIS_URL, { signal });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  return pedirJson(RIESGO_PAIS_URL, signal, esRiesgoPais);
 }
 
 async function pedirMercado(signal: AbortSignal): Promise<Record<string, MarketQuote | null>> {
-  const res = await fetch("/api/market", { signal });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // Sin reintentos propios: fetchMercados ya espera el cupo por minuto y reintenta.
+  return pedirJson("/api/market", signal, esPayloadMercado, { reintentos: 0 });
 }
 
 function esperar(ms: number, signal: AbortSignal): Promise<void> {

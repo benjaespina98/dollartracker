@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { esCotizacion, pedirJson } from "../lib/http";
 import { loadFromCache } from "../lib/offlineCache";
 import type { Cotizacion } from "../types";
 import { fetchResource, type ResourceEntry, type ResourceStatus } from "./useResource";
@@ -27,9 +28,7 @@ function estadoInicial(): CotizacionesState {
 }
 
 async function pedirCotizacion(url: string, signal: AbortSignal): Promise<Cotizacion> {
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  return pedirJson(url, signal, esCotizacion);
 }
 
 export function useCotizaciones() {
