@@ -25,13 +25,7 @@ async function pedirRiesgoPais(signal: AbortSignal): Promise<RiesgoPais> {
 
 async function pedirMercado(signal: AbortSignal): Promise<Record<string, MarketQuote | null>> {
   const res = await fetch("/api/market", { signal });
-  if (!res.ok) {
-    // El proxy manda el motivo concreto en el cuerpo (key inválida, sin
-    // créditos, con su pista). Sin esto la única señal es un "No se pudo
-    // obtener el dato" en la tarjeta, que no dice nada.
-    console.warn("[DollarTracker] /api/market falló:", res.status, await res.json().catch(() => null));
-    throw new Error(`HTTP ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 

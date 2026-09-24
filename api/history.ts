@@ -1,4 +1,4 @@
-import { NO_CACHE, SYMBOLS, SYMBOL_LIST, corsHeaders, detectarErrorUpstream } from "./_symbols";
+import { NO_CACHE, SYMBOLS, SYMBOL_LIST, comoObjeto, corsHeaders, pedirATwelveData, validarPedido } from "./_symbols";
 
 // Serie diaria de cada mercado, para los gráficos de las tarjetas.
 //
@@ -29,9 +29,8 @@ interface TwelveDataSerie {
 export default async function handler(req: Request): Promise<Response> {
   const origin = req.headers.get("origin");
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(CACHE_12H, origin) });
-  }
+  const rechazo = validarPedido(req, CACHE_12H);
+  if (rechazo) return rechazo;
 
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
@@ -45,31 +44,17 @@ export default async function handler(req: Request): Promise<Response> {
     `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(SYMBOL_LIST)}` +
     `&interval=1day&outputsize=${DIAS}&apikey=${apiKey}`;
 
-  let upstream: Response;
-  try {
-    upstream = await fetch(url);
-  } catch {
-    return new Response(JSON.stringify({ error: "no se pudo contactar Twelve Data" }), {
+  const resultado = await pedirATwelveData(url, req);
+  if (!resultado.ok) return resultado.response;
+
+  const bySymbol = comoObjeto<TwelveDataSerie>(resultado.raw);
+  if (!bySymbol) {
+    return new Response(JSON.stringify({ error: "respuesta inesperada del proveedor de datos" }), {
       status: 502,
       headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
-  const raw: unknown = await upstream.json().catch(() => null);
-  const error = detectarErrorUpstream(upstream, raw);
-  if (error) {
-    return new Response(
-      JSON.stringify({
-        error: "Twelve Data rechazó el pedido",
-        upstreamStatus: error.status,
-        upstreamMessage: error.message,
-        hint: error.hint,
-      }),
-      { status: 502, headers: corsHeaders(NO_CACHE, origin) }
-    );
-  }
-
-  const bySymbol = raw as Record<string, TwelveDataSerie>;
   const payload: Record<string, { fecha: string; valor: number }[]> = {};
 
   for (const [key, symbol] of Object.entries(SYMBOLS)) {

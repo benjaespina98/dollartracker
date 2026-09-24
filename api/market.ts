@@ -5,7 +5,7 @@
 // _symbols.ts para qué orígenes puede leerla un tercero).
 export const config = { runtime: "edge" };
 
-import { NO_CACHE, SYMBOLS, SYMBOL_LIST, corsHeaders, detectarErrorUpstream } from "./_symbols";
+import { NO_CACHE, SYMBOLS, SYMBOL_LIST, comoObjeto, corsHeaders, pedirATwelveData, validarPedido } from "./_symbols";
 
 // El plan gratuito de Twelve Data da 8 créditos por minuto y 800 por día, y
 // cada refresco gasta uno por símbolo. Al sumar soja, maíz y trigo pasamos de
@@ -33,9 +33,8 @@ interface TwelveDataQuote {
 export default async function handler(req: Request): Promise<Response> {
   const origin = req.headers.get("origin");
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(CACHE_30MIN, origin) });
-  }
+  const rechazo = validarPedido(req, CACHE_30MIN);
+  if (rechazo) return rechazo;
 
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
@@ -47,32 +46,18 @@ export default async function handler(req: Request): Promise<Response> {
 
   const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(SYMBOL_LIST)}&apikey=${apiKey}`;
 
-  let upstream: Response;
-  try {
-    upstream = await fetch(url);
-  } catch {
-    return new Response(JSON.stringify({ error: "no se pudo contactar Twelve Data" }), {
+  const resultado = await pedirATwelveData(url, req);
+  if (!resultado.ok) return resultado.response;
+
+  const bySymbol = comoObjeto<TwelveDataQuote>(resultado.raw);
+  if (!bySymbol) {
+    return new Response(JSON.stringify({ error: "respuesta inesperada del proveedor de datos" }), {
       status: 502,
       headers: corsHeaders(NO_CACHE, origin),
     });
   }
 
-  const raw: unknown = await upstream.json().catch(() => null);
-  const error = detectarErrorUpstream(upstream, raw);
-  if (error) {
-    return new Response(
-      JSON.stringify({
-        error: "Twelve Data rechazó el pedido",
-        upstreamStatus: error.status,
-        upstreamMessage: error.message,
-        hint: error.hint,
-      }),
-      { status: 502, headers: corsHeaders(NO_CACHE, origin) }
-    );
-  }
-
   // Con más de un símbolo, Twelve Data devuelve un objeto keyed por símbolo.
-  const bySymbol = raw as Record<string, TwelveDataQuote>;
 
   const payload: Record<string, unknown> = {};
 

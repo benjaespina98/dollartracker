@@ -92,23 +92,28 @@ describe("/api/history", () => {
     expect(res.headers.get("Cache-Control")).toBe("s-maxage=43200, stale-while-revalidate=86400");
   });
 
-  it("propaga el motivo real cuando se acaban los créditos", async () => {
+  it("avisa el límite de cuota sin filtrar el mensaje del proveedor", async () => {
     responderCon(429, { code: 429, status: "error", message: "You have run out of API credits" });
 
     const res = await handler(req);
-    const body = await res.json();
+    const texto = await res.text();
     expect(res.status).toBe(502);
-    expect(body.upstreamStatus).toBe(429);
-    expect(body.upstreamMessage).toBe("You have run out of API credits");
-    expect(body.hint).toContain("créditos");
+    expect(JSON.parse(texto).motivo).toBe("limite_de_cuota");
+    expect(texto).not.toContain("credits");
   });
 
-  it("propaga el motivo real cuando la key es inválida", async () => {
+  it("con la key inválida responde un error genérico, sin pistas de configuración", async () => {
     responderCon(401, { code: 401, status: "error", message: "Invalid API key" });
 
-    const body = await (await handler(req)).json();
-    expect(body.upstreamStatus).toBe(401);
-    expect(body.hint).toContain("Vercel");
+    const res = await handler(req);
+    const texto = await res.text();
+    expect(res.status).toBe(502);
+    expect(texto).not.toMatch(/key|Vercel/i);
+  });
+
+  it("rechaza cualquier query string", async () => {
+    responderCon(200, {});
+    expect((await handler(new Request("https://x.test/api/history?a=1"))).status).toBe(400);
   });
 
   it("detecta el error aunque venga con HTTP 200", async () => {

@@ -58,14 +58,32 @@ describe("/api/market", () => {
     expect(res.headers.get("Cache-Control")).toBe("s-maxage=1800, stale-while-revalidate=7200");
   });
 
-  it("propaga el motivo real cuando se acaban los créditos", async () => {
+  it("avisa el límite de cuota sin filtrar el mensaje del proveedor", async () => {
     responderCon(429, { code: 429, status: "error", message: "You have run out of API credits" });
 
     const res = await handler(req);
-    const body = await res.json();
+    const texto = await res.text();
     expect(res.status).toBe(502);
-    expect(body.upstreamStatus).toBe(429);
-    expect(body.hint).toContain("créditos");
+    expect(JSON.parse(texto).motivo).toBe("limite_de_cuota");
+    expect(texto).not.toContain("credits");
+  });
+
+  it("rechaza cualquier query string sin llamar al proveedor (evita esquivar la caché)", async () => {
+    responderCon(200, {});
+    const res = await handler(new Request("https://x.test/api/market?x=1"));
+    expect(res.status).toBe(400);
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("rechaza métodos que no sean GET", async () => {
+    const res = await handler(new Request("https://x.test/api/market", { method: "POST" }));
+    expect(res.status).toBe(405);
+  });
+
+  it("responde 502 si el proveedor devuelve algo que no es un objeto", async () => {
+    responderCon(200, [1, 2, 3]);
+    expect((await handler(req)).status).toBe(502);
   });
 
   it("detecta el error aunque venga con HTTP 200", async () => {
