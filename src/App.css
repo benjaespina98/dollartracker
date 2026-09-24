@@ -1112,6 +1112,10 @@
   top: 50%;
   left: 50%;
   width: min(560px, calc(100vw - 32px));
+  /* .quoteCard trae height: 100% para llenar su celda de la grilla; ya fuera
+     de la grilla eso la volvía una caja transparente de 76-90vh mucho más alta
+     que lo que se ve, y esa zona se tragaba los toques que debían cerrar. */
+  height: auto;
   max-height: min(90vh, 760px);
   transform: translate(-50%, -50%);
   animation: cardExpandIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
