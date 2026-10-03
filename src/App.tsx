@@ -325,6 +325,17 @@ export default function App() {
           <p className="footerNote">
             Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
           </p>
+          <a
+            className="madeBy"
+            href="https://www.instagram.com/200ok.dev/"
+            target="_blank"
+            rel="noopener"
+            aria-label="200ok.dev en Instagram"
+          >
+            <span className="madeBy__text">made by</span>
+            <img className="madeBy__logo madeBy__logo--dark" src="/200ok-logo.svg" alt="200ok.dev" loading="lazy" />
+            <img className="madeBy__logo madeBy__logo--light" src="/200ok-logo-light.svg" alt="200ok.dev" loading="lazy" />
+          </a>
         </footer>
       </div>
     </>
