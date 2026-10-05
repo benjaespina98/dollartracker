@@ -58,14 +58,14 @@ export default function CompartirResumenButton({ datos, disabled }: Props) {
 
   return (
     <button
-      className="resumenBtn"
+      className="shareChip"
       onClick={compartir}
       type="button"
       disabled={disabled || generando}
-      aria-label="Compartir el resumen del día como imagen"
-      title="Compartir resumen"
+      title="Compartir las cotizaciones del dólar como imagen"
     >
-      <IconShare width={18} height={18} />
+      <IconShare width={16} height={16} />
+      {generando ? "Generando…" : "Compartir cotizaciones"}
     </button>
   );
 }

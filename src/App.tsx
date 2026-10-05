@@ -168,8 +168,6 @@ export default function App() {
                 label="Acerca de DollarTracker"
               />
 
-              <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
-
               <button
                 className={`refreshAllBtn ${refrescando ? "refreshAllBtn--cargando" : ""}`}
                 onClick={refreshAll}
@@ -240,7 +238,15 @@ export default function App() {
         />
 
         {CURRENCY_SECTIONS.map((section) => (
-          <Seccion key={section.title} title={section.title}>
+          <Seccion
+            key={section.title}
+            title={section.title}
+            action={
+              section.title === "Dólar" ? (
+                <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
+              ) : undefined
+            }
+          >
             {section.cards.map(renderMoneda)}
           </Seccion>
         ))}

@@ -98,8 +98,7 @@
    caja en reposo (menos ruido arriba) y con fondo suave al apuntarlos. El de
    actualizar gira mientras carga, así que no necesita texto. */
 .headerActions .infoBtn,
-.refreshAllBtn,
-.resumenBtn {
+.refreshAllBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -116,8 +115,7 @@
 }
 
 .headerActions .infoBtn:hover,
-.refreshAllBtn:hover:not(:disabled),
-.resumenBtn:hover:not(:disabled) {
+.refreshAllBtn:hover:not(:disabled) {
   background: var(--btn-bg);
   border-color: transparent;
   color: var(--text-strong);
@@ -130,14 +128,8 @@
 }
 
 .headerActions .infoBtn:active,
-.refreshAllBtn:active:not(:disabled),
-.resumenBtn:active:not(:disabled) {
+.refreshAllBtn:active:not(:disabled) {
   transform: scale(0.92);
-}
-
-.resumenBtn:disabled {
-  opacity: 0.4;
-  cursor: default;
 }
 
 .refreshAllBtn__icon {
@@ -196,6 +188,21 @@
 
 .quoteSection {
   margin-top: 44px;
+}
+
+/* Fila de título: el título con su línea ocupa el ancho y la acción de la
+   sección (si tiene) queda a la derecha. */
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.sectionHead .sectionTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
 }
 
 .sectionTitle {
@@ -1470,6 +1477,40 @@
 .headerActions .infoBtn:not(.infoBtn--activo):hover {
   color: var(--text-strong);
   background: var(--btn-bg);
+}
+
+/* Botón de compartir de la sección Dólar: píldora con el azul de enlace, el
+   mismo lenguaje que el chip "Histórico" de las tarjetas, para que se lea como
+   acción y no como un ícono perdido. */
+.shareChip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--link);
+  background: color-mix(in srgb, var(--link) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--link) 38%, transparent);
+  border-radius: 999px;
+  transition: background 0.2s, border-color 0.2s, transform 0.12s;
+}
+
+.shareChip:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--link) 24%, transparent);
+  border-color: color-mix(in srgb, var(--link) 60%, transparent);
+}
+
+.shareChip:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.shareChip:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────── */
