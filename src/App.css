@@ -1274,6 +1274,42 @@
   max-width: 68ch;
 }
 
+.madeBy {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+.madeBy__text {
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.madeBy__logo {
+  display: block;
+  height: 26px;
+  width: auto;
+  max-width: 100%;
+}
+
+.madeBy__logo--light {
+  display: none;
+}
+
+:root[data-theme="light"] .madeBy__logo--dark {
+  display: none;
+}
+
+:root[data-theme="light"] .madeBy__logo--light {
+  display: block;
+}
+
 /* ── Utilidades ───────────────────────────────────────────────────────── */
 
 /* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla

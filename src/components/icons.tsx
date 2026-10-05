@@ -194,3 +194,31 @@ export function BrandMark({ size = 42, className }: BrandMarkProps) {
     </svg>
   );
 }
+
+// Tema: sol (se muestra en tema oscuro) y luna (en tema claro)
+export function IconSun(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg strokeWidth="2" {...props}>
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+    </Svg>
+  );
+}
+
+export function IconMoon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path fill="currentColor" stroke="none" d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z" />
+    </Svg>
+  );
+}
+
+// Botón "Actualizar"
+export function IconRefresh(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg width="16" height="16" strokeWidth="2.2" {...props}>
+      <path d="M20 11.5a8 8 0 1 0-.8 4.5" />
+      <path d="M20 5v6.5h-6" />
+    </Svg>
+  );
+}

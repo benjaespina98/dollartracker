@@ -3,11 +3,12 @@ import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
-import { BrandMark, IconPulse } from "./components/icons";
+import { BrandMark, IconMoon, IconPulse, IconRefresh, IconSun } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
+import Seccion from "./components/Seccion";
 import { CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
@@ -177,21 +178,7 @@ export default function App() {
                 aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
                 title={theme === "dark" ? "Tema claro" : "Tema oscuro"}
               >
-                {theme === "dark" ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="2" />
-                    <path
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
-                    />
-                  </svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path fill="currentColor" d="M20.5 14.6a8.5 8.5 0 1 1-11.1-11 7 7 0 0 0 11.1 11Z" />
-                  </svg>
-                )}
+                {theme === "dark" ? <IconSun /> : <IconMoon />}
               </button>
 
               <button
@@ -200,29 +187,7 @@ export default function App() {
                 type="button"
                 disabled={refrescando}
               >
-                <svg
-                  className="refreshAllBtn__icon"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20 11.5a8 8 0 1 0-.8 4.5"
-                  />
-                  <path
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20 5v6.5h-6"
-                  />
-                </svg>
+                <IconRefresh className="refreshAllBtn__icon" />
                 {refrescando ? "Actualizando" : "Actualizar"}
               </button>
             </div>
@@ -240,11 +205,7 @@ export default function App() {
         </header>
 
         {favoritos.length > 0 && (
-          <section className="quoteSection">
-            <h2 className="sectionTitle">
-              <span>★ Favoritos</span>
-            </h2>
-            <div className="grid">
+          <Seccion title="★ Favoritos">
               {favoritos.map((key, i) => {
                 const tarjeta = renderPorClave(key);
                 if (!tarjeta) return null; // clave de una versión vieja de la app
@@ -275,8 +236,7 @@ export default function App() {
                   </div>
                 );
               })}
-            </div>
-          </section>
+          </Seccion>
         )}
 
         <h2 className="sectionTitle sectionTitle--converter">
@@ -290,30 +250,17 @@ export default function App() {
         />
 
         {CURRENCY_SECTIONS.map((section) => (
-          <section key={section.title} className="quoteSection">
-            <h2 className="sectionTitle">
-              <span>{section.title}</span>
-            </h2>
-            <div className="grid">{section.cards.map(renderMoneda)}</div>
-          </section>
+          <Seccion key={section.title} title={section.title}>
+            {section.cards.map(renderMoneda)}
+          </Seccion>
         ))}
 
-        <section className="quoteSection">
-          <h2 className="sectionTitle">
-            <span>Mercados</span>
-          </h2>
-          <div className="grid">
+        <Seccion title="Mercados">
             {renderRiesgoPais()}
             {MERCADOS.map(renderMercado)}
-          </div>
-        </section>
+        </Seccion>
 
-        <section className="quoteSection">
-          <h2 className="sectionTitle">
-            <span>Granos</span>
-          </h2>
-          <div className="grid">{GRANOS.map(renderMercado)}</div>
-        </section>
+        <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
 
         <footer className="footer">
           <div className="footerBrand">
@@ -325,6 +272,17 @@ export default function App() {
           <p className="footerNote">
             Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
           </p>
+          <a
+            className="madeBy"
+            href="https://www.instagram.com/200ok.dev/"
+            target="_blank"
+            rel="noopener"
+            aria-label="200ok.dev en Instagram"
+          >
+            <span className="madeBy__text">made by</span>
+            <img className="madeBy__logo madeBy__logo--dark" src="/200ok-logo.svg" alt="200ok.dev" width="149" height="26" loading="lazy" />
+            <img className="madeBy__logo madeBy__logo--light" src="/200ok-logo-light.svg" alt="200ok.dev" width="149" height="26" loading="lazy" />
+          </a>
         </footer>
       </div>
     </>
