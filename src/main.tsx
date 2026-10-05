@@ -35,7 +35,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
     {/* Sin UI propia ni cookies: las visitas se ven solo en el dashboard de
         Vercel de quien es dueño del proyecto, nunca en la app. No hace nada
-        fuera de un deploy en Vercel (en `npm run dev` no manda datos). */}
-    <Analytics />
+        fuera de un deploy en Vercel (en `npm run dev` no manda datos).
+        VITE_DISABLE_ANALYTICS=true la apaga en el build. */}
+    {import.meta.env.VITE_DISABLE_ANALYTICS !== 'true' && <Analytics />}
   </React.StrictMode>,
 )

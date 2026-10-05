@@ -1,4 +1,4 @@
-import type { Cotizacion, MarketQuote, RiesgoPais } from "../types";
+import type { Cotizacion, RiesgoPais } from "../types";
 
 const TIMEOUT_MS = 8000;
 const REINTENTOS = 2;
@@ -78,6 +78,7 @@ export function esRiesgoPais(datos: unknown): datos is RiesgoPais {
   return esObjeto(datos) && typeof datos.valor === "number" && typeof datos.fecha === "string";
 }
 
-export function esPayloadMercado(datos: unknown): datos is Record<string, MarketQuote | null> {
+/** Solo comprueba que sea un objeto; cada consumidor tolera los símbolos que falten. */
+export function esPayloadPorSimbolo<T>(datos: unknown): datos is Record<string, T> {
   return esObjeto(datos);
 }

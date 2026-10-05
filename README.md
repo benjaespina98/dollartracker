@@ -38,8 +38,23 @@ npm run build    # tsc -b + vite build
 npm run lint
 ```
 
-Las tarjetas de mercados necesitan `TWELVE_DATA_API_KEY` como variable de
-entorno en Vercel; el resto de la app funciona sin ninguna key.
+Variables de entorno (Vercel):
+
+- `TWELVE_DATA_API_KEY`: necesaria para las tarjetas de mercados; el resto de
+  la app funciona sin ninguna key.
+- `VITE_DISABLE_ANALYTICS=true`: apaga Vercel Web Analytics en el build (sin
+  cookies; hay que activarlo además en Project → Analytics).
+
+## Seguridad y datos
+
+- `vercel.json` define la CSP y otros headers. El script inline de `index.html`
+  (tema) está permitido por hash: si se edita, hay que recalcular el
+  `sha256-…` en la CSP. Si se agrega una fuente externa, sumarla a `connect-src`.
+- `/api/market` y `/api/history` aceptan solo GET sin parámetros (evita saltear
+  la caché del CDN y gastar créditos); los errores no exponen detalles del
+  proveedor, que quedan en los logs de Vercel.
+- El cliente usa timeout, reintentos con backoff y valida la forma de cada
+  respuesta (`src/lib/http.ts`); si una fuente falla, el resto sigue.
 
 ## Estado
 

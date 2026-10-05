@@ -1,4 +1,6 @@
 import {
+  Suspense,
+  lazy,
   useCallback,
   useEffect,
   useMemo,
@@ -12,9 +14,10 @@ import { useDismiss } from "../hooks/useDismiss";
 import { useModalCard } from "../hooks/useModalCard";
 import { useSwipeToClose } from "../hooks/useSwipeToClose";
 import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
-import HistoricoPanel from "./HistoricoPanel";
 import ShareButton from "./ShareButton";
 import SparklineRow from "./SparklineRow";
+
+const HistoricoPanel = lazy(() => import("./HistoricoPanel"));
 
 export type CardStatus = "loading" | "ready" | "stale" | "error";
 
@@ -235,12 +238,14 @@ export default function CardShell({
               <div className="quoteMeta">{meta}</div>
 
               {expandida && serie && (
-                <HistoricoPanel
-                  serie={serie}
-                  rango={rango}
-                  onRangoChange={setRango}
-                  formatValor={formatValor}
-                />
+                <Suspense fallback={null}>
+                  <HistoricoPanel
+                    serie={serie}
+                    rango={rango}
+                    onRangoChange={setRango}
+                    formatValor={formatValor}
+                  />
+                </Suspense>
               )}
             </div>
           )}

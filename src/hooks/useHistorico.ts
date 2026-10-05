@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { hoyEnArgentina } from "../lib/fechas";
+import { esPayloadPorSimbolo, pedirJson } from "../lib/http";
 import { loadFromCache, saveToCache } from "../lib/offlineCache";
 
 // Serie normalizada que consumen el sparkline y el panel expandido, sin
@@ -52,9 +53,7 @@ async function traerSerie(
     return cached.puntos;
   }
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const crudo = await res.json();
+  const crudo = await pedirJson(url, new AbortController().signal, (d): d is never[] => Array.isArray(d));
 
   const puntos = mapear(crudo).slice(-DIAS_A_GUARDAR);
   saveToCache<CacheEntry>(clave, { fetchedAt: hoyEnArgentina(), puntos });
@@ -150,14 +149,10 @@ let mercadosEnVuelo: Promise<Record<string, SeriePunto[]>> | null = null;
 export const ESPERA_CUPO_MS = 65_000;
 
 async function pedirMercados(): Promise<Record<string, SeriePunto[]>> {
-  const res = await fetch("/api/history");
-  if (!res.ok) {
-    // Mismo motivo que en /api/market: sin esto el fallo del histórico es
-    // completamente silencioso, porque la tarjeta simplemente no dibuja nada.
-    console.warn("[DollarTracker] /api/history falló:", res.status, await res.json().catch(() => null));
-    throw new Error(`HTTP ${res.status}`);
-  }
-  return res.json();
+  // Sin reintentos propios: el cliente ya espera el cupo por minuto (ESPERA_CUPO_MS).
+  return pedirJson("/api/history", new AbortController().signal, esPayloadPorSimbolo<SeriePunto[]>, {
+    reintentos: 0,
+  });
 }
 
 async function traerMercados(): Promise<Record<string, SeriePunto[]>> {
