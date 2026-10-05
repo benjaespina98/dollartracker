@@ -121,12 +121,9 @@
   flex-shrink: 0;
 }
 
-.refreshAllBtn {
-  /* Ancho fijo: "Actualizar" y "Actualizando" miden distinto y el botón
-     saltaba de tamaño justo mientras se lo estaba tocando. */
-  min-width: 142px;
-}
-
+/* Botones de solo ícono: el de actualizar gira mientras carga, así que no
+   necesita texto (y sin él no cambia de ancho al tocarlo). */
+.refreshAllBtn,
 .themeToggleBtn {
   width: 40px;
   padding: 0;
@@ -184,8 +181,7 @@
 }
 
 /* En pantalla angosta la marca se queda con la línea de arriba y los botones
-   ocupan la de abajo, con "Actualizar" al ancho completo (es el que más se
-   toca). */
+   ocupan la de abajo, repartidos a lo ancho. */
 @media (max-width: 560px) {
   .brand {
     flex: 1 1 100%;
@@ -193,29 +189,7 @@
 
   .headerActions {
     width: 100%;
-  }
-
-  .refreshAllBtn {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .refreshAllBtn,
-  .resumenBtn {
-    padding: 0 12px;
-  }
-}
-
-/* Solo en pantallas muy angostas (<= 360px) no entran los cuatro botones con
-   texto; ahí el ícono de compartir solo alcanza. */
-@media (max-width: 360px) {
-  .resumenBtn {
-    padding: 0;
-    width: 40px;
-  }
-
-  .resumenBtn__label {
-    display: none;
+    justify-content: space-between;
   }
 }
 

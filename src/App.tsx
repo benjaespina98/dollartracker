@@ -188,9 +188,10 @@ export default function App() {
                 onClick={refreshAll}
                 type="button"
                 disabled={refrescando}
+                aria-label={refrescando ? "Actualizando cotizaciones" : "Actualizar cotizaciones"}
+                title="Actualizar cotizaciones"
               >
                 <IconRefresh className="refreshAllBtn__icon" />
-                {refrescando ? "Actualizando" : "Actualizar"}
               </button>
             </div>
           </div>
