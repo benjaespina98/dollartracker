@@ -222,14 +222,14 @@
 /* ── Secciones ────────────────────────────────────────────────────────── */
 
 .quoteSection {
-  margin-top: 30px;
+  margin-top: 44px;
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -245,19 +245,19 @@
 }
 
 .sectionTitle--converter {
-  margin: 26px 0 10px;
+  margin: 36px 0 14px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 20px 14px;
   align-items: stretch;
 }
 
 @media (min-width: 560px) {
   .grid {
-    gap: 16px;
+    gap: 28px 20px;
   }
 }
 
@@ -323,7 +323,7 @@
   --accent: #78beff;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 12px;
   height: 100%;
   container-type: inline-size;
 }
@@ -485,13 +485,13 @@
   border-top: 2px solid var(--accent);
   background: var(--card-bg);
   box-shadow: var(--shadow-card), var(--card-inset-highlight);
-  padding: 16px;
+  padding: 18px;
   min-height: 150px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 13px;
+  gap: 16px;
   transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
@@ -567,7 +567,7 @@
 .quoteBodyContent {
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 16px;
   animation: contentIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -586,7 +586,7 @@
 
 .quotePrices {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .quotePriceBlock {
@@ -1274,8 +1274,8 @@
 /* ── Pie ──────────────────────────────────────────────────────────────── */
 
 .footer {
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 64px;
+  padding-top: 28px;
   border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
@@ -1376,150 +1376,7 @@
   display: block;
 }
 
-/* ── Hoja de compartir y toast ────────────────────────────────────────── */
-
-.sheet {
-  position: fixed;
-  z-index: 50;
-  left: 50%;
-  bottom: 0;
-  translate: -50% 0;
-  width: min(440px, 100%);
-  max-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-bottom: none;
-  border-radius: 20px 20px 0 0;
-  box-shadow: var(--shadow-card-hover);
-  animation: sheetIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes sheetIn {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* En pantallas anchas deja de ser una hoja pegada al borde y flota centrada */
-@media (min-width: 560px) {
-  .sheet {
-    bottom: auto;
-    top: 50%;
-    translate: -50% -50%;
-    max-height: calc(100dvh - 48px);
-    border: 1px solid var(--card-border);
-    border-radius: 20px;
-  }
-}
-
-.sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.sheet__title {
-  margin: 0;
-  font-family: "Sora", "Inter", system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-strong);
-}
-
-.sheet__preview {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--price-block-bg);
-}
-
-.sheet__preview img,
-.sheet__skeleton {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: min(52dvh, 480px);
-  aspect-ratio: 1080 / 1350;
-  border-radius: 12px;
-}
-
-.sheet__skeleton {
-  height: min(52dvh, 480px);
-  background: linear-gradient(90deg, var(--skeleton-a), var(--skeleton-b), var(--skeleton-a));
-  background-size: 200% 100%;
-  animation: sheetShimmer 1.4s ease-in-out infinite;
-}
-
-@keyframes sheetShimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-.sheet__error {
-  margin: 0;
-  padding: 40px 16px;
-  color: var(--text-muted);
-  font-size: 0.88rem;
-}
-
-.sheet__actions {
-  display: flex;
-  gap: 8px;
-}
-
-.sheet__btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: var(--btn-bg);
-  border: 1px solid var(--btn-border);
-  border-radius: 12px;
-  color: var(--text);
-  transition: background 0.2s, border-color 0.2s, transform 0.12s;
-}
-
-.sheet__btn:hover:not(:disabled) {
-  background: var(--btn-bg-hover);
-  border-color: var(--btn-border-hover);
-}
-
-.sheet__btn:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.sheet__btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.sheet__btn--primary,
-.sheet__btn--primary:hover:not(:disabled) {
-  background: var(--link);
-  border-color: transparent;
-  color: var(--bg);
-}
+/* ── Toast ────────────────────────────────────────────────────────────── */
 
 .toaster {
   position: fixed;
@@ -1554,6 +1411,132 @@
   }
 }
 
+/* ── Movimiento ───────────────────────────────────────────────────────── */
+
+/* Entrada escalonada de las tarjetas al cargar: sube y aparece una tras otra.
+   Con fill-mode "backwards" no queda ningún transform al terminar, así no
+   interfiere con la tarjeta expandida (position: fixed). */
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+}
+
+.grid > .quoteCard,
+.grid > .favSlot {
+  animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--i, 8) * 60ms);
+}
+
+.grid > :nth-child(1) { --i: 0; }
+.grid > :nth-child(2) { --i: 1; }
+.grid > :nth-child(3) { --i: 2; }
+.grid > :nth-child(4) { --i: 3; }
+.grid > :nth-child(5) { --i: 4; }
+.grid > :nth-child(6) { --i: 5; }
+.grid > :nth-child(7) { --i: 6; }
+.grid > :nth-child(8) { --i: 7; }
+
+/* La línea del título de cada sección se dibuja de izquierda a derecha */
+@keyframes lineGrow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.sectionTitle::after {
+  transform-origin: left;
+  animation: lineGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+
+/* Encabezado: marca y botones entran desde arriba */
+@keyframes headerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.brand {
+  animation: headerIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.headerActions {
+  animation: headerIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+
+/* Punto verde que late junto a "en tiempo real" */
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--positive) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+.subtitle::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--positive);
+  animation: livePulse 2.2s ease-out infinite;
+}
+
+/* El gráfico se "dibuja" de izquierda a derecha al aparecer la tarjeta */
+@keyframes sparkReveal {
+  from {
+    clip-path: inset(-4px 100% -4px 0);
+  }
+  to {
+    clip-path: inset(-4px -4px -4px 0);
+  }
+}
+
+.sparkline {
+  animation: sparkReveal 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
+}
+
+@media (hover: hover) {
+  .refreshAllBtn:hover:not(:disabled),
+  .themeToggleBtn:hover,
+  .resumenBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 25%);
+  }
+
+  .refreshAllBtn:active:not(:disabled),
+  .themeToggleBtn:active,
+  .resumenBtn:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid > .quoteCard,
+  .grid > .favSlot,
+  .sectionTitle::after,
+  .brand,
+  .headerActions,
+  .subtitle::before,
+  .sparkline {
+    animation: none;
+  }
+
+  .refreshAllBtn:hover:not(:disabled),
+  .themeToggleBtn:hover,
+  .resumenBtn:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
 /* ── Utilidades ───────────────────────────────────────────────────────── */
 
 /* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla
@@ -1575,9 +1558,7 @@
   .skeletonBlock,
   .refreshAllBtn--cargando .refreshAllBtn__icon,
   .cardBackdrop,
-  .sheet,
   .toast,
-  .sheet__skeleton,
   .quoteCard--expandida,
   .infoPanel,
   .quoteBodyContent,
@@ -1592,7 +1573,6 @@
   .themeToggleBtn:active,
   .refreshAllBtn:hover .refreshAllBtn__icon,
   .shareBtn:active,
-  .sheet__btn:active,
   .monedaTab:active,
   .infoBtn:active,
   .closeBtn:active,

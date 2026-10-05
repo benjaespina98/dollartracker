@@ -241,12 +241,3 @@ export function IconCopy(props: SVGProps<SVGSVGElement>) {
     </Svg>
   );
 }
-
-export function IconDownload(props: SVGProps<SVGSVGElement>) {
-  return (
-    <Svg strokeWidth="2" {...props}>
-      <path d="M12 4v11.5M8 11.5l4 4 4-4" />
-      <path d="M5 19.5h14" />
-    </Svg>
-  );
-}

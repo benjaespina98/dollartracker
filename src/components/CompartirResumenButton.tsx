@@ -1,8 +1,10 @@
-import { useCallback, useRef, useState } from "react";
-import { useModalCard } from "../hooks/useModalCard";
-import type { ResumenDatos } from "../lib/resumenImagen";
+import { useState } from "react";
+import { canvasABlob, dibujarResumen, type ResumenDatos } from "../lib/resumenImagen";
+import { mostrarToast } from "../lib/toast";
 import { IconShare } from "./icons";
-import ResumenDialog from "./ResumenDialog";
+
+const URL_APP = "https://dollartracker.vercel.app/";
+const NOMBRE_ARCHIVO = "dollartracker-resumen.png";
 
 interface Props {
   datos: ResumenDatos;
@@ -12,35 +14,58 @@ interface Props {
 
 // Comparable a lo que ya circula como "el dólar hoy" en WhatsApp/Twitter, pero
 // generado en el momento con los datos reales de la app en vez de ser una
-// captura de pantalla recortada a mano. Abre una hoja con la vista previa.
+// captura de pantalla recortada a mano. Un toque abre el menú nativo de
+// compartir; sin él (escritorio) se baja el PNG.
 export default function CompartirResumenButton({ datos, disabled }: Props) {
-  const [abierto, setAbierto] = useState(false);
-  const boton = useRef<HTMLButtonElement>(null);
+  const [generando, setGenerando] = useState(false);
 
-  const cerrar = useCallback(() => {
-    setAbierto(false);
-    boton.current?.focus();
-  }, []);
+  async function compartir() {
+    if (generando) return;
+    setGenerando(true);
+    try {
+      // Sin esto el canvas puede dibujar con la tipografía de reserva del
+      // sistema si Inter todavía no terminó de cargar en esta sesión.
+      await document.fonts.ready;
+      const canvas = dibujarResumen(datos);
+      const blob = await canvasABlob(canvas);
+      if (!blob) return;
 
-  // Acá y no en el diálogo: así Escape, el bloqueo de scroll y el botón atrás
-  // del celular dependen de `abierto`, no de que el diálogo se monte.
-  useModalCard(abierto, cerrar);
+      const archivo = new File([blob], NOMBRE_ARCHIVO, { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [archivo] })) {
+        try {
+          // La URL va en "text": WhatsApp la muestra como link tocable, en
+          // vez de una línea de texto suelta junto a la imagen.
+          await navigator.share({ files: [archivo], text: URL_APP });
+        } catch {
+          // cancelado por quien comparte: no hace falta bajar el archivo igual
+        }
+        return;
+      }
+
+      // Sin Web Share (desktop, navegadores viejos): se baja el PNG directo.
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = NOMBRE_ARCHIVO;
+      link.click();
+      URL.revokeObjectURL(url);
+      mostrarToast("Imagen descargada");
+    } finally {
+      setGenerando(false);
+    }
+  }
 
   return (
-    <>
-      <button
-        ref={boton}
-        className="resumenBtn"
-        onClick={() => setAbierto(true)}
-        type="button"
-        disabled={disabled}
-        aria-haspopup="dialog"
-        title="Compartir el resumen del día como imagen"
-      >
-        <IconShare width={16} height={16} />
-        <span className="resumenBtn__label">Compartir</span>
-      </button>
-      {abierto && <ResumenDialog datos={datos} onClose={cerrar} />}
-    </>
+    <button
+      className="resumenBtn"
+      onClick={compartir}
+      type="button"
+      disabled={disabled || generando}
+      title="Compartir el resumen del día como imagen"
+    >
+      <IconShare width={16} height={16} />
+      <span className="resumenBtn__label">{generando ? "Generando…" : "Compartir"}</span>
+    </button>
   );
 }
