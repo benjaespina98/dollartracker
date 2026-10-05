@@ -200,8 +200,15 @@
     min-width: 0;
   }
 
-  /* Sin la palabra "Resumen"/"Generando…" no entraban los cuatro botones del
-     header en una fila de celular; el ícono solo alcanza. */
+  .refreshAllBtn,
+  .resumenBtn {
+    padding: 0 12px;
+  }
+}
+
+/* Solo en pantallas muy angostas (<= 360px) no entran los cuatro botones con
+   texto; ahí el ícono de compartir solo alcanza. */
+@media (max-width: 360px) {
   .resumenBtn {
     padding: 0;
     width: 40px;
@@ -439,11 +446,6 @@
 .closeBtn:active {
   transition-duration: 0.1s;
   transform: scale(0.93);
-}
-
-.shareBtn--copied,
-.shareBtn--copied:hover {
-  color: var(--positive);
 }
 
 .infoBtn--activo,
@@ -1374,6 +1376,184 @@
   display: block;
 }
 
+/* ── Hoja de compartir y toast ────────────────────────────────────────── */
+
+.sheet {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  width: min(440px, 100%);
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  box-shadow: var(--shadow-card-hover);
+  animation: sheetIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes sheetIn {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* En pantallas anchas deja de ser una hoja pegada al borde y flota centrada */
+@media (min-width: 560px) {
+  .sheet {
+    bottom: auto;
+    top: 50%;
+    translate: -50% -50%;
+    max-height: calc(100dvh - 48px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+  }
+}
+
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sheet__title {
+  margin: 0;
+  font-family: "Sora", "Inter", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.sheet__preview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--price-block-bg);
+}
+
+.sheet__preview img,
+.sheet__skeleton {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(52dvh, 480px);
+  aspect-ratio: 1080 / 1350;
+  border-radius: 12px;
+}
+
+.sheet__skeleton {
+  height: min(52dvh, 480px);
+  background: linear-gradient(90deg, var(--skeleton-a), var(--skeleton-b), var(--skeleton-a));
+  background-size: 200% 100%;
+  animation: sheetShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes sheetShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.sheet__error {
+  margin: 0;
+  padding: 40px 16px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sheet__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 12px;
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s, transform 0.12s;
+}
+
+.sheet__btn:hover:not(:disabled) {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+}
+
+.sheet__btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.sheet__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sheet__btn--primary,
+.sheet__btn--primary:hover:not(:disabled) {
+  background: var(--link);
+  border-color: transparent;
+  color: var(--bg);
+}
+
+.toaster {
+  position: fixed;
+  z-index: 70;
+  left: 0;
+  right: 0;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--text-strong);
+  box-shadow: var(--shadow-card-hover);
+  animation: toastIn 0.2s ease-out both;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* ── Utilidades ───────────────────────────────────────────────────────── */
 
 /* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla
@@ -1395,6 +1575,9 @@
   .skeletonBlock,
   .refreshAllBtn--cargando .refreshAllBtn__icon,
   .cardBackdrop,
+  .sheet,
+  .toast,
+  .sheet__skeleton,
   .quoteCard--expandida,
   .infoPanel,
   .quoteBodyContent,
@@ -1409,6 +1592,7 @@
   .themeToggleBtn:active,
   .refreshAllBtn:hover .refreshAllBtn__icon,
   .shareBtn:active,
+  .sheet__btn:active,
   .monedaTab:active,
   .infoBtn:active,
   .closeBtn:active,

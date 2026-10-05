@@ -9,6 +9,7 @@ import NetworkBanner from "./components/NetworkBanner";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import Seccion from "./components/Seccion";
+import Toaster from "./components/Toaster";
 import { CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
@@ -151,6 +152,7 @@ export default function App() {
   return (
     <>
       <NetworkBanner />
+      <Toaster />
       <div className="app">
         <header className="header" ref={headerRef}>
           <div className="headerTop">

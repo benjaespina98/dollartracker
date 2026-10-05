@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { canvasABlob, dibujarResumen, type ResumenDatos } from "../lib/resumenImagen";
-
-const URL_APP = "https://dollartracker.vercel.app/";
+import { useCallback, useRef, useState } from "react";
+import { useModalCard } from "../hooks/useModalCard";
+import type { ResumenDatos } from "../lib/resumenImagen";
+import { IconShare } from "./icons";
+import ResumenDialog from "./ResumenDialog";
 
 interface Props {
   datos: ResumenDatos;
@@ -11,78 +12,35 @@ interface Props {
 
 // Comparable a lo que ya circula como "el dólar hoy" en WhatsApp/Twitter, pero
 // generado en el momento con los datos reales de la app en vez de ser una
-// captura de pantalla recortada a mano.
+// captura de pantalla recortada a mano. Abre una hoja con la vista previa.
 export default function CompartirResumenButton({ datos, disabled }: Props) {
-  const [generando, setGenerando] = useState(false);
+  const [abierto, setAbierto] = useState(false);
+  const boton = useRef<HTMLButtonElement>(null);
 
-  async function compartir() {
-    if (generando) return;
-    setGenerando(true);
-    try {
-      // Sin esto el canvas puede dibujar con la tipografía de reserva del
-      // sistema si Inter todavía no terminó de cargar en esta sesión.
-      await document.fonts.ready;
-      const canvas = dibujarResumen(datos);
-      const blob = await canvasABlob(canvas);
-      if (!blob) return;
+  const cerrar = useCallback(() => {
+    setAbierto(false);
+    boton.current?.focus();
+  }, []);
 
-      const archivo = new File([blob], "dollartracker-resumen.png", { type: "image/png" });
-
-      if (navigator.canShare?.({ files: [archivo] })) {
-        try {
-          // Sin "title"/"text" fijo: WhatsApp lo mostraba como una línea de
-          // texto suelta ("DollarTracker") al lado de la imagen, sin ningún
-          // link. Pasar la URL de la app en "text" hace que WhatsApp la
-          // detecte y la muestre como un link tocable en vez de texto plano.
-          await navigator.share({ files: [archivo], text: URL_APP });
-          return;
-        } catch {
-          // cancelado por quien comparte: no hace falta bajar el archivo igual
-          return;
-        }
-      }
-
-      // Sin Web Share (desktop, navegadores viejos): se baja el PNG directo.
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "dollartracker-resumen.png";
-      link.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setGenerando(false);
-    }
-  }
+  // Acá y no en el diálogo: así Escape, el bloqueo de scroll y el botón atrás
+  // del celular dependen de `abierto`, no de que el diálogo se monte.
+  useModalCard(abierto, cerrar);
 
   return (
-    <button
-      className="resumenBtn"
-      onClick={compartir}
-      type="button"
-      disabled={disabled || generando}
-      title="Compartir el resumen del día como imagen"
-    >
-      {/* Ícono estándar de "compartir" (flecha saliendo de una bandeja, el
-          mismo lenguaje que usan iOS/Android): antes era un ícono de
-          "imagen" que en celular, sin la palabra "Resumen" al lado, no
-          comunicaba que tocarlo abre el menú de compartir. */}
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 15.5V4M8 8l4-4 4 4"
-        />
-        <path
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M5 12.5v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
-        />
-      </svg>
-      <span className="resumenBtn__label">{generando ? "Generando…" : "Resumen"}</span>
-    </button>
+    <>
+      <button
+        ref={boton}
+        className="resumenBtn"
+        onClick={() => setAbierto(true)}
+        type="button"
+        disabled={disabled}
+        aria-haspopup="dialog"
+        title="Compartir el resumen del día como imagen"
+      >
+        <IconShare width={16} height={16} />
+        <span className="resumenBtn__label">Compartir</span>
+      </button>
+      {abierto && <ResumenDialog datos={datos} onClose={cerrar} />}
+    </>
   );
 }

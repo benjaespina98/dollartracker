@@ -222,3 +222,31 @@ export function IconRefresh(props: SVGProps<SVGSVGElement>) {
     </Svg>
   );
 }
+
+// Compartir (el mismo glifo que iOS/Android: flecha saliendo de una bandeja)
+export function IconShare(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg strokeWidth="2" {...props}>
+      <path d="M12 15.5V4M8 8l4-4 4 4" />
+      <path d="M5 12.5v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+    </Svg>
+  );
+}
+
+export function IconCopy(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg strokeWidth="2" {...props}>
+      <rect x="9" y="9" width="12" height="12" rx="2.5" />
+      <path d="M15 5H5.5A2.5 2.5 0 0 0 3 7.5V19" />
+    </Svg>
+  );
+}
+
+export function IconDownload(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg strokeWidth="2" {...props}>
+      <path d="M12 4v11.5M8 11.5l4 4 4-4" />
+      <path d="M5 19.5h14" />
+    </Svg>
+  );
+}
