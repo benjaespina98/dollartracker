@@ -1239,7 +1239,34 @@
   border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.footerInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+/* En pantallas anchas el texto legal queda a la izquierda y el crédito a la
+   derecha, en una sola fila, en vez de un bloque angosto con el crédito suelto. */
+@media (min-width: 700px) {
+  .footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    text-align: left;
+  }
+
+  .footerInfo {
+    flex: 1;
+    align-items: flex-start;
+  }
 }
 
 .footerBrand {
@@ -1271,16 +1298,15 @@
   color: var(--text-faint);
   font-size: 0.78rem;
   line-height: 1.55;
-  max-width: 68ch;
+  text-wrap: pretty;
 }
 
 .madeBy {
-  align-self: center;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin-top: 12px;
   opacity: 0.9;
   text-decoration: none;
 }

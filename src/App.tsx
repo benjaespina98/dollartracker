@@ -263,15 +263,17 @@ export default function App() {
         <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
 
         <footer className="footer">
-          <div className="footerBrand">
-            <BrandMark size={22} className="footerBrand__mark" />
-            <span className="footerBrand__name">
-              DollarTracker<sup>™</sup>
-            </span>
+          <div className="footerInfo">
+            <div className="footerBrand">
+              <BrandMark size={22} className="footerBrand__mark" />
+              <span className="footerBrand__name">
+                DollarTracker<sup>™</sup>
+              </span>
+            </div>
+            <p className="footerNote">
+              Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
+            </p>
           </div>
-          <p className="footerNote">
-            Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
-          </p>
           <a
             className="madeBy"
             href="https://www.instagram.com/200ok.dev/"
