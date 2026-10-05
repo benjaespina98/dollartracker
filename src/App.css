@@ -94,13 +94,6 @@
   color: var(--text-strong);
 }
 
-.subtitle {
-  margin: 2px 0 0;
-  color: var(--text-faint);
-  font-size: 0.82rem;
-  line-height: 1.3;
-}
-
 /* Los tres botones del header comparten un mismo aspecto: ícono solo, sin
    caja en reposo (menos ruido arriba) y con fondo suave al apuntarlos. El de
    actualizar gira mientras carga, así que no necesita texto. */
