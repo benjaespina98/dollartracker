@@ -158,7 +158,7 @@ export default function App() {
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
                 <h1 className="title">DollarTracker</h1>
-                <p className="subtitle">Cotizaciones en vivo</p>
+                <p className="subtitle">El dólar, sin vueltas</p>
               </div>
             </div>
 
