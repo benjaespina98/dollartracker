@@ -101,57 +101,50 @@
   line-height: 1.3;
 }
 
+/* Los tres botones del header comparten un mismo aspecto: ícono solo, sin
+   caja en reposo (menos ruido arriba) y con fondo suave al apuntarlos. El de
+   actualizar gira mientras carga, así que no necesita texto. */
+.headerActions .infoBtn,
 .refreshAllBtn,
-.themeToggleBtn,
 .resumenBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  background: var(--btn-bg);
-  border: 1px solid var(--btn-border);
-  border-radius: 10px;
-  color: var(--text);
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
-  white-space: nowrap;
   flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--text-muted);
+  filter: none;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
 }
 
-/* Botones de solo ícono: el de actualizar gira mientras carga, así que no
-   necesita texto (y sin él no cambia de ancho al tocarlo). */
-.refreshAllBtn,
-.themeToggleBtn {
-  width: 40px;
-  padding: 0;
+.headerActions .infoBtn:hover,
+.refreshAllBtn:hover:not(:disabled),
+.resumenBtn:hover:not(:disabled) {
+  background: var(--btn-bg);
+  border-color: transparent;
+  color: var(--text-strong);
+}
+
+.headerActions .infoBtn--activo,
+.headerActions .infoBtn--activo:hover {
+  background: var(--btn-bg-hover);
+  color: var(--text-strong);
+}
+
+.headerActions .infoBtn:active,
+.refreshAllBtn:active:not(:disabled),
+.resumenBtn:active:not(:disabled) {
+  transform: scale(0.92);
 }
 
 .resumenBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
-}
-
-/* En el header el (i) convive con el toggle de tema y "Actualizar": si se
-   queda en los 34px que usa dentro de las tarjetas, la fila queda despareja. */
-.headerActions .infoBtn {
-  width: 40px;
-  height: 40px;
-  border-color: var(--btn-border);
-}
-
-.refreshAllBtn:hover,
-.themeToggleBtn:hover,
-.resumenBtn:hover:not(:disabled) {
-  background: var(--btn-bg-hover);
-  border-color: var(--btn-border-hover);
-}
-
-.refreshAllBtn:active,
-.themeToggleBtn:active {
-  transform: scale(0.97);
 }
 
 .refreshAllBtn__icon {
@@ -164,8 +157,7 @@
 }
 
 .refreshAllBtn:disabled {
-  opacity: 0.75;
-  transform: none;
+  opacity: 0.8;
 }
 
 /* Girar mientras se traen los datos: sin esto, tocar "Actualizar" no producía
@@ -180,15 +172,30 @@
   }
 }
 
-/* En pantalla angosta la marca se queda con la línea de arriba y los botones
-   ocupan la de abajo, juntos y alineados a la izquierda. */
+/* En pantalla angosta la marca se achica un poco para que los tres botones
+   sigan en la misma fila que el título. */
 @media (max-width: 560px) {
+  .headerTop {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
   .brand {
-    flex: 1 1 100%;
+    flex: 1;
+    gap: 10px;
+  }
+
+  .brandMark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .title {
+    font-size: 1.35rem;
   }
 
   .headerActions {
-    width: 100%;
+    gap: 2px;
   }
 }
 
@@ -1476,22 +1483,6 @@
   animation: sparkReveal 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
 }
 
-@media (hover: hover) {
-  .refreshAllBtn:hover:not(:disabled),
-  .themeToggleBtn:hover,
-  .resumenBtn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgb(0 0 0 / 25%);
-  }
-
-  .refreshAllBtn:active:not(:disabled),
-  .themeToggleBtn:active,
-  .resumenBtn:active:not(:disabled) {
-    transform: scale(0.97);
-    box-shadow: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .grid > .quoteCard,
   .grid > .favSlot,
@@ -1502,12 +1493,19 @@
   .sparkline {
     animation: none;
   }
+}
 
-  .refreshAllBtn:hover:not(:disabled),
-  .themeToggleBtn:hover,
-  .resumenBtn:hover:not(:disabled) {
-    transform: none;
-  }
+/* El (i) del header es neutro como sus vecinos; el color de acento es solo
+   de las tarjetas. Va al final para ganarle a la regla de las tarjetas. */
+.headerActions .infoBtn:not(.infoBtn--activo) {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.headerActions .infoBtn:not(.infoBtn--activo):hover {
+  color: var(--text-strong);
+  background: var(--btn-bg);
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────── */
@@ -1543,7 +1541,6 @@
   .quoteBody--expandible:hover,
   .quoteBody--expandible:active,
   .refreshAllBtn:active,
-  .themeToggleBtn:active,
   .refreshAllBtn:hover .refreshAllBtn__icon,
   .shareBtn:active,
   .monedaTab:active,

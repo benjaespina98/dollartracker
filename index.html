@@ -55,22 +55,19 @@
   </head>
   <body>
     <script>
-      // Aplica el tema antes del primer pintado. Sin esto, quien usa tema claro
-      // veía un fogonazo del fondo oscuro en cada carga, porque React recién
-      // pone data-theme cuando ya se pintó el HTML.
+      // Sigue el tema claro/oscuro del dispositivo, antes del primer pintado
+      // (sin esto se veía un fogonazo del fondo equivocado en cada carga) y en
+      // vivo si el sistema cambia, por ejemplo al llegar la noche.
       (function () {
-        try {
-          var guardado = localStorage.getItem("dollartracker-theme");
-        } catch (e) {}
-        var tema =
-          guardado === "light" || guardado === "dark"
-            ? guardado
-            : window.matchMedia("(prefers-color-scheme: light)").matches
-              ? "light"
-              : "dark";
-        document.documentElement.setAttribute("data-theme", tema);
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute("content", tema === "light" ? "#f4f6f8" : "#08090c");
+        var mq = window.matchMedia("(prefers-color-scheme: light)");
+        function aplicar() {
+          var tema = mq.matches ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", tema);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", tema === "light" ? "#f4f6f8" : "#08090c");
+        }
+        aplicar();
+        mq.addEventListener("change", aplicar);
       })();
     </script>
     <div id="root"></div>

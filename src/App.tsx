@@ -3,7 +3,7 @@ import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
-import { BrandMark, IconMoon, IconPulse, IconRefresh, IconSun } from "./components/icons";
+import { BrandMark, IconPulse, IconRefresh } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import QuoteCard from "./components/QuoteCard";
@@ -16,7 +16,6 @@ import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
-import { useTheme } from "./hooks/useTheme";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
 import { prepararResumen } from "./lib/resumenImagen";
 
@@ -32,7 +31,6 @@ export default function App() {
   const { state, refresh: refreshCotizaciones } = useCotizaciones();
   const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
-  const { theme, toggleTheme } = useTheme();
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
 
   // Guardamos el texto crudo que se tipeó (no el número) para no pelear con el
@@ -160,7 +158,7 @@ export default function App() {
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
                 <h1 className="title">DollarTracker</h1>
-                <p className="subtitle">Cotizaciones y mercados en tiempo real</p>
+                <p className="subtitle">Cotizaciones en vivo</p>
               </div>
             </div>
 
@@ -172,16 +170,6 @@ export default function App() {
               />
 
               <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
-
-              <button
-                className="themeToggleBtn"
-                onClick={toggleTheme}
-                type="button"
-                aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-                title={theme === "dark" ? "Tema claro" : "Tema oscuro"}
-              >
-                {theme === "dark" ? <IconSun /> : <IconMoon />}
-              </button>
 
               <button
                 className={`refreshAllBtn ${refrescando ? "refreshAllBtn--cargando" : ""}`}
