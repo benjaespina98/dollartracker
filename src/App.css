@@ -181,7 +181,7 @@
 }
 
 /* En pantalla angosta la marca se queda con la línea de arriba y los botones
-   ocupan la de abajo, repartidos a lo ancho. */
+   ocupan la de abajo, juntos y alineados a la izquierda. */
 @media (max-width: 560px) {
   .brand {
     flex: 1 1 100%;
@@ -189,7 +189,6 @@
 
   .headerActions {
     width: 100%;
-    justify-content: space-between;
   }
 }
 
