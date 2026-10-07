@@ -55,3 +55,14 @@ export function formatearHaceTiempo(savedAt: number, ahora: number = Date.now())
   const dias = Math.round(horas / 24);
   return `hace ${dias} d`;
 }
+
+/**
+ * Hora exacta de un guardado local: "15:55 hs" si es de hoy, "05/10 15:55 hs"
+ * si es de otro día. Para el aviso de sin conexión, donde "hace 3 h" obligaba
+ * a hacer la cuenta.
+ */
+export function formatearMomento(momento: number, ahora: number = Date.now()): string {
+  const fecha = new Date(momento);
+  const esHoy = fecha.toDateString() === new Date(ahora).toDateString();
+  return esHoy ? `${formatearHora(fecha)} hs` : `${formatearDiaMes(fecha)} ${formatearHora(fecha)} hs`;
+}

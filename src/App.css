@@ -378,21 +378,21 @@
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
 }
 
-/* En reposo ya tienen fondo y borde propios: sin ellos eran íconos sueltos y
-   nada decía que se podían tocar. El hover solo los realza. */
+/* Íconos sin caja en reposo (menos ruido); el fondo aparece al apuntarlos. El
+   (i) conserva el color de la tarjeta para leerse como ayuda tocable. */
 .shareBtn,
 .infoBtn,
 .favBtn {
-  border: 1px solid var(--card-border);
-  background: var(--btn-bg);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text-muted);
 }
 
 .shareBtn:hover,
 .infoBtn:hover,
 .favBtn:hover {
-  background: var(--btn-bg-hover);
-  border-color: var(--btn-border-hover);
+  background: var(--btn-bg);
+  border-color: var(--card-border);
   color: var(--text-strong);
 }
 
@@ -1461,7 +1461,8 @@
   .sectionTitle::after,
   .brand,
   .headerActions,
-  .sparkline {
+  .sparkline,
+  .valorFlash {
     animation: none;
   }
 }
@@ -1511,6 +1512,79 @@
 .shareChip:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* Destello al cambiar un precio (ver ValorAnimado) */
+@keyframes valorFlashUp {
+  from {
+    background: color-mix(in srgb, var(--positive) 38%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--positive) 38%, transparent);
+  }
+  to {
+    background: transparent;
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+@keyframes valorFlashDown {
+  from {
+    background: color-mix(in srgb, var(--negative) 38%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--negative) 38%, transparent);
+  }
+  to {
+    background: transparent;
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+.valorFlash {
+  border-radius: 6px;
+  animation-duration: 1.6s;
+  animation-timing-function: ease-out;
+}
+
+.valorFlash--up {
+  animation-name: valorFlashUp;
+}
+
+.valorFlash--down {
+  animation-name: valorFlashDown;
+}
+
+/* En celular los chips y los botones de las tarjetas se achican (en pantalla
+   grande quedan como están): la tarjeta mide ~165px y no hay lugar para chips
+   de tamaño de escritorio. */
+@media (max-width: 560px) {
+  .quoteMeta {
+    gap: 5px;
+    font-size: 0.66rem;
+  }
+
+  .quoteVariation,
+  .offlineTag,
+  .brechaTag {
+    padding: 1px 6px;
+    font-size: 0.66rem;
+  }
+
+  .quoteUpdated__label {
+    font-size: 0.58rem;
+  }
+
+  .sparklineChip {
+    padding: 2px 6px;
+  }
+
+  .shareBtn,
+  .infoBtn,
+  .favBtn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .quoteHeaderActions {
+    gap: 4px;
+  }
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────── */

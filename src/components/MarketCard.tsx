@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { dolares, formatearFechaHora, formatearHaceTiempo, formatearHora } from "../lib/format";
+import { dolares, formatearFechaHora, formatearHora } from "../lib/format";
 import type { SeriePunto } from "../hooks/useHistorico";
 import type { MarketQuote } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
+import ValorAnimado from "./ValorAnimado";
 
 interface Props {
   label: string;
@@ -74,7 +75,7 @@ export default function MarketCard({
                   ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(cierre)} hs`
                   : "No se pudo actualizar; este es el último valor guardado en este dispositivo"
               }
-              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
+              savedAt={savedAt}
             />
           )}
           {status !== "stale" && data?.changePercent != null && (
@@ -97,7 +98,7 @@ export default function MarketCard({
     >
       {data && (
         <div className="marketPrice">
-          <span className="marketPrice__value">{dolares.format(data.price)}</span>
+          <ValorAnimado className="marketPrice__value" valor={data.price} texto={dolares.format(data.price)} />
           <span className="marketPrice__unit" title={detalle}>
             {ticker}
           </span>

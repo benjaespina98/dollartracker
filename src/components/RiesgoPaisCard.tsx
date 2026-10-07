@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { cierreAnterior } from "../lib/fechas";
-import { entero, fechaDelDia, formatearDiaMes, formatearHaceTiempo } from "../lib/format";
+import { entero, fechaDelDia, formatearDiaMes } from "../lib/format";
 import { categoriaRiesgoPais } from "../lib/riesgoPais";
 import { useHistoricoRiesgoPais } from "../hooks/useHistorico";
 import type { RiesgoPais } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
+import ValorAnimado from "./ValorAnimado";
 
 interface Props {
   icon: ReactNode;
@@ -52,7 +53,7 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
           {status === "stale" && fecha && (
             <OfflineTag
               title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearDiaMes(fecha)}`}
-              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
+              savedAt={savedAt}
             />
           )}
           {status !== "stale" && diff !== null && cierrePrevio && (
@@ -71,7 +72,7 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
       {data && categoria && (
         <div className="riesgoBlock">
           <div className="riesgoBlock__row">
-            <span className="riesgoBlock__value">{entero.format(data.valor)}</span>
+            <ValorAnimado className="riesgoBlock__value" valor={data.valor} texto={entero.format(data.valor)} />
             <span className="riesgoBlock__unit">pb</span>
             <span className={`riesgoTag riesgoTag--${categoria.tone}`}>{categoria.label}</span>
           </div>

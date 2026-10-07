@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { formatearMomento } from "../lib/format";
 import type { Cotizacion, MarketQuote, RiesgoPais } from "../types";
 import MarketCard from "./MarketCard";
 import QuoteCard from "./QuoteCard";
@@ -94,10 +95,12 @@ describe("QuoteCard", () => {
     expect(quote()).not.toContain("brechaTag");
   });
 
-  it("agrega 'hace X min' junto al aviso de sin conexión", () => {
-    const html = quote({ status: "stale", savedAt: Date.now() - 3 * 60_000 });
+  it("muestra la hora exacta del guardado junto al aviso de sin conexión", () => {
+    const savedAt = Date.now() - 3 * 60_000;
+    const html = quote({ status: "stale", savedAt });
     expect(html).toContain("Sin conexión");
-    expect(html).toContain("hace 3 min");
+    expect(html).toContain(formatearMomento(savedAt));
+    expect(html).toContain("guardado hace 3 min"); // el relativo queda en el tooltip
   });
 
   it("marca la estrella como activa cuando la tarjeta es favorita", () => {
@@ -154,9 +157,10 @@ describe("MarketCard", () => {
     expect(html).not.toContain("quoteVariation");
   });
 
-  it("suma 'hace X min' cuando conoce el momento del último guardado", () => {
-    const html = render({ status: "stale", savedAt: Date.now() - 90_000 });
-    expect(html).toContain("hace 2 min"); // 90s redondea a 2 min
+  it("suma la hora exacta cuando conoce el momento del último guardado", () => {
+    const savedAt = Date.now() - 90_000;
+    const html = render({ status: "stale", savedAt });
+    expect(html).toContain(formatearMomento(savedAt));
   });
 });
 

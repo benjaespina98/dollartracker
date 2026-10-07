@@ -1,10 +1,11 @@
 import { useMemo, type ReactNode } from "react";
 import { convertir, formatearMoneda, type MonedaOrigen } from "../lib/conversion";
 import { cierreAnterior } from "../lib/fechas";
-import { formatearFechaHora, formatearHaceTiempo, formatearHora, pesos } from "../lib/format";
+import { formatearFechaHora, formatearHora, pesos } from "../lib/format";
 import { tieneHistorico, useHistoricoDolar } from "../hooks/useHistorico";
 import type { Cotizacion } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
+import ValorAnimado from "./ValorAnimado";
 import { BrechaBadge, HoraDato, OfflineTag, Variacion } from "./CardMeta";
 
 interface Props {
@@ -105,7 +106,7 @@ export default function QuoteCard({
           {status === "stale" && actualizado && (
             <OfflineTag
               title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(actualizado)} hs`}
-              haceTiempo={savedAt !== null ? formatearHaceTiempo(savedAt) : undefined}
+              savedAt={savedAt}
             />
           )}
           {status !== "stale" && variacion !== null && cierrePrevio && (
@@ -146,11 +147,15 @@ export default function QuoteCard({
           <div className="quotePrices">
             <div className="quotePriceBlock">
               <span className="quotePriceLabel">Compra</span>
-              <span className="quotePriceValue">{pesos.format(data.compra)}</span>
+              <ValorAnimado className="quotePriceValue" valor={data.compra} texto={pesos.format(data.compra)} />
             </div>
             <div className="quotePriceBlock quotePriceBlock--venta">
               <span className="quotePriceLabel">Venta</span>
-              <span className="quotePriceValue quotePriceValue--accent">{pesos.format(data.venta)}</span>
+              <ValorAnimado
+                className="quotePriceValue quotePriceValue--accent"
+                valor={data.venta}
+                texto={pesos.format(data.venta)}
+              />
             </div>
           </div>
         ))}

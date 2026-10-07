@@ -1,5 +1,6 @@
 // Los elementos de la fila inferior de las tarjetas. Estaban escritos a
 // mano en cada una, con umbrales y clases repetidos.
+import { formatearHaceTiempo, formatearMomento } from "../lib/format";
 
 interface VariacionProps {
   /** Signo del cambio: define color y flecha */
@@ -48,13 +49,16 @@ export function HoraDato({ texto, title }: HoraProps) {
 
 interface OfflineTagProps {
   title: string;
-  /** "hace 3 min", del savedAt guardado en el cache local; omitido si nunca se guardó nada */
-  haceTiempo?: string;
+  /** Date.now() del guardado en el cache local; null si nunca se guardó nada */
+  savedAt?: number | null;
 }
 
-export function OfflineTag({ title, haceTiempo }: OfflineTagProps) {
+// El texto muestra la hora exacta del último guardado; el "hace X" va en el
+// tooltip, donde ya no compite por el poco ancho de la tarjeta.
+export function OfflineTag({ title, savedAt }: OfflineTagProps) {
+  const conMomento = savedAt != null;
   return (
-    <span className="offlineTag" title={title}>
+    <span className="offlineTag" title={conMomento ? `${title} (guardado ${formatearHaceTiempo(savedAt)})` : title}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M2 2l20 20" />
         <path
@@ -65,7 +69,7 @@ export function OfflineTag({ title, haceTiempo }: OfflineTagProps) {
         />
         <circle cx="12" cy="19.5" r="1.2" fill="currentColor" />
       </svg>
-      Sin conexión{haceTiempo && ` · ${haceTiempo}`}
+      Sin conexión{conMomento && ` · ${formatearMomento(savedAt)}`}
     </span>
   );
 }
