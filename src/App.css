@@ -230,14 +230,15 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px 14px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   align-items: stretch;
 }
 
 @media (min-width: 560px) {
   .grid {
-    gap: 28px 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 16px;
   }
 }
 
@@ -247,7 +248,7 @@
   }
 }
 
-@media (min-width: 1300px) {
+@media (min-width: 1100px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -303,7 +304,7 @@
   --accent: #78beff;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   container-type: inline-size;
 }
@@ -465,13 +466,13 @@
   border-top: 2px solid var(--accent);
   background: var(--card-bg);
   box-shadow: var(--shadow-card), var(--card-inset-highlight);
-  padding: 18px;
+  padding: 16px;
   min-height: 150px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
@@ -547,7 +548,7 @@
 .quoteBodyContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   animation: contentIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1597,6 +1598,73 @@
 
   .quoteHeaderActions {
     gap: 4px;
+  }
+}
+
+/* Celular: una columna de tarjetas anchas y bajas. Los precios y el mini
+   gráfico comparten fila y la fila de chips va debajo, así entran más
+   cotizaciones por pantalla. La tarjeta abierta (modal) no se toca. */
+@media (max-width: 560px) {
+  .quoteSection {
+    margin-top: 32px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) {
+    gap: 6px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteHeader {
+    min-height: 30px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteBody {
+    min-height: 0;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    grid-template-areas:
+      "valores grafico"
+      "meta meta";
+    align-items: center;
+    gap: 8px 10px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > :first-child {
+    grid-area: valores;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > .sparklineWrap {
+    grid-area: grafico;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > .quoteMeta {
+    grid-area: meta;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quotePrices {
+    gap: 8px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quotePriceBlock {
+    padding: 7px 10px;
+    gap: 2px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .quotePriceValue {
+    font-size: 1.02rem;
+  }
+
+  /* El chip "Histórico" queda como un ícono junto al gráfico */
+  .quoteCard:not(.quoteCard--expandida) .sparklineChip__label {
+    display: none;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .sparklineChip {
+    padding: 4px;
   }
 }
 

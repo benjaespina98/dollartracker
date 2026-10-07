@@ -157,3 +157,93 @@ describe("/api/history", () => {
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://dollartracker.vercel.app");
   });
 });
+
+describe("/api/history: casos límite", () => {
+  const velasOk = {
+    USO: {
+      status: "ok",
+      values: [
+        { datetime: "2026-08-07", close: "118.50" },
+        { datetime: "2026-08-06", close: "117.20" },
+      ],
+    },
+  };
+
+  it("rechaza métodos que no sean GET o HEAD", async () => {
+    responderCon(200, velasOk);
+    const res = await handler(new Request("https://x.test/api/history", { method: "POST" }));
+    expect(res.status).toBe(405);
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("contesta el preflight de CORS sin tocar al proveedor", async () => {
+    responderCon(200, velasOk);
+    const res = await handler(new Request("https://x.test/api/history", { method: "OPTIONS" }));
+    expect(res.status).toBe(204);
+    expect(vi.mocked(globalThis.fetch)).not.toHaveBeenCalled();
+  });
+
+  it("si el proveedor no responde (red o timeout) devuelve un error genérico", async () => {
+    globalThis.fetch = vi.fn(async () => {
+      throw new TypeError("fetch failed");
+    }) as typeof fetch;
+
+    const res = await handler(req);
+    const texto = await res.text();
+    expect(res.status).toBe(502);
+    expect(texto).not.toContain("fetch failed");
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("falla con 502 si el proveedor responde algo que no es un objeto", async () => {
+    responderCon(200, [1, 2, 3]);
+    expect((await handler(req)).status).toBe(502);
+  });
+
+  it("falla con 502 si la respuesta del proveedor no es JSON", async () => {
+    globalThis.fetch = vi.fn(async () => new Response("<html>oops</html>", { status: 200 })) as typeof fetch;
+    expect((await handler(req)).status).toBe(502);
+  });
+
+  it("descarta las velas con un cierre que no es un número", async () => {
+    responderCon(200, {
+      USO: {
+        status: "ok",
+        values: [
+          { datetime: "2026-08-08", close: "no-es-numero" },
+          { datetime: "2026-08-07", close: "118.50" },
+          { datetime: "2026-08-06", close: "117.20" },
+        ],
+      },
+    });
+
+    const body = await (await handler(req)).json();
+    expect(body.oil).toEqual([
+      { fecha: "2026-08-06", valor: 117.2 },
+      { fecha: "2026-08-07", valor: 118.5 },
+    ]);
+  });
+
+  it("pide todos los símbolos en un solo pedido y 400 velas", async () => {
+    responderCon(200, velasOk);
+    await handler(req);
+
+    const url = String(vi.mocked(globalThis.fetch).mock.calls[0][0]);
+    expect(url).toContain("interval=1day");
+    expect(url).toContain("outputsize=400");
+    for (const simbolo of ["USO", "GLD", "SPY", "DIA", "QQQ", "SOYB", "CORN", "WEAT"]) {
+      expect(decodeURIComponent(url)).toContain(simbolo);
+    }
+  });
+
+  it("nunca incluye la API key en ninguna respuesta de error", async () => {
+    for (const [status, cuerpo] of [
+      [401, { code: 401, status: "error", message: "Invalid API key clave-de-prueba" }],
+      [429, { code: 429, status: "error", message: "límite clave-de-prueba" }],
+      [500, { code: 500, status: "error", message: "boom clave-de-prueba" }],
+    ] as const) {
+      responderCon(status, cuerpo);
+      expect(await (await handler(req)).text()).not.toContain("clave-de-prueba");
+    }
+  });
+});
