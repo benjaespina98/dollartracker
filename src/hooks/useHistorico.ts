@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { hoyEnArgentina } from "../lib/fechas";
+import { aSerieBitcoin, BTC_KLINES_URL } from "../lib/bitcoin";
 import { esPayloadPorSimbolo, pedirJson } from "../lib/http";
 import { loadFromCache, saveToCache } from "../lib/offlineCache";
 
@@ -117,6 +118,14 @@ export function useHistoricoDolar(casa: string): SeriePunto[] | null {
     `${DOLARES_URL}/${casa}`,
     mapearDolar as (crudo: never[]) => SeriePunto[]
   );
+}
+
+const mapearBitcoin = (crudo: unknown[]): SeriePunto[] => aSerieBitcoin(crudo);
+
+// Bitcoin va directo a Binance (ver lib/bitcoin), fuera del pedido conjunto de
+// los mercados de Twelve Data.
+export function useHistoricoBitcoin(): SeriePunto[] | null {
+  return useSerie("hist:btc", BTC_KLINES_URL, mapearBitcoin as (crudo: never[]) => SeriePunto[]);
 }
 
 export function useHistoricoRiesgoPais(): SeriePunto[] | null {

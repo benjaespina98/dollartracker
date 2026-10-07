@@ -1556,19 +1556,32 @@
    de tamaño de escritorio. */
 @media (max-width: 560px) {
   .quoteMeta {
-    gap: 5px;
-    font-size: 0.66rem;
+    gap: 4px 6px;
+    font-size: 0.62rem;
   }
 
   .quoteVariation,
   .offlineTag,
   .brechaTag {
-    padding: 1px 6px;
-    font-size: 0.66rem;
+    padding: 0 5px;
+    gap: 2px;
+    font-size: 0.62rem;
+    line-height: 1.5;
+  }
+
+  /* La palabra "DATO" solo aclara que la hora es la de la fuente: en celular
+     el reloj alcanza y deja lugar para que la hora entre junto al chip. */
+  .quoteUpdated {
+    gap: 3px;
+  }
+
+  .quoteUpdated svg {
+    width: 10px;
+    height: 10px;
   }
 
   .quoteUpdated__label {
-    font-size: 0.58rem;
+    display: none;
   }
 
   .sparklineChip {

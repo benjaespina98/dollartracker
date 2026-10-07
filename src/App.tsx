@@ -10,11 +10,12 @@ import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
-import { CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
+import { CRIPTO, CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
+import { useBitcoin } from "./hooks/useBitcoin";
 import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
-import { useHistoricoMercados } from "./hooks/useHistorico";
+import { useHistoricoBitcoin, useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
 import { prepararResumen } from "./lib/resumenImagen";
@@ -25,12 +26,14 @@ import { prepararResumen } from "./lib/resumenImagen";
 const MONEDA_POR_KEY = new Map<string, CurrencyCardConfig>(
   CURRENCY_SECTIONS.flatMap((seccion) => seccion.cards).map((c) => [c.key, c])
 );
-const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS].map((m) => [m.key, m]));
+const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS, ...CRIPTO].map((m) => [m.key, m]));
 
 export default function App() {
   const { state, refresh: refreshCotizaciones } = useCotizaciones();
   const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
+  const bitcoin = useBitcoin();
+  const historicoBitcoin = useHistoricoBitcoin();
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
 
   // Guardamos el texto crudo que se tipeó (no el número) para no pelear con el
@@ -64,13 +67,17 @@ export default function App() {
     if (refrescando) return;
     setRefrescando(true);
     try {
-      await Promise.all([refreshCotizaciones(), refreshMarkets()]);
+      await Promise.all([refreshCotizaciones(), refreshMarkets(), bitcoin.refresh()]);
     } finally {
       setRefrescando(false);
     }
   }
 
-  function renderMercado({ key, label, ticker, detalle, accent, icon }: MarketCardConfig) {
+  function renderMercado({ key, label, ticker, detalle, accent, icon, info, variacionTitle }: MarketCardConfig) {
+    // Bitcoin no viaja con los demás mercados (otra fuente, otra cadencia).
+    const entry = key === "btc" ? bitcoin : markets[key];
+    const historico = key === "btc" ? historicoBitcoin : (historicoMercados?.[key] ?? null);
+
     return (
       <MarketCard
         key={key}
@@ -79,10 +86,12 @@ export default function App() {
         ticker={ticker}
         detalle={detalle}
         accent={accent}
-        data={markets[key]?.data ?? null}
-        status={markets[key]?.status ?? "loading"}
-        savedAt={markets[key]?.savedAt ?? null}
-        historico={historicoMercados?.[key] ?? null}
+        info={info}
+        variacionTitle={variacionTitle}
+        data={entry?.data ?? null}
+        status={entry?.status ?? "loading"}
+        savedAt={entry?.savedAt ?? null}
+        historico={historico}
         favorito={esFavorito(key)}
         onToggleFavorito={() => toggleFavorito(key)}
       />
@@ -248,6 +257,8 @@ export default function App() {
             }
           >
             {section.cards.map(renderMoneda)}
+            {/* Bitcoin completa la fila junto a Euro y Real */}
+            {section.title === "Otras monedas" && CRIPTO.map(renderMercado)}
           </Seccion>
         ))}
 

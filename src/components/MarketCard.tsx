@@ -14,6 +14,10 @@ interface Props {
   /** Qué sigue ese ETF; solo aparece en el panel (i) de la tarjeta abierta */
   detalle: string;
   accent: string;
+  /** Texto propio del panel (i); por defecto, el de un ETF de Twelve Data */
+  info?: ReactNode;
+  /** Tooltip propio de la variación; por defecto, "contra el cierre anterior" */
+  variacionTitle?: string;
   data: MarketQuote | null;
   status: CardStatus;
   /** Date.now() de cuando se guardó el dato que se está mostrando, para el "hace X min" del aviso offline */
@@ -30,6 +34,8 @@ export default function MarketCard({
   ticker,
   detalle,
   accent,
+  info,
+  variacionTitle,
   data,
   status,
   savedAt,
@@ -60,11 +66,13 @@ export default function MarketCard({
           : null
       }
       info={
-        <>
-          {detalle}. El gráfico muestra el precio de cierre diario del ETF <strong>{ticker}</strong>, usado como
-          referencia del activo, con su mínimo y máximo del período elegido. Datos de Twelve Data. No es
-          asesoramiento financiero.
-        </>
+        info ?? (
+          <>
+            {detalle}. El gráfico muestra el precio de cierre diario del ETF <strong>{ticker}</strong>, usado como
+            referencia del activo, con su mínimo y máximo del período elegido. Datos de Twelve Data. No es
+            asesoramiento financiero.
+          </>
+        )
       }
       meta={
         <>
@@ -82,9 +90,12 @@ export default function MarketCard({
             <Variacion
               valor={data.changePercent}
               texto={`${Math.abs(data.changePercent).toFixed(2)}%`}
-              title={`Variación contra el cierre anterior${
-                data.previousClose !== null ? ` (${dolares.format(data.previousClose)})` : ""
-              }`}
+              title={
+                variacionTitle ??
+                `Variación contra el cierre anterior${
+                  data.previousClose !== null ? ` (${dolares.format(data.previousClose)})` : ""
+                }`
+              }
             />
           )}
           {cierre && (

@@ -90,6 +90,10 @@ export interface MarketCardConfig {
   detalle: string;
   accent: string;
   icon: ReactNode;
+  /** Texto propio del panel (i); si falta, el de un ETF de Twelve Data */
+  info?: ReactNode;
+  /** Texto propio del tooltip de la variación; si falta, "contra el cierre anterior" */
+  variacionTitle?: string;
 }
 
 // Bajo el precio va solo el ticker del ETF: la frase completa ("sigue al
@@ -107,4 +111,25 @@ export const GRANOS: MarketCardConfig[] = [
   { key: "soja", label: "Soja", ticker: "SOYB", detalle: "Sigue los futuros de soja de Chicago", accent: "#84cc16", icon: <IconSoy /> },
   { key: "maiz", label: "Maíz", ticker: "CORN", detalle: "Sigue los futuros de maíz de Chicago", accent: "#fbbf24", icon: <IconCorn /> },
   { key: "trigo", label: "Trigo", ticker: "WEAT", detalle: "Sigue los futuros de trigo de Chicago", accent: "#d97706", icon: <IconWheat /> },
+];
+
+// Bitcoin no es un ETF ni sale de Twelve Data: viene de Binance, y su variación
+// es la de las últimas 24 horas porque no tiene cierre diario.
+export const CRIPTO: MarketCardConfig[] = [
+  {
+    key: "btc",
+    label: "Bitcoin",
+    ticker: "BTC/USDT",
+    detalle: "Bitcoin en dólares, par BTC/USDT",
+    accent: "#f7931a",
+    icon: <IconGlyph glyph="₿" />,
+    info: (
+      <>
+        Precio de Bitcoin en dólares, tomado del par BTC/USDT de Binance y actualizado cada minuto. El gráfico
+        muestra el precio de cierre diario del último año, con su mínimo y máximo del período elegido. La
+        variación es la de las últimas 24 horas. No es asesoramiento financiero.
+      </>
+    ),
+    variacionTitle: "Variación de las últimas 24 horas",
+  },
 ];
