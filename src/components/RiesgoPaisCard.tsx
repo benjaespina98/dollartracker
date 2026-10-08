@@ -28,6 +28,13 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
   const categoria = data ? categoriaRiesgoPais(data.valor) : null;
   const fecha = data ? fechaDelDia(data.fecha) : null;
 
+  const tituloOffline = fecha
+    ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearDiaMes(fecha)}`
+    : "";
+  const tituloVariacion = cierrePrevio
+    ? `Variación contra el cierre del ${formatearDiaMes(fechaDelDia(cierrePrevio.fecha))} (${entero.format(cierrePrevio.valor)} pb)`
+    : "";
+
   return (
     <CardShell
       label="Riesgo País"
@@ -48,11 +55,24 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
           umbrales de mercado orientativos, no un dato oficial. Datos de ArgentinaDatos.
         </>
       }
+      fila={{
+        valor:
+          data && (
+            <ValorAnimado className="quoteRow__precio" valor={data.valor} texto={`${entero.format(data.valor)} pb`} />
+          ),
+        detalle: categoria?.label,
+        chip:
+          status === "stale" && fecha ? (
+            <OfflineTag title={tituloOffline} savedAt={savedAt} />
+          ) : status !== "stale" && diff !== null && cierrePrevio ? (
+            <Variacion valor={diff} texto={`${Math.abs(diff)} pb`} title={tituloVariacion} />
+          ) : null,
+      }}
       meta={
         <>
           {status === "stale" && fecha && (
             <OfflineTag
-              title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearDiaMes(fecha)}`}
+              title={tituloOffline}
               savedAt={savedAt}
             />
           )}
@@ -60,7 +80,7 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
             <Variacion
               valor={diff}
               texto={`${Math.abs(diff)} pb`}
-              title={`Variación contra el cierre del ${formatearDiaMes(fechaDelDia(cierrePrevio.fecha))} (${entero.format(cierrePrevio.valor)} pb)`}
+              title={tituloVariacion}
             />
           )}
           {fecha && (

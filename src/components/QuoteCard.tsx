@@ -66,6 +66,17 @@ export default function QuoteCard({
 
   const actualizado = data ? new Date(data.fechaActualizacion) : null;
 
+  const tituloVariacion = cierrePrevio
+    ? `Variación de la venta contra el cierre del ${cierrePrevio.fecha
+        .split("-")
+        .reverse()
+        .slice(0, 2)
+        .join("/")} (${pesos.format(cierrePrevio.valor)})`
+    : "";
+  const tituloOffline = actualizado
+    ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(actualizado)} hs`
+    : "";
+
   return (
     <CardShell
       label={label}
@@ -101,11 +112,38 @@ export default function QuoteCard({
           Es un valor de referencia: puede diferir del que te ofrezca tu banco, billetera o casa de cambio.
         </>
       }
+      fila={{
+        valor:
+          data &&
+          (convertido !== null ? (
+            <span className="quoteRow__precio">{formatearMoneda(convertido.valor, convertido.moneda)}</span>
+          ) : (
+            <ValorAnimado className="quoteRow__precio" valor={data.venta} texto={pesos.format(data.venta)} />
+          )),
+        // Sin popup (euro y real) la compra no tendría dónde verse: va acá.
+        detalle:
+          data &&
+          (convertido !== null
+            ? `a ${pesos.format(convertido.tasa)} (${convertido.punta})`
+            : !tieneHistorico(casa)
+              ? `Compra ${pesos.format(data.compra)}`
+              : brecha != null
+                ? `Brecha ${brecha > 0 ? "+" : ""}${brecha.toFixed(1)}%`
+                : actualizado
+                  ? `${formatearHora(actualizado)} hs`
+                  : null),
+        chip:
+          status === "stale" && actualizado ? (
+            <OfflineTag title={tituloOffline} savedAt={savedAt} />
+          ) : status !== "stale" && variacion !== null && cierrePrevio ? (
+            <Variacion valor={variacion} texto={`${Math.abs(variacion).toFixed(2)}%`} title={tituloVariacion} />
+          ) : null,
+      }}
       meta={
         <>
           {status === "stale" && actualizado && (
             <OfflineTag
-              title={`No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(actualizado)} hs`}
+              title={tituloOffline}
               savedAt={savedAt}
             />
           )}
@@ -113,11 +151,7 @@ export default function QuoteCard({
             <Variacion
               valor={variacion}
               texto={`${Math.abs(variacion).toFixed(2)}%`}
-              title={`Variación de la venta contra el cierre del ${cierrePrevio.fecha
-                .split("-")
-                .reverse()
-                .slice(0, 2)
-                .join("/")} (${pesos.format(cierrePrevio.valor)})`}
+              title={tituloVariacion}
             />
           )}
           {brecha != null && (

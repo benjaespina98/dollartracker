@@ -1608,115 +1608,6 @@
   }
 }
 
-/* Celular: una columna de tarjetas anchas y bajas, con los precios arriba, el
-   gráfico a todo el ancho y la fila de chips debajo. La tarjeta abierta
-   (modal) no se toca. */
-@media (max-width: 560px) {
-  .quoteSection {
-    margin-top: 32px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) {
-    gap: 6px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteHeader {
-    min-height: 30px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteBody {
-    min-height: 0;
-    padding: 12px;
-    gap: 8px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "valores"
-      "grafico"
-      "meta";
-    gap: 8px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > :first-child {
-    grid-area: valores;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > .sparklineWrap {
-    grid-area: grafico;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > .quoteMeta {
-    grid-area: meta;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quotePrices {
-    gap: 8px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quotePriceBlock {
-    padding: 7px 10px;
-    gap: 2px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .quotePriceValue {
-    font-size: 1.02rem;
-  }
-
-  /* El gráfico ocupa todo el ancho de la tarjeta; el chip "Histórico" queda
-     como un ícono al final de la línea. */
-  .quoteCard:not(.quoteCard--expandida) .sparklineWrap {
-    height: 28px;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .sparklineWrap .sparkline {
-    opacity: 1;
-  }
-
-  /* El chip "Histórico" queda como un ícono junto al gráfico */
-  .quoteCard:not(.quoteCard--expandida) .sparklineChip__label {
-    display: none;
-  }
-
-  .quoteCard:not(.quoteCard--expandida) .sparklineChip {
-    padding: 4px;
-  }
-}
-
-/* ── Páginas por cotización (/dolar-blue…) ────────────────────────────── */
-
-.paginaIntro {
-  margin: 30px 0 0;
-  max-width: 68ch;
-}
-
-.paginaIntro__titulo {
-  margin: 0;
-  font-family: "Sora", "Inter", system-ui, sans-serif;
-  font-size: clamp(1.4rem, 4.5vw, 1.9rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--text-strong);
-}
-
-.paginaIntro__valor {
-  margin: 10px 0 0;
-  font-family: var(--font-mono);
-  font-size: clamp(1rem, 3.6vw, 1.2rem);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-strong);
-}
-
-.paginaIntro__texto {
-  margin: 10px 0 0;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-
 /* Enlaces a las demás cotizaciones, en el pie de todas las páginas */
 .footerNav {
   display: flex;
@@ -1785,6 +1676,270 @@
   .shareChip {
     padding: 0 12px;
   }
+}
+
+/* ── Encabezado de las páginas por cotización (/dolar-blue…) ─────────── */
+
+.paginaIntro {
+  --accent: #78beff;
+  margin: 28px 0 0;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "cabecera"
+    "valores"
+    "parrafos"
+    "otras";
+  gap: 16px 32px;
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  border-top: 2px solid var(--accent);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-card), var(--card-inset-highlight);
+}
+
+@media (min-width: 760px) {
+  .paginaIntro {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "cabecera valores"
+      "parrafos valores"
+      "otras otras";
+    align-items: start;
+  }
+}
+
+.paginaIntro__cabecera {
+  grid-area: cabecera;
+}
+
+.paginaIntro__parrafos {
+  grid-area: parrafos;
+}
+
+.paginaIntro__fecha {
+  margin: 0 0 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+.paginaIntro__titulo {
+  margin: 0;
+  font-family: "Sora", "Inter", system-ui, sans-serif;
+  font-size: clamp(1.4rem, 4.5vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+}
+
+.paginaIntro__parrafo {
+  margin: 0 0 8px;
+  max-width: 62ch;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.paginaIntro__valores {
+  grid-area: valores;
+  display: flex;
+  gap: 10px;
+}
+
+.paginaIntro__valor {
+  flex: 1;
+  min-width: 128px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--price-block-bg);
+}
+
+.paginaIntro__valor--destacado {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.paginaIntro__etiqueta {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.paginaIntro__numero {
+  font-family: var(--font-mono);
+  font-size: clamp(1.05rem, 4vw, 1.35rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-strong);
+}
+
+.paginaIntro__valor--destacado .paginaIntro__numero {
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+.paginaIntro__otras {
+  grid-area: otras;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+}
+
+/* En celular los enlaces van en una sola fila deslizable: nueve chips
+   apilados ocupaban casi cuatro renglones. */
+@media (max-width: 560px) {
+  .paginaIntro {
+    padding: 18px;
+  }
+
+  .paginaIntro__otras {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -18px -4px;
+    padding: 14px 18px 4px;
+    scrollbar-width: none;
+  }
+
+  .paginaIntro__otras::-webkit-scrollbar {
+    display: none;
+  }
+
+  .paginaIntro__chip {
+    flex-shrink: 0;
+  }
+}
+
+.paginaIntro__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: var(--btn-bg);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.paginaIntro__chip:hover {
+  background: var(--btn-bg-hover);
+  color: var(--text-strong);
+}
+
+/* ── Lista densa (celular) ────────────────────────────────────────────── */
+
+/* En celular cada cotización es una fila: nombre, mini gráfico y el valor de
+   venta con su variación. La compra y el gráfico grande se ven al tocarla. */
+.quoteRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 56px auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card), var(--card-inset-highlight);
+  transition: background 0.15s, transform 0.12s;
+}
+
+.quoteRow--abrible {
+  cursor: pointer;
+}
+
+.quoteRow--abrible:active {
+  transform: scale(0.99);
+  background: var(--card-bg-hover);
+}
+
+.quoteRow__texto {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quoteRow__titulo {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quoteRow__detalle {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quoteRow__spark {
+  display: block;
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+  opacity: 0.9;
+}
+
+.quoteRow__valor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.quoteRow__precio {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+.quoteRow__valor .quoteVariation,
+.quoteRow__valor .offlineTag {
+  font-size: 0.62rem;
+}
+
+.quoteRow__vacio {
+  grid-column: 3 / -1;
+  justify-self: end;
+  font-size: 0.78rem;
+  color: var(--negative);
+}
+
+.quoteRow__skeleton {
+  width: 120px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(100deg, var(--skeleton-a) 30%, var(--skeleton-b) 50%, var(--skeleton-a) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────── */

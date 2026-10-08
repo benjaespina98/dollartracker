@@ -6,7 +6,7 @@ import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
 import { BrandMark, IconPulse, IconRefresh, IconSwap } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
-import PaginaIntro from "./components/PaginaIntro";
+import PaginaIntro, { type ValorDePagina } from "./components/PaginaIntro";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import Seccion from "./components/Seccion";
@@ -29,6 +29,8 @@ import { prepararResumen } from "./lib/resumenImagen";
 const MONEDA_POR_KEY = new Map<string, CurrencyCardConfig>(
   CURRENCY_SECTIONS.flatMap((seccion) => seccion.cards).map((c) => [c.key, c])
 );
+// El rojo de la tarjeta de Riesgo País; lo usan la tarjeta y el encabezado de su página.
+const RIESGO_PAIS_ACENTO = "#f87171";
 const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS, ...CRIPTO].map((m) => [m.key, m]));
 
 export default function App() {
@@ -151,7 +153,7 @@ export default function App() {
       <RiesgoPaisCard
         key="riesgoPais"
         icon={<IconPulse />}
-        accent="#f87171"
+        accent={RIESGO_PAIS_ACENTO}
         data={riesgoPais.data}
         status={riesgoPais.status}
         savedAt={riesgoPais.savedAt}
@@ -174,16 +176,36 @@ export default function App() {
     return null; // favorito guardado de una clave que ya no existe
   }
 
-  // La cotización del momento de la tarjeta que ilustra la página, ya formateada.
-  function valorEnVivo(clave: string): string | null {
+  // Las cifras del momento de la tarjeta que ilustra la página, ya formateadas.
+  function valoresEnVivo(clave: string): ValorDePagina[] {
     if (clave === "riesgoPais") {
-      return riesgoPais.data ? `${entero.format(riesgoPais.data.valor)} puntos básicos` : null;
+      return riesgoPais.data
+        ? [{ etiqueta: "Valor", texto: `${entero.format(riesgoPais.data.valor)} pb`, destacado: true }]
+        : [];
     }
-    if (clave === "btc") return bitcoin.data ? `${dolares.format(bitcoin.data.price)} (BTC/USDT)` : null;
+    if (clave === "btc") {
+      const { data } = bitcoin;
+      if (!data) return [];
+      const variacion = data.changePercent;
+      return [
+        { etiqueta: "Precio", texto: dolares.format(data.price), destacado: true },
+        ...(variacion !== null
+          ? [{ etiqueta: "Últimas 24 h", texto: `${variacion > 0 ? "+" : ""}${variacion.toFixed(2)}%` }]
+          : []),
+      ];
+    }
     const cotizacion = state[clave]?.data;
     return cotizacion
-      ? `Compra ${pesos.format(cotizacion.compra)} · Venta ${pesos.format(cotizacion.venta)}`
-      : null;
+      ? [
+          { etiqueta: "Compra", texto: pesos.format(cotizacion.compra) },
+          { etiqueta: "Venta", texto: pesos.format(cotizacion.venta), destacado: true },
+        ]
+      : [];
+  }
+
+  function acentoDe(clave: string): string {
+    if (clave === "riesgoPais") return RIESGO_PAIS_ACENTO;
+    return MONEDA_POR_KEY.get(clave)?.accent ?? MERCADO_POR_KEY.get(clave)?.accent ?? "#78beff";
   }
 
   function nombreDeClave(key: string): string {
@@ -237,7 +259,7 @@ export default function App() {
         </header>
 
         <main>
-        {pagina && <PaginaIntro pagina={pagina} valor={valorEnVivo(pagina.clave)} />}
+        {pagina && <PaginaIntro pagina={pagina} accent={acentoDe(pagina.clave)} valores={valoresEnVivo(pagina.clave)} />}
 
         {favoritos.length > 0 && (
           <Seccion title="★ Favoritos">

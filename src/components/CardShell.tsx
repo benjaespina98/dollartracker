@@ -11,15 +11,27 @@ import {
 } from "react";
 import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHistorico";
 import { useDismiss } from "../hooks/useDismiss";
+import { useEsMovil } from "../hooks/useEsMovil";
 import { useModalCard } from "../hooks/useModalCard";
 import { useSwipeToClose } from "../hooks/useSwipeToClose";
 import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
 import ShareButton from "./ShareButton";
+import Sparkline from "./Sparkline";
 import SparklineRow from "./SparklineRow";
 
 const HistoricoPanel = lazy(() => import("./HistoricoPanel"));
 
 export type CardStatus = "loading" | "ready" | "stale" | "error";
+
+/** Lo que muestra la tarjeta cuando en celular se reduce a una fila de la lista. */
+export interface FilaCompacta {
+  /** Valor principal (la venta, o el resultado de la conversión) */
+  valor?: ReactNode;
+  /** Línea chica bajo el nombre */
+  detalle?: ReactNode;
+  /** Chip bajo el valor (variación o aviso de sin conexión) */
+  chip?: ReactNode;
+}
 
 interface Props {
   label: string;
@@ -43,6 +55,8 @@ interface Props {
   children: ReactNode;
   /** Fila inferior: variación, hora del dato, estado offline */
   meta: ReactNode;
+  /** Con esto, en celular la tarjeta es una fila de lista; al tocarla se abre completa */
+  fila?: FilaCompacta;
   favorito: boolean;
   onToggleFavorito: () => void;
 }
@@ -66,6 +80,7 @@ export default function CardShell({
   skeletonBlocks = 1,
   children,
   meta,
+  fila,
   favorito,
   onToggleFavorito,
 }: Props) {
@@ -77,6 +92,9 @@ export default function CardShell({
   // mandarlo al principio del documento.
   const disparador = useRef<HTMLElement | null>(null);
   const cerrarRef = useRef<HTMLButtonElement>(null);
+  const filaRef = useRef<HTMLButtonElement>(null);
+  const seAbrio = useRef(false);
+  const esMovil = useEsMovil();
 
   const puedeExpandirse = hayDatos && (serie?.length ?? 0) >= 2;
   // recortarRango recorre toda la serie (hasta 400 puntos por tarjeta): sin
@@ -114,8 +132,13 @@ export default function CardShell({
   useModalCard(expandida, cerrar);
 
   useEffect(() => {
-    if (expandida) cerrarRef.current?.focus();
-    else disparador.current?.focus();
+    if (expandida) {
+      seAbrio.current = true;
+      cerrarRef.current?.focus();
+    } else if (seAbrio.current) {
+      // En modo fila el botón que se tocó ya no existe (se rearmó): se vuelve a la fila.
+      (filaRef.current ?? disparador.current)?.focus();
+    }
   }, [expandida]);
 
   // El cuerpo solo abre; para cerrar están la X, el fondo, Escape y deslizar
@@ -131,12 +154,37 @@ export default function CardShell({
   const cerrarInfo = useCallback(() => setMostrarInfo(false), []);
   useDismiss(mostrarInfo && !expandida, swipeRef, cerrarInfo);
 
+  const modoFila = esMovil && fila !== undefined && !expandida;
+
+  const contenidoFila = fila && (
+    <>
+      <span className="quoteIcon">{icon}</span>
+      <span className="quoteRow__texto">
+        <span className="quoteRow__titulo">{label}</span>
+        {hayDatos && fila.detalle && <span className="quoteRow__detalle">{fila.detalle}</span>}
+      </span>
+      {hayDatos ? (
+        <>
+          <span className="quoteRow__spark">{serieMini && <Sparkline valores={serieMini} height={24} />}</span>
+          <span className="quoteRow__valor">
+            {fila.valor}
+            {fila.chip}
+          </span>
+        </>
+      ) : status === "error" ? (
+        <span className="quoteRow__vacio">Sin dato</span>
+      ) : (
+        <span className="quoteRow__vacio quoteRow__skeleton" aria-label={`Cargando ${nombre}`} />
+      )}
+    </>
+  );
+
   return (
     <>
       {expandida && <CardBackdrop onClose={cerrar} />}
       <section
         ref={swipeRef}
-        className={`quoteCard ${expandida ? "quoteCard--expandida" : ""}`}
+        className={`quoteCard ${expandida ? "quoteCard--expandida" : ""} ${modoFila ? "quoteCard--fila" : ""}`}
         style={
           {
             "--accent": accent,
@@ -151,6 +199,23 @@ export default function CardShell({
         }
         {...(expandida ? { role: "dialog", "aria-modal": true, "aria-label": nombre } : {})}
       >
+        {modoFila ? (
+          puedeExpandirse ? (
+            <button
+              ref={filaRef}
+              type="button"
+              className="quoteRow quoteRow--abrible"
+              onClick={abrir}
+              aria-haspopup="dialog"
+              title={`${nombre}: ver histórico`}
+            >
+              {contenidoFila}
+            </button>
+          ) : (
+            <div className="quoteRow">{contenidoFila}</div>
+          )
+        ) : (
+          <>
         <header className="quoteHeader">
           <div className="quoteTitleGroup">
             <span className="quoteIcon">{icon}</span>
@@ -250,6 +315,8 @@ export default function CardShell({
             </div>
           )}
         </div>
+          </>
+        )}
       </section>
     </>
   );

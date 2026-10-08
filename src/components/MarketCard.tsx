@@ -45,6 +45,13 @@ export default function MarketCard({
 }: Props) {
   const cierre = data?.marketTime ? new Date(data.marketTime * 1000) : null;
 
+  const tituloOffline = cierre
+    ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(cierre)} hs`
+    : "No se pudo actualizar; este es el último valor guardado en este dispositivo";
+  const tituloVariacion =
+    variacionTitle ??
+    `Variación contra el cierre anterior${data?.previousClose != null ? ` (${dolares.format(data.previousClose)})` : ""}`;
+
   return (
     <CardShell
       label={label}
@@ -74,28 +81,28 @@ export default function MarketCard({
           </>
         )
       }
+      fila={{
+        valor: data && <ValorAnimado className="quoteRow__precio" valor={data.price} texto={dolares.format(data.price)} />,
+        detalle: ticker,
+        chip:
+          status === "stale" ? (
+            <OfflineTag title={tituloOffline} savedAt={savedAt} />
+          ) : data?.changePercent != null ? (
+            <Variacion
+              valor={data.changePercent}
+              texto={`${Math.abs(data.changePercent).toFixed(2)}%`}
+              title={tituloVariacion}
+            />
+          ) : null,
+      }}
       meta={
         <>
-          {status === "stale" && (
-            <OfflineTag
-              title={
-                cierre
-                  ? `No se pudo actualizar; este es el último valor guardado en este dispositivo, del ${formatearFechaHora(cierre)} hs`
-                  : "No se pudo actualizar; este es el último valor guardado en este dispositivo"
-              }
-              savedAt={savedAt}
-            />
-          )}
+          {status === "stale" && <OfflineTag title={tituloOffline} savedAt={savedAt} />}
           {status !== "stale" && data?.changePercent != null && (
             <Variacion
               valor={data.changePercent}
               texto={`${Math.abs(data.changePercent).toFixed(2)}%`}
-              title={
-                variacionTitle ??
-                `Variación contra el cierre anterior${
-                  data.previousClose !== null ? ` (${dolares.format(data.previousClose)})` : ""
-                }`
-              }
+              title={tituloVariacion}
             />
           )}
           {cierre && (
