@@ -57,6 +57,12 @@
   flex-wrap: wrap;
 }
 
+.actualizado {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
 .headerActions {
   display: flex;
   align-items: center;
@@ -1255,14 +1261,16 @@
 
 /* ── Pie ──────────────────────────────────────────────────────────────── */
 
+/* Pie en tres bloques: marca y texto legal, enlaces a las cotizaciones y, al
+   final y separado, el crédito. Antes era un montón de líneas centradas. */
 .footer {
-  margin-top: 64px;
-  padding-top: 28px;
+  margin-top: 56px;
+  padding-top: 24px;
   border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   text-align: center;
 }
 
@@ -1318,8 +1326,9 @@
 .footerNote {
   margin: 0;
   color: var(--text-faint);
-  font-size: 0.78rem;
-  line-height: 1.55;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  max-width: 52ch;
   text-wrap: pretty;
 }
 
@@ -1613,8 +1622,11 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 14px;
-  margin-top: 2px;
+  gap: 0 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+  width: 100%;
 }
 
 .footerNav a {

@@ -3,7 +3,7 @@ import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
-import { BrandMark, IconPulse, IconRefresh, IconSwap } from "./components/icons";
+import { BrandMark, IconPulse, IconSwap } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import PaginaIntro, { type ValorDePagina } from "./components/PaginaIntro";
@@ -20,7 +20,7 @@ import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoBitcoin, useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
-import { dolares, entero, pesos } from "./lib/format";
+import { dolares, entero, formatearHora, pesos } from "./lib/format";
 import { prepararResumen } from "./lib/resumenImagen";
 
 // Un solo lugar para ir de "clave de favorito" (casa, key de mercado/grano, o
@@ -34,8 +34,8 @@ const RIESGO_PAIS_ACENTO = "#f87171";
 const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS, ...CRIPTO].map((m) => [m.key, m]));
 
 export default function App() {
-  const { state, refresh: refreshCotizaciones } = useCotizaciones();
-  const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
+  const { state } = useCotizaciones();
+  const { riesgoPais, markets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
   const bitcoin = useBitcoin();
   // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios. La
@@ -58,7 +58,6 @@ export default function App() {
     setMostrarConversor(!mostrarConversor);
   };
   const [mostrarInfoApp, setMostrarInfoApp] = useState(false);
-  const [refrescando, setRefrescando] = useState(false);
 
   // El "Acerca de" del header se cierra tocando afuera del header o con Escape.
   const headerRef = useRef<HTMLElement | null>(null);
@@ -78,6 +77,17 @@ export default function App() {
   // oficial todavía no llegó o vale 0, ninguna tarjeta muestra el badge.
   const ventaOficial = state.oficial?.data?.venta ?? null;
 
+  // Hora del dato más reciente que informó la fuente (no la de nuestro último
+  // pedido): es lo que le dice al usuario si la información está al día.
+  const ultimaActualizacion = useMemo(() => {
+    const tiempos = Object.values(state)
+      .map((e) => e.data?.fechaActualizacion)
+      .filter((f): f is string => !!f)
+      .map((f) => new Date(f).getTime())
+      .filter((t) => !Number.isNaN(t));
+    return tiempos.length ? formatearHora(new Date(Math.max(...tiempos))) : null;
+  }, [state]);
+
   // dibujarResumen recién lee esto al tocar "Resumen", pero recalcularlo acá
   // en cada refresco de cotizaciones (y no en cada tecla del conversor, que no
   // lo toca) es barato y evita rearmarlo desde cero en el click.
@@ -86,17 +96,6 @@ export default function App() {
     [state, riesgoPais.data]
   );
 
-  // Antes el botón no daba ninguna señal: se tocaba, no pasaba nada visible
-  // durante uno o dos segundos y la reacción natural era volver a tocarlo.
-  async function refreshAll() {
-    if (refrescando) return;
-    setRefrescando(true);
-    try {
-      await Promise.all([refreshCotizaciones(), refreshMarkets(), bitcoin.refresh()]);
-    } finally {
-      setRefrescando(false);
-    }
-  }
 
   function renderMercado({ key, label, ticker, detalle, accent, icon, info, variacionTitle }: MarketCardConfig) {
     // Bitcoin no viaja con los demás mercados (otra fuente, otra cadencia).
@@ -224,6 +223,7 @@ export default function App() {
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
                 {pagina ? <p className="title">DollarTracker</p> : <h1 className="title">DollarTracker</h1>}
+                {ultimaActualizacion && <p className="actualizado">Actualizado {ultimaActualizacion} · se refresca solo</p>}
               </div>
             </div>
 
@@ -234,16 +234,6 @@ export default function App() {
                 label="Acerca de DollarTracker"
               />
 
-              <button
-                className={`refreshAllBtn ${refrescando ? "refreshAllBtn--cargando" : ""}`}
-                onClick={refreshAll}
-                type="button"
-                disabled={refrescando}
-                aria-label={refrescando ? "Actualizando cotizaciones" : "Actualizar cotizaciones"}
-                title="Actualizar cotizaciones"
-              >
-                <IconRefresh className="refreshAllBtn__icon" />
-              </button>
             </div>
           </div>
 
