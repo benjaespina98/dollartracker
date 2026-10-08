@@ -1165,17 +1165,27 @@
 @media (max-width: 700px) {
   .quoteCard--expandida {
     width: calc(100vw - 40px);
-    max-height: min(76vh, 760px);
+    max-height: min(82vh, 760px);
   }
 
   .quoteCard--expandida .quoteBody {
-    max-height: min(76vh, 760px);
+    max-height: min(82vh, 760px);
+  }
+
+  /* El gráfico del popup se achica en pantallas bajas para que entren los
+     botones de rango sin tener que hacer scroll adentro del popup. */
+  .quoteCard--expandida .historico__chart .sparkline {
+    height: clamp(64px, 17vh, 130px) !important;
   }
 
   @supports (height: 100dvh) {
     .quoteCard--expandida,
     .quoteCard--expandida .quoteBody {
-      max-height: min(76dvh, 760px);
+      max-height: min(82dvh, 760px);
+    }
+
+    .quoteCard--expandida .historico__chart .sparkline {
+      height: clamp(64px, 17dvh, 130px) !important;
     }
   }
 }
@@ -1390,8 +1400,9 @@
 /* ── Movimiento ───────────────────────────────────────────────────────── */
 
 /* Entrada escalonada de las tarjetas al cargar: sube y aparece una tras otra.
-   Con fill-mode "backwards" no queda ningún transform al terminar, así no
-   interfiere con la tarjeta expandida (position: fixed). */
+   Con fill-mode "backwards" no queda ningún transform al terminar, y la
+   tarjeta abierta (el popup) se excluye: tiene su propia animación y su
+   propio centrado, y esta se la pisaba. */
 @keyframes cardIn {
   from {
     opacity: 0;
@@ -1399,7 +1410,7 @@
   }
 }
 
-.grid > .quoteCard,
+.grid > .quoteCard:not(.quoteCard--expandida),
 .grid > .favSlot {
   animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards;
   animation-delay: calc(var(--i, 8) * 60ms);
@@ -1457,7 +1468,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grid > .quoteCard,
+  .grid > .quoteCard:not(.quoteCard--expandida),
   .grid > .favSlot,
   .sectionTitle::after,
   .brand,
@@ -1601,9 +1612,9 @@
   }
 }
 
-/* Celular: una columna de tarjetas anchas y bajas. Los precios y el mini
-   gráfico comparten fila y la fila de chips va debajo, así entran más
-   cotizaciones por pantalla. La tarjeta abierta (modal) no se toca. */
+/* Celular: una columna de tarjetas anchas y bajas, con los precios arriba, el
+   gráfico a todo el ancho y la fila de chips debajo. La tarjeta abierta
+   (modal) no se toca. */
 @media (max-width: 560px) {
   .quoteSection {
     margin-top: 32px;
@@ -1625,12 +1636,12 @@
 
   .quoteCard:not(.quoteCard--expandida) .quoteBodyContent {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 76px;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "valores grafico"
-      "meta meta";
-    align-items: center;
-    gap: 8px 10px;
+      "valores"
+      "grafico"
+      "meta";
+    gap: 8px;
   }
 
   .quoteCard:not(.quoteCard--expandida) .quoteBodyContent > :first-child {
@@ -1656,6 +1667,16 @@
 
   .quoteCard:not(.quoteCard--expandida) .quotePriceValue {
     font-size: 1.02rem;
+  }
+
+  /* El gráfico ocupa todo el ancho de la tarjeta; el chip "Histórico" queda
+     como un ícono al final de la línea. */
+  .quoteCard:not(.quoteCard--expandida) .sparklineWrap {
+    height: 28px;
+  }
+
+  .quoteCard:not(.quoteCard--expandida) .sparklineWrap .sparkline {
+    opacity: 1;
   }
 
   /* El chip "Histórico" queda como un ícono junto al gráfico */
