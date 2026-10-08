@@ -94,6 +94,9 @@ export default function CardShell({
   const cerrarRef = useRef<HTMLButtonElement>(null);
   const filaRef = useRef<HTMLButtonElement>(null);
   const seAbrio = useRef(false);
+  // Devolver el foco al cerrar es para quien navega con teclado. Con el dedo o
+  // el mouse dejaba la tarjeta con el aro azul de foco, como si siguiera elegida.
+  const abiertaConTeclado = useRef(false);
   const esMovil = useEsMovil();
 
   const puedeExpandirse = hayDatos && (serie?.length ?? 0) >= 2;
@@ -110,7 +113,9 @@ export default function CardShell({
   }, []);
 
   const abrir = useCallback(() => {
-    disparador.current = document.activeElement as HTMLElement | null;
+    const activo = document.activeElement as HTMLElement | null;
+    disparador.current = activo;
+    abiertaConTeclado.current = !!activo?.matches?.(":focus-visible");
     setExpandida(true);
   }, []);
 
@@ -135,7 +140,7 @@ export default function CardShell({
     if (expandida) {
       seAbrio.current = true;
       cerrarRef.current?.focus();
-    } else if (seAbrio.current) {
+    } else if (seAbrio.current && abiertaConTeclado.current) {
       // En modo fila el botón que se tocó ya no existe (se rearmó): se vuelve a la fila.
       (filaRef.current ?? disparador.current)?.focus();
     }
