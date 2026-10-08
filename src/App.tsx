@@ -3,7 +3,7 @@ import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
 import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
-import { BrandMark, IconPulse, IconRefresh } from "./components/icons";
+import { BrandMark, IconPulse, IconRefresh, IconSwap } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
 import PaginaIntro from "./components/PaginaIntro";
@@ -47,6 +47,14 @@ export default function App() {
   const [montoTexto, setMontoTexto] = useState("");
   const [origen, setOrigen] = useState<MonedaOrigen>("ARS");
   const monto = parsearMonto(montoTexto);
+  // El cotizador vive plegado en la sección Dólar y se abre a pedido. Al
+  // cerrarlo se borra el monto: si no, las tarjetas seguirían mostrando una
+  // conversión sin que se vea de dónde sale.
+  const [mostrarConversor, setMostrarConversor] = useState(false);
+  const alternarConversor = () => {
+    if (mostrarConversor) setMontoTexto("");
+    setMostrarConversor(!mostrarConversor);
+  };
   const [mostrarInfoApp, setMostrarInfoApp] = useState(false);
   const [refrescando, setRefrescando] = useState(false);
 
@@ -228,6 +236,7 @@ export default function App() {
           )}
         </header>
 
+        <main>
         {pagina && <PaginaIntro pagina={pagina} valor={valorEnVivo(pagina.clave)} />}
 
         {favoritos.length > 0 && (
@@ -265,23 +274,36 @@ export default function App() {
           </Seccion>
         )}
 
-        <h2 className="sectionTitle sectionTitle--converter">
-          <span>Cotizador</span>
-        </h2>
-        <ConverterBar
-          monto={montoTexto}
-          origen={origen}
-          onMontoChange={setMontoTexto}
-          onOrigenChange={setOrigen}
-        />
-
         {CURRENCY_SECTIONS.map((section) => (
           <Seccion
             key={section.title}
             title={section.title}
             action={
               section.title === "Dólar" ? (
-                <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
+                <>
+                  <button
+                    type="button"
+                    className="shareChip shareChip--neutral"
+                    onClick={alternarConversor}
+                    aria-expanded={mostrarConversor}
+                    title="Convertir un monto entre pesos y otras monedas"
+                  >
+                    <IconSwap width={16} height={16} />
+                    Convertir
+                  </button>
+                  <CompartirResumenButton datos={resumenDatos} disabled={resumenDatos.dolares.length === 0} />
+                </>
+              ) : undefined
+            }
+            intro={
+              section.title === "Dólar" && mostrarConversor ? (
+                <ConverterBar
+                  monto={montoTexto}
+                  origen={origen}
+                  onMontoChange={setMontoTexto}
+                  onOrigenChange={setOrigen}
+                  autoFocus
+                />
               ) : undefined
             }
           >
@@ -297,6 +319,7 @@ export default function App() {
         </Seccion>
 
         <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
+        </main>
 
         <footer className="footer">
           <div className="footerInfo">

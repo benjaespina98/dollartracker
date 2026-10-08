@@ -5,9 +5,11 @@ interface Props {
   origen: MonedaOrigen;
   onMontoChange: (valor: string) => void;
   onOrigenChange: (origen: MonedaOrigen) => void;
+  /** Enfoca el campo al aparecer (el cotizador se despliega a pedido) */
+  autoFocus?: boolean;
 }
 
-export default function ConverterBar({ monto, origen, onMontoChange, onOrigenChange }: Props) {
+export default function ConverterBar({ monto, origen, onMontoChange, onOrigenChange, autoFocus }: Props) {
   const activa = MONEDAS_ORIGEN.find((m) => m.codigo === origen) ?? MONEDAS_ORIGEN[0];
 
   return (
@@ -18,6 +20,7 @@ export default function ConverterBar({ monto, origen, onMontoChange, onOrigenCha
         </span>
         <input
           className="converter__input"
+          autoFocus={autoFocus}
           value={monto}
           onChange={(e) => onMontoChange(e.target.value)}
           onBlur={() => onMontoChange(formatearMontoTipeado(monto))}

@@ -224,10 +224,6 @@
   background: linear-gradient(90deg, var(--card-border), transparent);
 }
 
-.sectionTitle--converter {
-  margin: 36px 0 14px;
-}
-
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1726,11 +1722,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px 14px;
-  margin-top: 4px;
+  gap: 0 14px;
+  margin-top: 2px;
 }
 
 .footerNav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
   font-size: 0.78rem;
   color: var(--text-faint);
   text-decoration: none;
@@ -1745,6 +1744,46 @@
 @media (min-width: 700px) {
   .footerNav {
     justify-content: flex-start;
+  }
+}
+
+/* Acciones de la fila de título de una sección (Convertir, Compartir) */
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Variante neutra del botón en píldora: misma forma, sin el azul de enlace,
+   para que "Compartir" siga siendo la acción que más se nota. */
+.shareChip--neutral {
+  color: var(--text-strong);
+  background: var(--btn-bg);
+  border-color: var(--btn-border);
+}
+
+.shareChip--neutral:hover:not(:disabled),
+.shareChip--neutral[aria-expanded="true"] {
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border-hover);
+}
+
+/* El cotizador desplegado entre el título Dólar y las tarjetas */
+.sectionIntro {
+  margin: -4px 0 18px;
+  animation: contentIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* En celular "Compartir cotizaciones" se acorta a "Compartir" para que
+   entren los dos botones junto al título. */
+@media (max-width: 560px) {
+  .shareChip__extra {
+    display: none;
+  }
+
+  .shareChip {
+    padding: 0 12px;
   }
 }
 

@@ -5,6 +5,16 @@ import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import './index.css'
 
+// Las fuentes se piden después del primer dibujado: como <link> en el HTML
+// bloqueaban la pantalla ~1,8 s en una conexión móvil lenta (Lighthouse). Con
+// display=swap el texto aparece de inmediato con la fuente del sistema y
+// cambia a Inter/Sora al llegar.
+const fuentes = document.createElement('link')
+fuentes.rel = 'stylesheet'
+fuentes.href =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap'
+document.head.append(fuentes)
+
 import { registerSW } from 'virtual:pwa-register'
 
 // Con registerType 'autoUpdate', el Service Worker se auto-actualiza y recarga,

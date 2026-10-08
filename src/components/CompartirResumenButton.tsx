@@ -65,7 +65,13 @@ export default function CompartirResumenButton({ datos, disabled }: Props) {
       title="Compartir las cotizaciones del dólar como imagen"
     >
       <IconShare width={16} height={16} />
-      {generando ? "Generando…" : "Compartir cotizaciones"}
+      {generando ? (
+        "Generando…"
+      ) : (
+        <>
+          Compartir<span className="shareChip__extra"> cotizaciones</span>
+        </>
+      )}
     </button>
   );
 }

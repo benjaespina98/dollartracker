@@ -198,7 +198,7 @@ export default function CardShell({
           }
           role={abrible ? "button" : undefined}
           tabIndex={abrible ? 0 : undefined}
-          aria-label={abrible ? `${nombre}: ver histórico` : undefined}
+          aria-haspopup={abrible ? "dialog" : undefined}
         >
           {/* Independiente de si hay datos o de si la tarjeta está expandida:
               la explicación de qué es esta cifra no depende de haberla podido
