@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
@@ -6,10 +6,12 @@ import { CardInfoButton, CardInfoPanel } from "./components/ExpandedChrome";
 import { BrandMark, IconPulse, IconRefresh } from "./components/icons";
 import MarketCard from "./components/MarketCard";
 import NetworkBanner from "./components/NetworkBanner";
+import PaginaIntro from "./components/PaginaIntro";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
+import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
 import { CRIPTO, CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useBitcoin } from "./hooks/useBitcoin";
 import { useCotizaciones } from "./hooks/useCotizaciones";
@@ -18,6 +20,7 @@ import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoBitcoin, useHistoricoMercados } from "./hooks/useHistorico";
 import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
+import { dolares, entero, pesos } from "./lib/format";
 import { prepararResumen } from "./lib/resumenImagen";
 
 // Un solo lugar para ir de "clave de favorito" (casa, key de mercado/grano, o
@@ -33,6 +36,9 @@ export default function App() {
   const { riesgoPais, markets, refresh: refreshMarkets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
   const bitcoin = useBitcoin();
+  // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios. La
+  // ruta se lee una sola vez; navegar entre páginas recarga el documento.
+  const [pagina] = useState<PaginaMoneda | null>(() => paginaPorRuta(window.location.pathname));
   const historicoBitcoin = useHistoricoBitcoin();
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
 
@@ -48,6 +54,15 @@ export default function App() {
   const headerRef = useRef<HTMLElement | null>(null);
   const cerrarInfoApp = useCallback(() => setMostrarInfoApp(false), []);
   useDismiss(mostrarInfoApp, headerRef, cerrarInfoApp);
+
+  // El HTML de la página ya trae su título, pero un service worker puede
+  // servir el de la home: acá se corrige del lado del cliente.
+  useEffect(() => {
+    if (!pagina) return;
+    document.title = pagina.titulo;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", pagina.descripcion);
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", `${SITIO}/${pagina.slug}`);
+  }, [pagina]);
 
   // Base de la brecha cambiaria (blue/MEP/CCL contra el oficial). Si el
   // oficial todavía no llegó o vale 0, ninguna tarjeta muestra el badge.
@@ -151,6 +166,18 @@ export default function App() {
     return null; // favorito guardado de una clave que ya no existe
   }
 
+  // La cotización del momento de la tarjeta que ilustra la página, ya formateada.
+  function valorEnVivo(clave: string): string | null {
+    if (clave === "riesgoPais") {
+      return riesgoPais.data ? `${entero.format(riesgoPais.data.valor)} puntos básicos` : null;
+    }
+    if (clave === "btc") return bitcoin.data ? `${dolares.format(bitcoin.data.price)} (BTC/USDT)` : null;
+    const cotizacion = state[clave]?.data;
+    return cotizacion
+      ? `Compra ${pesos.format(cotizacion.compra)} · Venta ${pesos.format(cotizacion.venta)}`
+      : null;
+  }
+
   function nombreDeClave(key: string): string {
     if (key === "riesgoPais") return "Riesgo País";
     return MONEDA_POR_KEY.get(key)?.nombre ?? MERCADO_POR_KEY.get(key)?.label ?? key;
@@ -166,7 +193,7 @@ export default function App() {
             <div className="brand">
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
-                <h1 className="title">DollarTracker</h1>
+                {pagina ? <p className="title">DollarTracker</p> : <h1 className="title">DollarTracker</h1>}
               </div>
             </div>
 
@@ -200,6 +227,8 @@ export default function App() {
             </CardInfoPanel>
           )}
         </header>
+
+        {pagina && <PaginaIntro pagina={pagina} valor={valorEnVivo(pagina.clave)} />}
 
         {favoritos.length > 0 && (
           <Seccion title="★ Favoritos">
@@ -280,6 +309,14 @@ export default function App() {
             <p className="footerNote">
               Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
             </p>
+            <nav className="footerNav" aria-label="Cotizaciones">
+              {pagina && <a href="/">Inicio</a>}
+              {PAGINAS.map((p) => (
+                <a key={p.slug} href={`/${p.slug}`} aria-current={p.slug === pagina?.slug ? "page" : undefined}>
+                  {p.nombre}
+                </a>
+              ))}
+            </nav>
           </div>
           <a
             className="madeBy"

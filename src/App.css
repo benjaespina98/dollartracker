@@ -1668,6 +1668,65 @@
   }
 }
 
+/* ── Páginas por cotización (/dolar-blue…) ────────────────────────────── */
+
+.paginaIntro {
+  margin: 30px 0 0;
+  max-width: 68ch;
+}
+
+.paginaIntro__titulo {
+  margin: 0;
+  font-family: "Sora", "Inter", system-ui, sans-serif;
+  font-size: clamp(1.4rem, 4.5vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+}
+
+.paginaIntro__valor {
+  margin: 10px 0 0;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 3.6vw, 1.2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.paginaIntro__texto {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Enlaces a las demás cotizaciones, en el pie de todas las páginas */
+.footerNav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  margin-top: 4px;
+}
+
+.footerNav a {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footerNav a:hover,
+.footerNav a[aria-current="page"] {
+  color: var(--text-strong);
+}
+
+@media (min-width: 700px) {
+  .footerNav {
+    justify-content: flex-start;
+  }
+}
+
 /* ── Utilidades ───────────────────────────────────────────────────────── */
 
 /* Texto solo para lectores de pantalla: los títulos van abreviados en pantalla

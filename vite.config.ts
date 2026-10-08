@@ -1,10 +1,34 @@
-import { defineConfig } from 'vite'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { PAGINAS } from './src/config/paginas'
+import { generarSitemap, renderizarPagina } from './src/lib/paginasHtml'
+
+// Al terminar el build, escribe dist/<slug>/index.html para cada página de
+// cotización (con su título, descripción y texto propios) y el sitemap.xml con
+// todas las direcciones. Es la misma app: solo cambia el HTML de arranque.
+function paginasPorCotizacion(): Plugin {
+  return {
+    name: 'paginas-por-cotizacion',
+    apply: 'build',
+    closeBundle() {
+      const dist = fileURLToPath(new URL('./dist/', import.meta.url))
+      const base = readFileSync(dist + 'index.html', 'utf8')
+      for (const pagina of PAGINAS) {
+        mkdirSync(dist + pagina.slug, { recursive: true })
+        writeFileSync(dist + pagina.slug + '/index.html', renderizarPagina(base, pagina))
+      }
+      writeFileSync(dist + 'sitemap.xml', generarSitemap())
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
     react(),
+    paginasPorCotizacion(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null,
