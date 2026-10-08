@@ -54,7 +54,7 @@ describe("renderizarPagina", () => {
   });
 
   it("no deja rastros del título de la home", () => {
-    expect(html).not.toContain("<title>Dollar Tracker — Cotizaciones del dólar, euro y real en Argentina</title>");
+    expect(html).not.toContain("<title>DollarTracker — Cotizaciones del dólar, euro y real en Argentina</title>");
     expect(html).not.toContain('rel="canonical" href="https://dollartracker.vercel.app/"');
   });
 
