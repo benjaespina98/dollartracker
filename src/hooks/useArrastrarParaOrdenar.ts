@@ -112,6 +112,9 @@ export function useArrastrarParaOrdenar(activo: boolean, onMover: (direccion: -1
     el.addEventListener("touchend", onTouchEnd);
     el.addEventListener("touchcancel", onTouchEnd);
     el.addEventListener("click", onClick, { capture: true });
+    // La pulsación larga no debe abrir el menú del sistema (copiar, buscar…).
+    const onContexto = (e: Event) => e.preventDefault();
+    el.addEventListener("contextmenu", onContexto);
 
     return () => {
       clearTimeout(timer);
@@ -120,6 +123,7 @@ export function useArrastrarParaOrdenar(activo: boolean, onMover: (direccion: -1
       el.removeEventListener("touchend", onTouchEnd);
       el.removeEventListener("touchcancel", onTouchEnd);
       el.removeEventListener("click", onClick, { capture: true });
+      el.removeEventListener("contextmenu", onContexto);
       setDesplazamiento(0);
       setArrastrando(false);
     };

@@ -10,7 +10,6 @@ import PaginaIntro, { type ValorDePagina } from "./components/PaginaIntro";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import FijadoSlot from "./components/FijadoSlot";
-import InstalarApp from "./components/InstalarApp";
 import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
 import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
@@ -344,8 +343,6 @@ export default function App() {
 
         <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
         </main>
-
-        <InstalarApp />
 
         <footer className="footer">
           <div className="footerInfo">
