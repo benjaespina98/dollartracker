@@ -268,6 +268,18 @@
   height: 100%;
 }
 
+/* Tarjeta que se está moviendo de lugar: se levanta para que se note */
+.favSlot--arrastrando {
+  position: relative;
+  z-index: 5;
+  filter: drop-shadow(0 12px 18px rgb(0 0 0 / 40%));
+}
+
+.favSlot--arrastrando .quoteCard,
+.favSlot--arrastrando .quoteRow {
+  transform: scale(1.02);
+}
+
 .favSlot__controls {
   display: flex;
   justify-content: flex-end;
@@ -1991,13 +2003,74 @@
   background: color-mix(in srgb, var(--accent) 30%, var(--card-bg));
 }
 
-/* Dentro del popup la chincheta lleva su texto, para que se entienda sin
-   adivinar qué hace el ícono. */
-.favBtn--texto {
-  width: auto !important;
-  padding: 0 10px;
-  gap: 6px;
+/* ── Instalar la app (pie, discreto) ──────────────────────────────────── */
+
+.instalar {
+  margin-top: 48px;
+  width: 100%;
+  max-width: 560px;
+  align-self: center;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
+.instalar__resumen {
+  cursor: pointer;
+  list-style: none;
+  text-align: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--card-border);
+  transition: color 0.15s;
+}
+
+.instalar__resumen::-webkit-details-marker {
+  display: none;
+}
+
+.instalar__resumen::after {
+  content: " +";
+  opacity: 0.6;
+}
+
+.instalar[open] .instalar__resumen::after {
+  content: " −";
+}
+
+.instalar__resumen:hover {
+  color: var(--text-strong);
+}
+
+.instalar__cuerpo {
+  padding: 8px 4px 4px;
+  display: grid;
+  gap: 16px;
+}
+
+.instalar__intro {
+  margin: 0;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.instalar__plataforma h3 {
+  margin: 0 0 6px;
   font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.instalar__pasos {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  line-height: 1.55;
+}
+
+.instalar__pasos strong {
+  color: var(--text-muted);
   font-weight: 600;
 }
 

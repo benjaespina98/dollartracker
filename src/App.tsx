@@ -9,6 +9,8 @@ import NetworkBanner from "./components/NetworkBanner";
 import PaginaIntro, { type ValorDePagina } from "./components/PaginaIntro";
 import QuoteCard from "./components/QuoteCard";
 import RiesgoPaisCard from "./components/RiesgoPaisCard";
+import FijadoSlot from "./components/FijadoSlot";
+import InstalarApp from "./components/InstalarApp";
 import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
 import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
@@ -18,6 +20,7 @@ import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
 import { useHistoricoBitcoin, useHistoricoMercados } from "./hooks/useHistorico";
+import { useEsMovil } from "./hooks/useEsMovil";
 import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
 import { dolares, entero, formatearHora, pesos } from "./lib/format";
@@ -43,6 +46,8 @@ export default function App() {
   const [pagina] = useState<PaginaMoneda | null>(() => paginaPorRuta(window.location.pathname));
   const historicoBitcoin = useHistoricoBitcoin();
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
+  // En celular se reordena arrastrando; en web quedan las flechas.
+  const esMovil = useEsMovil();
 
   // Guardamos el texto crudo que se tipeó (no el número) para no pelear con el
   // cursor mientras se escribe "1.234,5"; el parseo se hace acá una sola vez.
@@ -263,29 +268,31 @@ export default function App() {
                 if (!tarjeta) return null; // clave de una versión vieja de la app
 
                 return (
-                  <div className="favSlot" key={key}>
-                    <div className="favSlot__controls" role="group" aria-label={`Reordenar ${nombreDeClave(key)}`}>
-                      <button
-                        type="button"
-                        className="favMoveBtn"
-                        onClick={() => mover(key, -1)}
-                        disabled={i === 0}
-                        aria-label={`Subir ${nombreDeClave(key)}`}
-                      >
-                        ▲
-                      </button>
-                      <button
-                        type="button"
-                        className="favMoveBtn"
-                        onClick={() => mover(key, 1)}
-                        disabled={i === favoritos.length - 1}
-                        aria-label={`Bajar ${nombreDeClave(key)}`}
-                      >
-                        ▼
-                      </button>
-                    </div>
+                  <FijadoSlot key={key} arrastrable={esMovil} onMover={(d) => mover(key, d)}>
+                    {!esMovil && (
+                      <div className="favSlot__controls" role="group" aria-label={`Reordenar ${nombreDeClave(key)}`}>
+                        <button
+                          type="button"
+                          className="favMoveBtn"
+                          onClick={() => mover(key, -1)}
+                          disabled={i === 0}
+                          aria-label={`Subir ${nombreDeClave(key)}`}
+                        >
+                          ▲
+                        </button>
+                        <button
+                          type="button"
+                          className="favMoveBtn"
+                          onClick={() => mover(key, 1)}
+                          disabled={i === favoritos.length - 1}
+                          aria-label={`Bajar ${nombreDeClave(key)}`}
+                        >
+                          ▼
+                        </button>
+                      </div>
+                    )}
                     {tarjeta}
-                  </div>
+                  </FijadoSlot>
                 );
               })}
           </Seccion>
@@ -337,6 +344,8 @@ export default function App() {
 
         <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
         </main>
+
+        <InstalarApp />
 
         <footer className="footer">
           <div className="footerInfo">

@@ -80,16 +80,14 @@ interface FavoritoButtonProps {
   activo: boolean;
   onToggle: () => void;
   label: string;
-  /** Con texto ("Fijar" / "Fijado") cuando la tarjeta está abierta: ahí el ícono solo no se entiende */
-  conTexto?: boolean;
 }
 
 // Estrella para marcar/desmarcar favorito. Vive en el header igual que el
 // (i): así se puede favoritear una tarjeta sin tener que abrirla primero.
-export function CardFavoritoButton({ activo, onToggle, label, conTexto }: FavoritoButtonProps) {
+export function CardFavoritoButton({ activo, onToggle, label }: FavoritoButtonProps) {
   return (
     <button
-      className={`favBtn ${activo ? "favBtn--activo" : ""} ${conTexto ? "favBtn--texto" : ""}`}
+      className={`favBtn ${activo ? "favBtn--activo" : ""}`}
       onClick={onToggle}
       type="button"
       aria-label={label}
@@ -97,7 +95,6 @@ export function CardFavoritoButton({ activo, onToggle, label, conTexto }: Favori
       title={activo ? "Quitar de fijados" : "Fijar arriba"}
     >
       <IconPin width={16} height={16} />
-      {conTexto && <span>{activo ? "Fijado" : "Fijar"}</span>}
     </button>
   );
 }

@@ -259,7 +259,6 @@ export default function CardShell({
               activo={favorito}
               onToggle={onToggleFavorito}
               label={favorito ? `Quitar ${nombre} de fijados` : `Fijar ${nombre}`}
-              conTexto={expandida}
             />
             <CardInfoButton
               activo={mostrarInfo}
