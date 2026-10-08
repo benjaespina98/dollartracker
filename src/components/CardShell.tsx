@@ -13,8 +13,10 @@ import { recortarRango, type RangoDias, type SeriePunto } from "../hooks/useHist
 import { useDismiss } from "../hooks/useDismiss";
 import { useEsMovil } from "../hooks/useEsMovil";
 import { useModalCard } from "../hooks/useModalCard";
+import { useSwipeAccion, UMBRAL_ACCION_PX } from "../hooks/useSwipeAccion";
 import { useSwipeToClose } from "../hooks/useSwipeToClose";
 import { CardBackdrop, CardCloseButton, CardFavoritoButton, CardInfoButton, CardInfoPanel } from "./ExpandedChrome";
+import { IconPin } from "./icons";
 import ShareButton from "./ShareButton";
 import Sparkline from "./Sparkline";
 import SparklineRow from "./SparklineRow";
@@ -154,6 +156,15 @@ export default function CardShell({
 
   const { ref: swipeRef, arrastreX, arrastrando } = useSwipeToClose(expandida, cerrar);
 
+  // Deslizar la tarjeta cerrada de izquierda a derecha fija o desfija (como en
+  // Spotify). Se engancha en el contenedor, así la tarjeta se corre sin que el
+  // indicador de detrás se mueva con ella.
+  const { ref: fijarRef, arrastreX: arrastreFijar, arrastrando: arrastrandoFijar } = useSwipeAccion(
+    !expandida,
+    onToggleFavorito
+  );
+  const confirma = arrastreFijar >= UMBRAL_ACCION_PX;
+
   // La explicación en línea (tarjetas sin gráfico, como Euro y Real) se cierra
   // tocando afuera o con Escape, no solo volviendo a tocar el (i).
   const cerrarInfo = useCallback(() => setMostrarInfo(false), []);
@@ -187,6 +198,17 @@ export default function CardShell({
   return (
     <>
       {expandida && <CardBackdrop onClose={cerrar} />}
+      <div className="cardSwipe" ref={fijarRef}>
+      {!expandida && (
+        <div
+          className={`cardSwipe__hint ${confirma ? "cardSwipe__hint--confirma" : ""}`}
+          style={{ opacity: Math.min(arrastreFijar / UMBRAL_ACCION_PX, 1), "--accent": accent } as CSSProperties}
+          aria-hidden="true"
+        >
+          <IconPin width={18} height={18} />
+          {favorito ? "Quitar de fijados" : "Fijar"}
+        </div>
+      )}
       <section
         ref={swipeRef}
         className={`quoteCard ${expandida ? "quoteCard--expandida" : ""} ${modoFila ? "quoteCard--fila" : ""}`}
@@ -199,8 +221,11 @@ export default function CardShell({
                   opacity: arrastreX > 0 ? Math.max(1 - arrastreX / 280, 0.4) : undefined,
                   transition: arrastrando ? "none" : "translate 0.2s ease-out, opacity 0.2s ease-out",
                 }
-              : null),
-          } as CSSProperties
+              : {
+                  translate: `${arrastreFijar}px 0`,
+                  transition: arrastrandoFijar ? "none" : "translate 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                }),
+          } as unknown as CSSProperties
         }
         {...(expandida ? { role: "dialog", "aria-modal": true, "aria-label": nombre } : {})}
       >
@@ -233,7 +258,8 @@ export default function CardShell({
             <CardFavoritoButton
               activo={favorito}
               onToggle={onToggleFavorito}
-              label={favorito ? `Quitar ${nombre} de favoritos` : `Agregar ${nombre} a favoritos`}
+              label={favorito ? `Quitar ${nombre} de fijados` : `Fijar ${nombre}`}
+              conTexto={expandida}
             />
             <CardInfoButton
               activo={mostrarInfo}
@@ -323,6 +349,7 @@ export default function CardShell({
           </>
         )}
       </section>
+      </div>
     </>
   );
 }

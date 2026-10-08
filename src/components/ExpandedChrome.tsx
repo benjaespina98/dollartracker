@@ -1,4 +1,5 @@
 import type { ReactNode, Ref } from "react";
+import { IconPin } from "./icons";
 
 // Piezas compartidas por las tarjetas expandibles (QuoteCard, MarketCard,
 // RiesgoPaisCard): el fondo oscurecido detrás de la tarjeta centrada, su
@@ -79,28 +80,24 @@ interface FavoritoButtonProps {
   activo: boolean;
   onToggle: () => void;
   label: string;
+  /** Con texto ("Fijar" / "Fijado") cuando la tarjeta está abierta: ahí el ícono solo no se entiende */
+  conTexto?: boolean;
 }
 
 // Estrella para marcar/desmarcar favorito. Vive en el header igual que el
 // (i): así se puede favoritear una tarjeta sin tener que abrirla primero.
-export function CardFavoritoButton({ activo, onToggle, label }: FavoritoButtonProps) {
+export function CardFavoritoButton({ activo, onToggle, label, conTexto }: FavoritoButtonProps) {
   return (
     <button
-      className={`favBtn ${activo ? "favBtn--activo" : ""}`}
+      className={`favBtn ${activo ? "favBtn--activo" : ""} ${conTexto ? "favBtn--texto" : ""}`}
       onClick={onToggle}
       type="button"
       aria-label={label}
       aria-pressed={activo}
-      title={activo ? "Quitar de favoritos" : "Agregar a favoritos"}
+      title={activo ? "Quitar de fijados" : "Fijar arriba"}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill={activo ? "currentColor" : "none"} aria-hidden="true">
-        <path
-          d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.1 6.6-5.8-3.1-5.8 3.1 1.1-6.6-4.8-4.6 6.6-.9Z"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <IconPin width={16} height={16} />
+      {conTexto && <span>{activo ? "Fijado" : "Fijar"}</span>}
     </button>
   );
 }

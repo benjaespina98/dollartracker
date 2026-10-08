@@ -223,3 +223,13 @@ export function IconCopy(props: SVGProps<SVGSVGElement>) {
     </Svg>
   );
 }
+
+// Chincheta: el símbolo de "fijar" (como en Spotify)
+export function IconPin(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M9 4h6l-1 6 3 3H7l3-3-1-6Z" />
+      <path d="M12 13v7" />
+    </Svg>
+  );
+}

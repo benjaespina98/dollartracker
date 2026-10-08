@@ -77,16 +77,15 @@ export default function App() {
   // oficial todavía no llegó o vale 0, ninguna tarjeta muestra el badge.
   const ventaOficial = state.oficial?.data?.venta ?? null;
 
-  // Hora del dato más reciente que informó la fuente (no la de nuestro último
-  // pedido): es lo que le dice al usuario si la información está al día.
+  // Hora de nuestro último refresco correcto. No es la fecha que informa la
+  // fuente: DolarAPI la redondea y puede quedarse igual aunque la app sí
+  // consulte cada 5 minutos.
   const ultimaActualizacion = useMemo(() => {
-    const tiempos = Object.values(state)
-      .map((e) => e.data?.fechaActualizacion)
-      .filter((f): f is string => !!f)
-      .map((f) => new Date(f).getTime())
-      .filter((t) => !Number.isNaN(t));
-    return tiempos.length ? formatearHora(new Date(Math.max(...tiempos))) : null;
-  }, [state]);
+    const momentos = [...Object.values(state).map((e) => e.savedAt), riesgoPais.savedAt].filter(
+      (t): t is number => t !== null
+    );
+    return momentos.length ? formatearHora(new Date(Math.max(...momentos))) : null;
+  }, [state, riesgoPais.savedAt]);
 
   // dibujarResumen recién lee esto al tocar "Resumen", pero recalcularlo acá
   // en cada refresco de cotizaciones (y no en cada tecla del conversor, que no
@@ -258,7 +257,7 @@ export default function App() {
         {pagina && <PaginaIntro pagina={pagina} accent={acentoDe(pagina.clave)} valores={valoresEnVivo(pagina.clave)} />}
 
         {favoritos.length > 0 && (
-          <Seccion title="★ Favoritos">
+          <Seccion title="Fijados">
               {favoritos.map((key, i) => {
                 const tarjeta = renderPorClave(key);
                 if (!tarjeta) return null; // clave de una versión vieja de la app
