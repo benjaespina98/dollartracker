@@ -222,7 +222,13 @@ export default function App() {
             <div className="brand">
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
-                {pagina ? <p className="title">DollarTracker</p> : <h1 className="title">DollarTracker</h1>}
+                {pagina ? (
+                  <p className="title">
+                    <a className="title__link" href="/">DollarTracker</a>
+                  </p>
+                ) : (
+                  <h1 className="title">DollarTracker</h1>
+                )}
                 {ultimaActualizacion && <p className="actualizado">Actualizado {ultimaActualizacion} · se actualiza solo</p>}
               </div>
             </div>

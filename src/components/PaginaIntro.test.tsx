@@ -26,7 +26,9 @@ describe("PaginaIntro", () => {
   it("enlaza a todas las demás páginas, menos a la actual", () => {
     expect(html).toContain('href="/dolar-mep"');
     expect(html).not.toContain('href="/dolar-blue"');
-    expect((html.match(/paginaIntro__chip/g) ?? []).length).toBe(PAGINAS.length - 1);
+    // Un chip por cada otra página, más el de "Todas las cotizaciones"
+    expect((html.match(/class="paginaIntro__chip/g) ?? []).length).toBe(PAGINAS.length);
+    expect(html).toContain('href="/"');
   });
 
   it("sin cifras (mientras carga) no dibuja el bloque de valores", () => {

@@ -55,6 +55,9 @@ export default function PaginaIntro({ pagina, accent, valores }: Props) {
       </div>
 
       <nav className="paginaIntro__otras" aria-label="Otras cotizaciones">
+        <a className="paginaIntro__chip paginaIntro__chip--todas" href="/">
+          Todas las cotizaciones
+        </a>
         {PAGINAS.filter((p) => p.slug !== pagina.slug).map((p) => (
           <a key={p.slug} className="paginaIntro__chip" href={`/${p.slug}`}>
             {p.nombre}
