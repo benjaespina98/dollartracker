@@ -223,7 +223,7 @@ export default function App() {
               <BrandMark size={42} className="brandMark" />
               <div className="brandText">
                 {pagina ? <p className="title">DollarTracker</p> : <h1 className="title">DollarTracker</h1>}
-                {ultimaActualizacion && <p className="actualizado">Actualizado {ultimaActualizacion} · se refresca solo</p>}
+                {ultimaActualizacion && <p className="actualizado">Actualizado {ultimaActualizacion} · se actualiza solo</p>}
               </div>
             </div>
 
