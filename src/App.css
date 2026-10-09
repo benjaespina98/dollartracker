@@ -1443,6 +1443,15 @@
   animation-delay: calc(var(--i, 8) * 60ms);
 }
 
+/* Una animación con transform en un contenedor lo vuelve la referencia del
+   popup (position: fixed) de la tarjeta de adentro. Si se abre una tarjeta
+   mientras todavía corre la entrada (el primer segundo), el popup quedaba
+   desplazado: acá se corta la animación del contenedor que tiene la tarjeta abierta. */
+.grid > .cardSwipe:has(.quoteCard--expandida),
+.grid > .favSlot:has(.quoteCard--expandida) {
+  animation: none;
+}
+
 .grid > :nth-child(1) { --i: 0; }
 .grid > :nth-child(2) { --i: 1; }
 .grid > :nth-child(3) { --i: 2; }
@@ -1984,6 +1993,10 @@
 /* ── Deslizar para fijar (como Spotify) ──────────────────────────────── */
 
 .cardSwipe {
+  /* El scroll vertical lo maneja el navegador directamente; el deslizamiento
+     horizontal (fijar) lo recibe nuestro código. Sin esto, cada tarjeta
+     frenaba el scroll hasta que el gesto estuviera decidido. */
+  touch-action: pan-y;
   position: relative;
   height: 100%;
   display: flex;

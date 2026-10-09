@@ -17,8 +17,8 @@ export function confirmaAccion(dx: number): boolean {
  * suelta pasado el umbral, la acción se ejecuta; si no, vuelve sola.
  *
  * Solo reacciona a gestos horizontales. Un gesto vertical se deja al scroll
- * normal de la página. Usa listeners nativos no pasivos para poder frenar el
- * scroll mientras se arrastra (los sintéticos de React son pasivos).
+ * normal de la página: el CSS declara touch-action: pan-y en la tarjeta, así
+ * el navegador scrollea sin esperar a este código y los listeners son pasivos.
  */
 export function useSwipeAccion(activo: boolean, onAccion: () => void) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -60,7 +60,6 @@ export function useSwipeAccion(activo: boolean, onAccion: () => void) {
         setArrastrando(true);
       }
 
-      e.preventDefault();
       // Se corre con resistencia: cuesta más cuanto más se aleja del origen.
       setArrastreX(dx > UMBRAL_ACCION_PX ? UMBRAL_ACCION_PX + (dx - UMBRAL_ACCION_PX) * 0.3 : dx);
     }
@@ -81,7 +80,7 @@ export function useSwipeAccion(activo: boolean, onAccion: () => void) {
     }
 
     el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
     el.addEventListener("touchend", onTouchEnd);
     el.addEventListener("touchcancel", onTouchEnd);
 

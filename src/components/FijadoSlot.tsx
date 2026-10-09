@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useArrastrarParaOrdenar } from "../hooks/useArrastrarParaOrdenar";
 
 interface Props {
@@ -13,12 +13,16 @@ interface Props {
 export default function FijadoSlot({ arrastrable, onMover, children }: Props) {
   const { ref, desplazamiento, arrastrando } = useArrastrarParaOrdenar(arrastrable, onMover);
 
+  // Solo se aplica translate mientras se arrastra. En reposo no puede haber
+  // ninguno, ni siquiera "0px": cualquier translate/transform en un contenedor
+  // lo vuelve la referencia del popup (position: fixed) de la tarjeta de
+  // adentro, que quedaba descentrado y tapado por las demás tarjetas.
+  const estilo: CSSProperties | undefined = arrastrando
+    ? { translate: `0 ${desplazamiento}px`, transition: "none" }
+    : undefined;
+
   return (
-    <div
-      ref={ref}
-      className={`favSlot ${arrastrando ? "favSlot--arrastrando" : ""}`}
-      style={{ translate: `0 ${desplazamiento}px`, transition: arrastrando ? "none" : "translate 0.2s ease-out" }}
-    >
+    <div ref={ref} className={`favSlot ${arrastrando ? "favSlot--arrastrando" : ""}`} style={estilo}>
       {children}
     </div>
   );
