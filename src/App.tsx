@@ -232,7 +232,7 @@ export default function App() {
                 ) : (
                   <h1 className="title">DollarTracker</h1>
                 )}
-                {ultimaActualizacion && <p className="actualizado">Actualizado {ultimaActualizacion} · se actualiza solo</p>}
+                {ultimaActualizacion && <p className="actualizado">Hoy {ultimaActualizacion} · cotizaciones en vivo</p>}
               </div>
             </div>
 
