@@ -341,7 +341,7 @@ export const GRANOS: MarketCardConfig[] = [
 export const CRIPTO: MarketCardConfig[] = [
   {
     key: "btc",
-    label: "Bitcoin",
+    label: "BTC",
     ticker: "BTC/USDT",
     detalle: "Bitcoin en dólares, par BTC/USDT",
     accent: "#f7931a",
@@ -361,7 +361,7 @@ export const CRIPTO: MarketCardConfig[] = [
   },
   {
     key: "eth",
-    label: "Ethereum",
+    label: "ETH",
     ticker: "ETH/USDT",
     detalle: "Ethereum en dólares, par ETH/USDT",
     accent: "#818cf8",
@@ -381,7 +381,7 @@ export const CRIPTO: MarketCardConfig[] = [
   },
   {
     key: "sol",
-    label: "Solana",
+    label: "SOL",
     ticker: "SOL/USDT",
     detalle: "Solana en dólares, par SOL/USDT",
     accent: "#14f195",
