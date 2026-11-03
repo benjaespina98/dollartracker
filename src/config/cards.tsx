@@ -404,28 +404,7 @@ export const CRIPTO: MarketCardConfig[] = [
     ),
     variacionTitle: "Variación de las últimas 24 horas",
   },
-  {
-    key: "usdc",
-    label: "USDC",
-    ticker: "USDC/USDT",
-    detalle: "USDC frente a USDT, referencia de paridad con el dólar",
-    accent: "#2775ca",
-    icon: <IconGlyph glyph="$" />,
-    binance: "USDCUSDT",
-    info: (
-      <>
-        <p>
-          USDC es una stablecoin emitida por Circle, diseñada para mantener una paridad de referencia 1:1 con el
-          dólar estadounidense mediante reservas en efectivo e instrumentos de corto plazo.
-        </p>
-        <p>
-          Esta cotización refleja su precio de mercado frente a USDT en Binance y permite observar su desviación
-          respecto de la paridad 1:1.
-        </p>
-        <InfoFicha fuente="Binance" referencia="USDC/USDT" referenciaLabel="Par" subyacente="Paridad 1 USDC ≈ 1 USD" moneda="USD" />
-        <p className="infoAclaracion">La paridad es un objetivo de diseño del emisor, no una garantía de equivalencia permanente.</p>
-      </>
-    ),
-    variacionTitle: "Variación de las últimas 24 horas",
-  },
 ];
+
+// USDC se sacó de Cripto: es una stablecoin que siempre vale ~1 dólar, así que
+// mostrarla como cotización no aporta información útil (pedido explícito).
