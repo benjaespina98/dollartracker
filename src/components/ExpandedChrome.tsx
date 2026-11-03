@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import { useState, type ReactNode, type Ref } from "react";
 import { IconPin } from "./icons";
 
 // Piezas compartidas por las tarjetas expandibles (QuoteCard, MarketCard,
@@ -85,16 +85,23 @@ interface FavoritoButtonProps {
 // Estrella para marcar/desmarcar favorito. Vive en el header igual que el
 // (i): así se puede favoritear una tarjeta sin tener que abrirla primero.
 export function CardFavoritoButton({ activo, onToggle, label }: FavoritoButtonProps) {
+  // Contador que cambia en cada click: al usarlo como key del ícono se
+  // reinicia la animación de "pop" aunque se togglee rápido varias veces.
+  const [pop, setPop] = useState(0);
+
   return (
     <button
       className={`favBtn ${activo ? "favBtn--activo" : ""}`}
-      onClick={onToggle}
+      onClick={() => {
+        setPop((p) => p + 1);
+        onToggle();
+      }}
       type="button"
       aria-label={label}
       aria-pressed={activo}
       title={activo ? "Quitar de fijados" : "Fijar arriba"}
     >
-      <IconPin width={16} height={16} />
+      <IconPin key={pop} width={16} height={16} className={pop > 0 ? "favBtn__icon--pop" : undefined} />
     </button>
   );
 }

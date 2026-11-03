@@ -15,7 +15,6 @@ import Toaster from "./components/Toaster";
 import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
 import { CRIPTO, CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useBinanceQuotes, useHistoricoBinance, type ActivoBinance } from "./hooks/useBinance";
-import { useMayorista } from "./hooks/useMayorista";
 import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
@@ -47,7 +46,6 @@ export default function App() {
   const historicoMercados = useHistoricoMercados();
   const binance = useBinanceQuotes(ACTIVOS_BINANCE);
   const historicoBinance = useHistoricoBinance(ACTIVOS_BINANCE);
-  const mayorista = useMayorista();
   // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios. La
   // ruta se lee una sola vez; navegar entre páginas recarga el documento.
   const [pagina] = useState<PaginaMoneda | null>(() => paginaPorRuta(window.location.pathname));
@@ -105,6 +103,18 @@ export default function App() {
   const hayDatosDesactualizados = useMemo(
     () => hayAlgunDatoDesactualizado([...Object.values(state).map((e) => e.status), riesgoPais.status]),
     [state, riesgoPais.status]
+  );
+
+  // Un refresco periódico vuelve a poner "loading" en todas las fuentes antes
+  // de pedir los datos de nuevo. Lo usamos para mostrar un pulso breve junto a
+  // la hora: confirma que la app realmente está sincronizando en ese momento,
+  // no un adorno fijo.
+  const sincronizando = useMemo(
+    () =>
+      [...Object.values(state), riesgoPais, ...Object.values(markets), ...Object.values(binance.quotes)].some(
+        (entry) => entry?.status === "loading"
+      ),
+    [state, riesgoPais, markets, binance.quotes]
   );
 
   // dibujarResumen recién lee esto al tocar "Resumen", pero recalcularlo acá
@@ -252,6 +262,9 @@ export default function App() {
                 )}
                 {ultimaActualizacion && (
                   <p className={`actualizado ${hayDatosDesactualizados ? "actualizado--alerta" : ""}`}>
+                    {!hayDatosDesactualizados && sincronizando && (
+                      <span className="actualizado__sync" aria-hidden="true" />
+                    )}
                     {hayDatosDesactualizados
                       ? "Algunas cotizaciones no se pudieron actualizar"
                       : `Hoy ${ultimaActualizacion} · cotizaciones en vivo`}
@@ -273,8 +286,8 @@ export default function App() {
           {mostrarInfoApp && (
             <CardInfoPanel>
               DollarTracker reúne cotizaciones del dólar y otras monedas (DolarAPI), riesgo país (ArgentinaDatos),
-              criptoactivos y oro (Binance), dólar mayorista (CriptoYa) e instrumentos internacionales vía ETF
-              (Twelve Data). Cada tarjeta detalla su fuente, su par o ticker y su metodología en el botón (i). Los
+              criptoactivos y oro (Binance) e instrumentos internacionales vía ETF (Twelve Data). Cada tarjeta
+              detalla su fuente, su par o ticker y su metodología en el botón (i). Los
               valores son de referencia; no constituyen asesoramiento financiero ni recomendación de inversión. Sin
               cuentas ni backend propio: todo se calcula en este dispositivo.
             </CardInfoPanel>
@@ -345,12 +358,6 @@ export default function App() {
             intro={
               section.title === "Dólar" ? (
                 <>
-                  {mayorista.data !== null && (
-                    <p className="mayorista" title="Fuente: CriptoYa. Cotización de referencia del mercado mayorista.">
-                      <span className="mayorista__label">Dólar mayorista</span>
-                      <span className="mayorista__valor">{pesos.format(mayorista.data)}</span>
-                    </p>
-                  )}
                   {mostrarConversor && (
                     <ConverterBar
                       monto={montoTexto}
