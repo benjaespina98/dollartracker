@@ -105,6 +105,22 @@ export const MERCADOS: MarketCardConfig[] = [
   { key: "spy", label: "S&P 500", ticker: "SPY", detalle: "Sigue al índice S&P 500", accent: "#38bdf8", icon: <IconTrend /> },
   { key: "dow", label: "Dow Jones", ticker: "DIA", detalle: "Sigue al Dow Jones Industrial Average", accent: "#818cf8", icon: <IconTrend /> },
   { key: "nasdaq", label: "Nasdaq", ticker: "QQQ", detalle: "Sigue al Nasdaq-100", accent: "#34d399", icon: <IconTrend /> },
+  {
+    key: "brasil",
+    label: "Brasil",
+    ticker: "EWZ",
+    detalle: "Sigue al mercado de acciones de Brasil (Ibovespa), a través del ETF EWZ",
+    accent: "#22c55e",
+    icon: <IconTrend />,
+  },
+  {
+    key: "argentina",
+    label: "Argentina",
+    ticker: "ARGT",
+    detalle: "Sigue al mercado de acciones argentino (Merval), a través del ETF ARGT",
+    accent: "#60a5fa",
+    icon: <IconTrend />,
+  },
 ];
 
 export const GRANOS: MarketCardConfig[] = [

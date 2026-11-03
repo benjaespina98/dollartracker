@@ -10,6 +10,8 @@ export const SYMBOLS: Record<string, string> = {
   spy: "SPY", // S&P 500
   dow: "DIA", // SPDR Dow Jones Industrial Average
   nasdaq: "QQQ", // Nasdaq-100
+  brasil: "EWZ", // iShares MSCI Brazil → proxy del Ibovespa (el índice directo requiere plan pago)
+  argentina: "ARGT", // Global X MSCI Argentina → proxy del Merval (el índice directo requiere plan pago)
   soja: "SOYB", // Teucrium Soybean Fund → futuros de soja en Chicago
   maiz: "CORN", // Teucrium Corn Fund → futuros de maíz
   trigo: "WEAT", // Teucrium Wheat Fund → futuros de trigo
