@@ -1,13 +1,17 @@
 import type { MarketQuote } from "../types";
 
-// Bitcoin sale de la API pública de Binance (par BTC/USDT): sin clave, con
-// CORS abierto y un cupo muy holgado, así que se pide directo desde el
-// navegador y no hace falta pasar por /api como los ETFs de Twelve Data.
+// Los activos cripto y el oro (PAXG) salen de la API pública de Binance: sin
+// clave, con CORS abierto y un cupo muy holgado, así que se piden directo desde
+// el navegador y no pasan por /api como los ETF de Twelve Data.
 const BINANCE = "https://api.binance.com/api/v3";
-export const BTC_TICKER_URL = `${BINANCE}/ticker/24hr?symbol=BTCUSDT`;
-export const BTC_KLINES_URL = `${BINANCE}/klines?symbol=BTCUSDT&interval=1d&limit=365`;
 
-interface Ticker24h {
+export const binanceTickerUrl = (symbol: string) => `${BINANCE}/ticker/24hr?symbol=${symbol}`;
+export const binanceKlinesUrl = (symbol: string) => `${BINANCE}/klines?symbol=${symbol}&interval=1d&limit=365`;
+
+export const BTC_TICKER_URL = binanceTickerUrl("BTCUSDT");
+export const BTC_KLINES_URL = binanceKlinesUrl("BTCUSDT");
+
+export interface Ticker24h {
   openPrice: string;
   lastPrice: string;
   priceChange: string;
@@ -31,12 +35,12 @@ export function esTicker24h(datos: unknown): datos is Ticker24h {
 
 /**
  * Ajusta la respuesta de Binance a la misma forma que usan las tarjetas de
- * mercado. A diferencia de los ETFs, la variación es la de las últimas 24 horas
- * (Bitcoin no tiene "cierre" diario), y `marketTime` va en segundos.
+ * mercado. La variación es la de las últimas 24 horas (no hay cierre diario en
+ * cripto) y `marketTime` va en segundos.
  */
-export function aCotizacionBitcoin(t: Ticker24h): MarketQuote {
+export function aCotizacionBinance(t: Ticker24h, symbol: string): MarketQuote {
   return {
-    symbol: "BTCUSDT",
+    symbol,
     currency: "USD",
     price: Number(t.lastPrice),
     previousClose: Number(t.openPrice),
@@ -45,6 +49,8 @@ export function aCotizacionBitcoin(t: Ticker24h): MarketQuote {
     marketTime: Math.floor(t.closeTime / 1000),
   };
 }
+
+export const aCotizacionBitcoin = (t: Ticker24h) => aCotizacionBinance(t, "BTCUSDT");
 
 /** Velas diarias de Binance → un punto por día con el precio de cierre. */
 export function aSerieBitcoin(velas: unknown[]): { fecha: string; valor: number }[] {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aCotizacionBitcoin, aSerieBitcoin, esTicker24h } from "./bitcoin";
+import { aCotizacionBinance, aCotizacionBitcoin, aSerieBitcoin, esTicker24h } from "./bitcoin";
 
 const ticker = {
   openPrice: "100000.00",
@@ -43,5 +43,13 @@ describe("bitcoin", () => {
       { fecha: "2026-10-01", valor: 101.5 },
       { fecha: "2026-10-02", valor: 103 },
     ]);
+  });
+});
+
+describe("aCotizacionBinance", () => {
+  it("usa el símbolo que se le pasa, no el de Bitcoin", () => {
+    const q = aCotizacionBinance(ticker, "PAXGUSDT");
+    expect(q.symbol).toBe("PAXGUSDT");
+    expect(q.price).toBe(102500.5);
   });
 });

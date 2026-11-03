@@ -63,6 +63,13 @@
   color: var(--text-faint);
 }
 
+/* Si alguna fuente falló y se está mostrando la última copia guardada, el
+   encabezado no puede seguir afirmando "en vivo": este tono avisa sin
+   alarmar (mismo color que ya usan los demás avisos de "sin conexión"). */
+.actualizado--alerta {
+  color: var(--risk-medium);
+}
+
 .headerActions {
   display: flex;
   align-items: center;
@@ -629,9 +636,12 @@
   color: var(--text-strong);
 }
 
+/* El valor en sí va en tinta neutra: el color de la tarjeta ya identifica el
+   instrumento (ícono, franja superior, gráfico) y el bloque de venta ya se
+   distingue por su fondo. Un precio financiero no debería competir en
+   saturación con el verde/rojo de variación ni volverse "cartel de colores". */
 .quotePriceValue--accent {
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
+  color: var(--text-strong);
 }
 
 /* Precio y ticker apilados. Cuando iban en línea, los tickers cortos quedaban
@@ -653,8 +663,8 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
+  /* Neutro, no el acento: ver nota en .quotePriceValue--accent. */
+  color: var(--text-strong);
 }
 
 /* El ticker del ETF, como chip: identifica el instrumento sin robarle
@@ -736,8 +746,7 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
+  color: var(--text-strong);
 }
 
 .convertedBlock__rate {
@@ -1268,6 +1277,59 @@
 
 .quoteBody .infoPanel {
   margin-top: 0;
+}
+
+.infoPanel p {
+  margin: 0;
+}
+
+.infoPanel p + p {
+  margin-top: 8px;
+}
+
+/* Aclaración secundaria (caveat de metodología, paridad, etc.): mismo cuerpo
+   pero un tono más apagado, para separarla de la descripción principal sin
+   necesitar un ícono de advertencia. */
+.infoAclaracion {
+  color: var(--text-faint);
+  font-size: 0.76rem;
+}
+
+/* Ficha técnica (fuente, par/ticker, subyacente, moneda): una por panel de
+   información, siempre en el mismo formato, para que la procedencia del dato
+   sea fácil de ubicar y comparar entre instrumentos. */
+.infoFicha {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid var(--card-border);
+  display: grid;
+  gap: 3px;
+}
+
+.infoFicha > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.infoFicha dt {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.infoFicha dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+  text-align: right;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
 }
 
 @keyframes infoPanelIn {
@@ -1965,8 +2027,7 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: var(--accent);
-  filter: var(--accent-contrast-filter);
+  color: var(--text-strong);
 }
 
 .quoteRow__valor .quoteVariation,
@@ -2024,6 +2085,35 @@
 
 .cardSwipe__hint--confirma {
   background: color-mix(in srgb, var(--accent) 30%, var(--card-bg));
+}
+
+/* Dólar mayorista: referencia de mercado, en una línea discreta sobre las tarjetas */
+/* Dato de referencia suelto (no tiene tarjeta propia): una píldora chica y
+   discreta, con la misma superficie que el resto de los chips de la app, en
+   vez de una línea de texto flotando sin contención visual. */
+.mayorista {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  border: 1px solid var(--card-border);
+  cursor: default;
+}
+
+.mayorista__label {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.mayorista__valor {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Utilidades ───────────────────────────────────────────────────────── */

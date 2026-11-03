@@ -11,11 +11,11 @@ interface Props {
   icon: ReactNode;
   /** Ticker del ETF que se usa como referencia (se muestra bajo el precio) */
   ticker: string;
-  /** Qué sigue ese ETF; solo aparece en el panel (i) de la tarjeta abierta */
+  /** Qué sigue este instrumento; se muestra bajo el precio */
   detalle: string;
   accent: string;
-  /** Texto propio del panel (i); por defecto, el de un ETF de Twelve Data */
-  info?: ReactNode;
+  /** Panel de información: descripción, fuente y aclaraciones propias del instrumento */
+  info: ReactNode;
   /** Tooltip propio de la variación; por defecto, "contra el cierre anterior" */
   variacionTitle?: string;
   data: MarketQuote | null;
@@ -72,15 +72,7 @@ export default function MarketCard({
             } — DollarTracker`
           : null
       }
-      info={
-        info ?? (
-          <>
-            {detalle}. El gráfico muestra el precio de cierre diario del ETF <strong>{ticker}</strong>, usado como
-            referencia del activo, con su mínimo y máximo del período elegido. Datos de Twelve Data. No es
-            asesoramiento financiero.
-          </>
-        )
-      }
+      info={info}
       fila={{
         valor: data && <ValorAnimado className="quoteRow__precio" valor={data.price} texto={dolares.format(data.price)} />,
         detalle: ticker,

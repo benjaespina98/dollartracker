@@ -6,7 +6,6 @@
 // suelen requerir plan pago).
 export const SYMBOLS: Record<string, string> = {
   oil: "USO", // United States Oil Fund → sigue al petróleo WTI
-  gold: "GLD", // SPDR Gold Shares → sigue al oro spot
   spy: "SPY", // S&P 500
   dow: "DIA", // SPDR Dow Jones Industrial Average
   nasdaq: "QQQ", // Nasdaq-100

@@ -6,6 +6,7 @@ import { tieneHistorico, useHistoricoDolar } from "../hooks/useHistorico";
 import type { Cotizacion } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import ValorAnimado from "./ValorAnimado";
+import { InfoFicha } from "./InfoFicha";
 import { BrechaBadge, HoraDato, OfflineTag, Variacion } from "./CardMeta";
 
 interface Props {
@@ -14,6 +15,8 @@ interface Props {
   label: string;
   /** Nombre completo, para el tooltip y los lectores de pantalla */
   nombre: string;
+  /** Qué representa esta cotización: metodología/mercado, específico de la casa (ver config/cards) */
+  descripcion: ReactNode;
   icon: ReactNode;
   accent: string;
   data: Cotizacion | null;
@@ -33,6 +36,7 @@ export default function QuoteCard({
   casa,
   label,
   nombre,
+  descripcion,
   icon,
   accent,
   data,
@@ -45,6 +49,7 @@ export default function QuoteCard({
   onToggleFavorito,
 }: Props) {
   const historico = useHistoricoDolar(casa);
+  const conHistorico = tieneHistorico(casa);
 
   // La variación se mide siempre contra el último cierre previo a hoy, igual
   // que la que Twelve Data calcula para los mercados. Euro y real no tienen
@@ -89,7 +94,7 @@ export default function QuoteCard({
       favorito={favorito}
       onToggleFavorito={onToggleFavorito}
       serie={historico}
-      conGrafico={tieneHistorico(casa)}
+      conGrafico={conHistorico}
       formatValor={(valor) => pesos.format(valor)}
       shareText={
         data
@@ -98,18 +103,19 @@ export default function QuoteCard({
       }
       info={
         <>
-          {tieneHistorico(casa) ? (
-            <>
-              El gráfico muestra el valor de venta al cierre de cada día, con el mínimo y el máximo del período
-              elegido. La cotización actual la publica DolarAPI; la serie histórica, ArgentinaDatos.{" "}
-            </>
+          <p>{descripcion}</p>
+          {conHistorico ? (
+            <p>
+              El gráfico muestra el valor de venta al cierre de cada día (fuente: ArgentinaDatos), con el mínimo y
+              el máximo del período elegido.
+            </p>
           ) : (
-            // Euro y real no tienen serie en ArgentinaDatos (ver useHistorico):
-            // sin esto, la explicación hablaba de un gráfico que esta tarjeta
-            // nunca muestra.
-            "DolarAPI publica esta cotización, pero no tiene un histórico diario para graficar. "
+            <p className="infoAclaracion">DolarAPI no publica una serie histórica diaria para esta cotización.</p>
           )}
-          Es un valor de referencia: puede diferir del que te ofrezca tu banco, billetera o casa de cambio.
+          {/* "Par" en notación estándar (precio de 1 unidad de la divisa en pesos): evita
+              que la fila "Moneda" se lea como si compra/venta estuvieran en esa divisa,
+              cuando en realidad siempre están expresadas en pesos argentinos. */}
+          <InfoFicha fuente="DolarAPI" referencia={`${data?.moneda ?? "USD"}/ARS`} moneda="ARS" />
         </>
       }
       fila={{
@@ -125,7 +131,7 @@ export default function QuoteCard({
           data &&
           (convertido !== null
             ? `a ${pesos.format(convertido.tasa)} (${convertido.punta})`
-            : !tieneHistorico(casa)
+            : !conHistorico
               ? `Compra ${pesos.format(data.compra)}`
               : brecha != null
                 ? `Brecha ${brecha > 0 ? "+" : ""}${brecha.toFixed(1)}%`

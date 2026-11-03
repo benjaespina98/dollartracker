@@ -37,6 +37,7 @@ const quote = (props: Partial<Parameters<typeof QuoteCard>[0]> = {}) =>
       casa="blue"
       label="Blue"
       nombre="Dólar blue"
+      descripcion="Cotización del mercado informal."
       icon={null}
       accent="#78beff"
       data={cotizacion}
@@ -111,6 +112,7 @@ describe("MarketCard y RiesgoPaisCard en celular", () => {
         icon={null}
         ticker="GLD"
         detalle="Sigue al oro spot"
+        info="Información del instrumento."
         accent="#eab308"
         data={market}
         status="ready"

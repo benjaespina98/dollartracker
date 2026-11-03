@@ -14,14 +14,16 @@ import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
 import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
 import { CRIPTO, CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
-import { useBitcoin } from "./hooks/useBitcoin";
+import { useBinanceQuotes, useHistoricoBinance, type ActivoBinance } from "./hooks/useBinance";
+import { useMayorista } from "./hooks/useMayorista";
 import { useCotizaciones } from "./hooks/useCotizaciones";
 import { useDismiss } from "./hooks/useDismiss";
 import { useFavoritos } from "./hooks/useFavoritos";
-import { useHistoricoBitcoin, useHistoricoMercados } from "./hooks/useHistorico";
+import { useHistoricoMercados } from "./hooks/useHistorico";
 import { useEsMovil } from "./hooks/useEsMovil";
 import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
+import { hayAlgunDatoDesactualizado } from "./lib/estadoDatos";
 import { dolares, entero, formatearHora, pesos } from "./lib/format";
 import { prepararResumen } from "./lib/resumenImagen";
 
@@ -34,16 +36,21 @@ const MONEDA_POR_KEY = new Map<string, CurrencyCardConfig>(
 // El rojo de la tarjeta de Riesgo País; lo usan la tarjeta y el encabezado de su página.
 const RIESGO_PAIS_ACENTO = "#f87171";
 const MERCADO_POR_KEY = new Map<string, MarketCardConfig>([...MERCADOS, ...GRANOS, ...CRIPTO].map((m) => [m.key, m]));
+// Activos cuyo precio e histórico salen de Binance (cripto y oro).
+const ACTIVOS_BINANCE: ActivoBinance[] = [...MERCADOS, ...GRANOS, ...CRIPTO]
+  .filter((m) => m.binance)
+  .map((m) => ({ key: m.key, symbol: m.binance! }));
 
 export default function App() {
   const { state } = useCotizaciones();
   const { riesgoPais, markets } = useMarketData();
   const historicoMercados = useHistoricoMercados();
-  const bitcoin = useBitcoin();
+  const binance = useBinanceQuotes(ACTIVOS_BINANCE);
+  const historicoBinance = useHistoricoBinance(ACTIVOS_BINANCE);
+  const mayorista = useMayorista();
   // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios. La
   // ruta se lee una sola vez; navegar entre páginas recarga el documento.
   const [pagina] = useState<PaginaMoneda | null>(() => paginaPorRuta(window.location.pathname));
-  const historicoBitcoin = useHistoricoBitcoin();
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
   // En celular se reordena arrastrando; en web quedan las flechas.
   const esMovil = useEsMovil();
@@ -91,6 +98,15 @@ export default function App() {
     return momentos.length ? formatearHora(new Date(Math.max(...momentos))) : null;
   }, [state, riesgoPais.savedAt]);
 
+  // "cotizaciones en vivo" es una afirmación de frescura: si alguna de las
+  // cotizaciones principales quedó en "stale" o "error" (la fuente falló y se
+  // está mostrando la última copia guardada), no corresponde seguir
+  // afirmándolo. Nunca se presenta un dato viejo como si fuera actual.
+  const hayDatosDesactualizados = useMemo(
+    () => hayAlgunDatoDesactualizado([...Object.values(state).map((e) => e.status), riesgoPais.status]),
+    [state, riesgoPais.status]
+  );
+
   // dibujarResumen recién lee esto al tocar "Resumen", pero recalcularlo acá
   // en cada refresco de cotizaciones (y no en cada tecla del conversor, que no
   // lo toca) es barato y evita rearmarlo desde cero en el click.
@@ -101,9 +117,10 @@ export default function App() {
 
 
   function renderMercado({ key, label, ticker, detalle, accent, icon, info, variacionTitle }: MarketCardConfig) {
-    // Bitcoin no viaja con los demás mercados (otra fuente, otra cadencia).
-    const entry = key === "btc" ? bitcoin : markets[key];
-    const historico = key === "btc" ? historicoBitcoin : (historicoMercados?.[key] ?? null);
+    // Cripto y oro vienen de Binance (otra fuente, otra cadencia).
+    const esBinance = ACTIVOS_BINANCE.some((a) => a.key === key);
+    const entry = esBinance ? binance.quotes[key] : markets[key];
+    const historico = esBinance ? (historicoBinance[key] ?? null) : (historicoMercados?.[key] ?? null);
 
     return (
       <MarketCard
@@ -125,7 +142,7 @@ export default function App() {
     );
   }
 
-  function renderMoneda({ key, label, nombre, accent, icon, conBrecha }: CurrencyCardConfig) {
+  function renderMoneda({ key, label, nombre, accent, icon, conBrecha, descripcion }: CurrencyCardConfig) {
     const ventaCasa = state[key]?.data?.venta ?? null;
     const brecha =
       conBrecha && ventaOficial && ventaCasa ? ((ventaCasa - ventaOficial) / ventaOficial) * 100 : null;
@@ -136,6 +153,7 @@ export default function App() {
         casa={key}
         label={label}
         nombre={nombre}
+        descripcion={descripcion}
         icon={icon}
         accent={accent}
         data={state[key]?.data ?? null}
@@ -186,7 +204,7 @@ export default function App() {
         : [];
     }
     if (clave === "btc") {
-      const { data } = bitcoin;
+      const data = binance.quotes.btc?.data ?? null;
       if (!data) return [];
       const variacion = data.changePercent;
       return [
@@ -232,7 +250,13 @@ export default function App() {
                 ) : (
                   <h1 className="title">DollarTracker</h1>
                 )}
-                {ultimaActualizacion && <p className="actualizado">Hoy {ultimaActualizacion} · cotizaciones en vivo</p>}
+                {ultimaActualizacion && (
+                  <p className={`actualizado ${hayDatosDesactualizados ? "actualizado--alerta" : ""}`}>
+                    {hayDatosDesactualizados
+                      ? "Algunas cotizaciones no se pudieron actualizar"
+                      : `Hoy ${ultimaActualizacion} · cotizaciones en vivo`}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -248,11 +272,11 @@ export default function App() {
 
           {mostrarInfoApp && (
             <CardInfoPanel>
-              DollarTracker junta en un solo lugar las cotizaciones del dólar y otras monedas (DolarAPI), el
-              riesgo país y sus históricos (ArgentinaDatos) y mercados internacionales (Twelve Data). Tocá
-              cualquier tarjeta para ver su histórico. Los valores son de referencia y pueden diferir de los de
-              tu entidad financiera: no opera ni recomienda inversiones. Sin cuentas ni backend propio, todo se
-              calcula en tu dispositivo.
+              DollarTracker reúne cotizaciones del dólar y otras monedas (DolarAPI), riesgo país (ArgentinaDatos),
+              criptoactivos y oro (Binance), dólar mayorista (CriptoYa) e instrumentos internacionales vía ETF
+              (Twelve Data). Cada tarjeta detalla su fuente, su par o ticker y su metodología en el botón (i). Los
+              valores son de referencia; no constituyen asesoramiento financiero ni recomendación de inversión. Sin
+              cuentas ni backend propio: todo se calcula en este dispositivo.
             </CardInfoPanel>
           )}
         </header>
@@ -319,20 +343,28 @@ export default function App() {
               ) : undefined
             }
             intro={
-              section.title === "Dólar" && mostrarConversor ? (
-                <ConverterBar
-                  monto={montoTexto}
-                  origen={origen}
-                  onMontoChange={setMontoTexto}
-                  onOrigenChange={setOrigen}
-                  autoFocus
-                />
+              section.title === "Dólar" ? (
+                <>
+                  {mayorista.data !== null && (
+                    <p className="mayorista" title="Fuente: CriptoYa. Cotización de referencia del mercado mayorista.">
+                      <span className="mayorista__label">Dólar mayorista</span>
+                      <span className="mayorista__valor">{pesos.format(mayorista.data)}</span>
+                    </p>
+                  )}
+                  {mostrarConversor && (
+                    <ConverterBar
+                      monto={montoTexto}
+                      origen={origen}
+                      onMontoChange={setMontoTexto}
+                      onOrigenChange={setOrigen}
+                      autoFocus
+                    />
+                  )}
+                </>
               ) : undefined
             }
           >
             {section.cards.map(renderMoneda)}
-            {/* Bitcoin completa la fila junto a Euro y Real */}
-            {section.title === "Otras monedas" && CRIPTO.map(renderMercado)}
           </Seccion>
         ))}
 
@@ -342,6 +374,8 @@ export default function App() {
         </Seccion>
 
         <Seccion title="Granos">{GRANOS.map(renderMercado)}</Seccion>
+
+        <Seccion title="Cripto">{CRIPTO.map(renderMercado)}</Seccion>
         </main>
 
         <footer className="footer">
@@ -353,7 +387,8 @@ export default function App() {
               </span>
             </div>
             <p className="footerNote">
-              Datos de DolarAPI, ArgentinaDatos y Twelve Data. Valores de referencia, no asesoramiento financiero.
+              Datos de DolarAPI, ArgentinaDatos, Binance, CriptoYa y Twelve Data. Valores de referencia; no
+              constituyen asesoramiento financiero.
             </p>
             <nav className="footerNav" aria-label="Cotizaciones">
               {pagina && <a href="/">Inicio</a>}

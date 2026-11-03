@@ -7,6 +7,7 @@ import { useHistoricoRiesgoPais } from "../hooks/useHistorico";
 import type { RiesgoPais } from "../types";
 import CardShell, { type CardStatus } from "./CardShell";
 import { HoraDato, OfflineTag, Variacion } from "./CardMeta";
+import { InfoFicha } from "./InfoFicha";
 import ValorAnimado from "./ValorAnimado";
 
 interface Props {
@@ -49,10 +50,16 @@ export default function RiesgoPaisCard({ icon, accent, data, status, savedAt, fa
       shareText={data ? `Riesgo País: ${entero.format(data.valor)} puntos básicos — DollarTracker` : null}
       info={
         <>
-          El EMBI+ mide, en puntos básicos, cuánto más pagaría Argentina que el Tesoro de EE. UU. para
-          financiarse: a mayor valor, mayor riesgo de default percibido por el mercado. El gráfico muestra su
-          cierre diario, con mínimo y máximo del período. Las categorías (bajo, moderado, alto, crítico) son
-          umbrales de mercado orientativos, no un dato oficial. Datos de ArgentinaDatos.
+          <p>
+            El Índice de Bonos de Mercados Emergentes Plus (EMBI+) cuantifica, en puntos básicos, el sobrecosto de
+            financiamiento de la deuda soberana en moneda extranjera respecto de los bonos del Tesoro de Estados
+            Unidos. Un valor más alto refleja una mayor percepción de riesgo crediticio por parte del mercado.
+          </p>
+          <p className="infoAclaracion">
+            Las categorías (bajo, moderado, alto, crítico) son umbrales de referencia definidos por esta aplicación
+            y no constituyen una calificación crediticia oficial.
+          </p>
+          <InfoFicha fuente="ArgentinaDatos" referencia="Puntos básicos (pb)" referenciaLabel="Unidad" />
         </>
       }
       fila={{
