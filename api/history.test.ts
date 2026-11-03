@@ -69,12 +69,12 @@ describe("/api/history", () => {
           { datetime: "2026-08-06", close: "117.20" },
         ],
       },
-      WEAT: { status: "error", code: 404, message: "symbol not found" },
+      CORN: { status: "error", code: 404, message: "symbol not found" },
     });
 
     const body = await (await handler(req)).json();
     expect(body.oil).toHaveLength(2);
-    expect(body.trigo).toBeUndefined();
+    expect(body.maiz).toBeUndefined();
   });
 
   it("cachea las respuestas buenas 12 horas", async () => {
@@ -231,7 +231,7 @@ describe("/api/history: casos límite", () => {
     const url = String(vi.mocked(globalThis.fetch).mock.calls[0][0]);
     expect(url).toContain("interval=1day");
     expect(url).toContain("outputsize=400");
-    for (const simbolo of ["USO", "SPY", "DIA", "QQQ", "EWZ", "ARGT", "SOYB", "CORN", "WEAT"]) {
+    for (const simbolo of ["USO", "SPY", "DIA", "QQQ", "EWZ", "ARGT", "SOYB", "CORN"]) {
       expect(decodeURIComponent(url)).toContain(simbolo);
     }
   });

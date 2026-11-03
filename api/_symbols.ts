@@ -13,7 +13,6 @@ export const SYMBOLS: Record<string, string> = {
   argentina: "ARGT", // Global X MSCI Argentina → proxy del Merval (el índice directo requiere plan pago)
   soja: "SOYB", // Teucrium Soybean Fund → futuros de soja en Chicago
   maiz: "CORN", // Teucrium Corn Fund → futuros de maíz
-  trigo: "WEAT", // Teucrium Wheat Fund → futuros de trigo
 };
 
 export const SYMBOL_LIST = Object.values(SYMBOLS).join(",");

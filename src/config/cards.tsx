@@ -12,7 +12,6 @@ import {
   IconSoy,
   IconSwap,
   IconTrend,
-  IconWheat,
 } from "../components/icons";
 import { InfoFicha } from "../components/InfoFicha";
 
@@ -316,25 +315,14 @@ export const GRANOS: MarketCardConfig[] = [
       </>
     ),
   },
-  {
-    key: "trigo",
-    label: "Trigo",
-    ticker: "WEAT",
-    detalle: "Trigo (futuros CBOT Chicago), a través del ETF WEAT",
-    accent: "#d97706",
-    icon: <IconWheat />,
-    info: (
-      <>
-        <p>
-          Teucrium Wheat Fund (WEAT) busca replicar el comportamiento de los futuros de trigo negociados en el
-          Chicago Board of Trade (CBOT), mediante una cartera de contratos de distintos vencimientos.
-        </p>
-        <p>El uso de futuros puede generar diferencias (roll yield) respecto del precio spot a lo largo del tiempo.</p>
-        <InfoFicha fuente="Twelve Data" referencia="WEAT" referenciaLabel="Ticker" subyacente="Futuros de trigo (CBOT)" moneda="USD" />
-      </>
-    ),
-  },
 ];
+
+// Trigo (WEAT) se sacó de Mercados/Granos: el plan gratuito de Twelve Data
+// permite 8 créditos por minuto y cada símbolo nuevo de esta lista consume
+// uno. Con los 9 que había (al sumar Ibovespa y Merval), el cupo se excedía
+// en cada actualización y Mercados entero quedaba fallando de forma
+// intermitente — visto en producción el 2026-11-03. Volver a 8 lo soluciona.
+// Si se suma otro instrumento de Twelve Data, hay que sacar uno de acá.
 
 // Cripto y oro no son ETF ni salen de Twelve Data: vienen de Binance, y su
 // variación es la de las últimas 24 horas porque no tienen cierre diario.

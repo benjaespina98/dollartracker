@@ -5,7 +5,7 @@ import type { MarketQuote, RiesgoPais } from "../types";
 import { ESPERA_CUPO_MS } from "./useHistorico";
 import { estaOffline, fetchResource, type ResourceEntry, type ResourceStatus } from "./useResource";
 
-const MARKET_KEYS = ["oil", "spy", "dow", "nasdaq", "brasil", "argentina", "soja", "maiz", "trigo"] as const;
+const MARKET_KEYS = ["oil", "spy", "dow", "nasdaq", "brasil", "argentina", "soja", "maiz"] as const;
 
 const RIESGO_PAIS_URL = "https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo";
 const RIESGO_PAIS_CACHE_KEY = "riesgoPais";

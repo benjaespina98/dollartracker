@@ -43,12 +43,12 @@ describe("/api/market", () => {
   it("un símbolo fallado no tumba a los demás: queda null", async () => {
     responderCon(200, {
       USO: { symbol: "USO", currency: "USD", close: "78.32" },
-      WEAT: { code: 404, message: "symbol not found" },
+      CORN: { code: 404, message: "symbol not found" },
     });
 
     const body = await (await handler(req)).json();
     expect(body.oil).not.toBeNull();
-    expect(body.trigo).toBeNull();
+    expect(body.maiz).toBeNull();
   });
 
   it("cachea las respuestas buenas 30 minutos", async () => {

@@ -8,10 +8,11 @@ export const config = { runtime: "edge" };
 import { NO_CACHE, SYMBOLS, SYMBOL_LIST, comoObjeto, corsHeaders, pedirATwelveData, validarPedido } from "./_symbols";
 
 // El plan gratuito de Twelve Data da 8 créditos por minuto y 800 por día, y
-// cada refresco gasta uno por símbolo. Al sumar soja, maíz y trigo pasamos de
-// 5 a 8 símbolos: con la caché de 15 minutos serían 768 créditos diarios, otra
-// vez al borde del límite (y el CDN de Vercel cachea por región, así que el
-// número real se multiplica). Con 30 minutos quedan ~384, con margen de sobra;
+// cada refresco gasta uno por símbolo. SYMBOLS tiene que quedarse en 8 o menos:
+// un símbolo de más agota el cupo del minuto en cada actualización y la
+// sección Mercados entera empieza a fallar de forma intermitente (pasó el
+// 2026-11-03, al sumar Ibovespa y Merval sin sacar nada). Con 8 símbolos y la
+// caché de 30 minutos son ~384 créditos diarios, con margen de sobra;
 // los mercados están cerrados la mayor parte del día igual. El
 // stale-while-revalidate largo hace que el CDN siga sirviendo el último valor
 // bueno aunque un refresco puntual falle.
