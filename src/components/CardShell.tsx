@@ -327,6 +327,7 @@ export default function CardShell({
                   valores={serieMini}
                   expandida={expandida}
                   expandible={puedeExpandirse}
+                  onCerrar={cerrar}
                 />
               )}
 

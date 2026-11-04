@@ -1096,6 +1096,18 @@
   filter: var(--accent-contrast-filter);
 }
 
+/* --abierto es un <button> (cierra la tarjeta): sin esto hereda la tipografía
+   y el borde del navegador y deja de verse como el mismo chip de siempre. */
+button.sparklineChip--abierto {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.sparklineChip--abierto:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
 .sparklineChip svg {
   transition: transform 0.2s;
 }
