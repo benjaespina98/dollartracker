@@ -372,6 +372,17 @@
   container-type: inline-size;
 }
 
+/* Igual que en los favoritos: tocar o arrastrar una tarjeta (para abrirla,
+   fijarla o deslizarla) no debe dejar seleccionado el texto ni disparar la
+   lupa/menú de copiar en iPhone/Android. */
+.quoteCard,
+.quoteCard * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .quoteHeader {
   padding: 0 4px;
   display: flex;
