@@ -1740,31 +1740,33 @@
   cursor: default;
 }
 
-/* Destello al cambiar un precio (ver ValorAnimado) */
+/* Destello al cambiar un precio (ver ValorAnimado): un brillo breve en el
+   propio número, no un recuadro de fondo relleno — eso, con el acento verde
+   o rojo, se leía como si el texto hubiera quedado seleccionado (más
+   notorio en BTC, que se actualiza seguido). */
 @keyframes valorFlashUp {
   from {
-    background: color-mix(in srgb, var(--positive) 38%, transparent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--positive) 38%, transparent);
+    color: var(--positive);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--positive) 75%, transparent);
   }
   to {
-    background: transparent;
-    box-shadow: 0 0 0 4px transparent;
+    color: inherit;
+    text-shadow: 0 0 0 transparent;
   }
 }
 
 @keyframes valorFlashDown {
   from {
-    background: color-mix(in srgb, var(--negative) 38%, transparent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--negative) 38%, transparent);
+    color: var(--negative);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--negative) 75%, transparent);
   }
   to {
-    background: transparent;
-    box-shadow: 0 0 0 4px transparent;
+    color: inherit;
+    text-shadow: 0 0 0 transparent;
   }
 }
 
 .valorFlash {
-  border-radius: 6px;
   animation-duration: 1.6s;
   animation-timing-function: ease-out;
 }
