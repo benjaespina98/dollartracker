@@ -1107,24 +1107,8 @@
   filter: var(--accent-contrast-filter);
 }
 
-/* --abierto es un <button> (cierra la tarjeta): sin esto hereda la tipografía
-   y el borde del navegador y deja de verse como el mismo chip de siempre. */
-button.sparklineChip--abierto {
-  border: none;
-  font: inherit;
-  cursor: pointer;
-}
-
-button.sparklineChip--abierto:hover {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-}
-
 .sparklineChip svg {
   transition: transform 0.2s;
-}
-
-.sparklineChip--abierto svg {
-  transform: rotate(180deg);
 }
 
 .sparklineChip__label {
@@ -1896,6 +1880,25 @@ button.sparklineChip--abierto:hover {
 
 .paginaIntro__cabecera {
   grid-area: cabecera;
+}
+
+.paginaIntro__cabeceraTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* El mismo look que el botón que cierra una tarjeta expandida: acá cumple el
+   mismo rol (volver a todas las cotizaciones), así que tiene que reconocerse
+   de inmediato como la forma de salir, sin esperar a los enlaces del pie. */
+.paginaIntro__cerrar {
+  color: var(--text-muted);
+}
+
+.paginaIntro__cerrar:hover {
+  color: var(--text-strong);
+  background: var(--btn-bg-hover);
 }
 
 .paginaIntro__parrafos {

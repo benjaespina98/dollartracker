@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import "./App.css";
 import CompartirResumenButton from "./components/CompartirResumenButton";
 import ConverterBar from "./components/ConverterBar";
@@ -12,7 +12,7 @@ import RiesgoPaisCard from "./components/RiesgoPaisCard";
 import FijadoSlot from "./components/FijadoSlot";
 import Seccion from "./components/Seccion";
 import Toaster from "./components/Toaster";
-import { PAGINAS, SITIO, paginaPorRuta, type PaginaMoneda } from "./config/paginas";
+import { PAGINAS, SITIO, paginaPorRuta } from "./config/paginas";
 import { CRIPTO, CURRENCY_SECTIONS, GRANOS, MERCADOS, type CurrencyCardConfig, type MarketCardConfig } from "./config/cards";
 import { useBinanceQuotes, useHistoricoBinance, type ActivoBinance } from "./hooks/useBinance";
 import { useCotizaciones } from "./hooks/useCotizaciones";
@@ -24,7 +24,12 @@ import { useMarketData } from "./hooks/useMarketData";
 import { parsearMonto, type MonedaOrigen } from "./lib/conversion";
 import { hayAlgunDatoDesactualizado } from "./lib/estadoDatos";
 import { dolares, entero, formatearHora, pesos } from "./lib/format";
+import { esClicDeNavegacionNormal } from "./lib/navegacion";
 import { prepararResumen } from "./lib/resumenImagen";
+
+const TITULO_HOME = "DollarTracker — Cotizaciones del dólar, euro y real en Argentina";
+const DESCRIPCION_HOME =
+  "Cotizaciones del dólar hoy en Argentina: oficial, blue, MEP, CCL, cripto y tarjeta, más euro, real, riesgo país y mercados. Con histórico y sin registrarte.";
 
 // Un solo lugar para ir de "clave de favorito" (casa, key de mercado/grano, o
 // el literal "riesgoPais") a su configuración estática, sin repetir el
@@ -46,9 +51,36 @@ export default function App() {
   const historicoMercados = useHistoricoMercados();
   const binance = useBinanceQuotes(ACTIVOS_BINANCE);
   const historicoBinance = useHistoricoBinance(ACTIVOS_BINANCE);
-  // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios. La
-  // ruta se lee una sola vez; navegar entre páginas recarga el documento.
-  const [pagina] = useState<PaginaMoneda | null>(() => paginaPorRuta(window.location.pathname));
+  // /dolar-blue, /dolar-mep…: la misma app con un título y un texto propios.
+  // Los enlaces que se quedan dentro de la app (header, pie, la propia
+  // página) navegan con el historial en vez de recargar el documento: entrar
+  // y salir de estas páginas es instantáneo, y atrás/adelante del navegador
+  // funcionan como se espera. Un enlace externo o la URL tipeada de cero
+  // siguen sirviendo el HTML ya armado para cada página (ver vite.config.ts).
+  const [ruta, setRuta] = useState(() => window.location.pathname);
+  useEffect(() => {
+    const alCambiarHistorial = () => setRuta(window.location.pathname);
+    window.addEventListener("popstate", alCambiarHistorial);
+    return () => window.removeEventListener("popstate", alCambiarHistorial);
+  }, []);
+  const pagina = useMemo(() => paginaPorRuta(ruta), [ruta]);
+
+  const irA = useCallback((nuevaRuta: string) => {
+    if (nuevaRuta !== window.location.pathname) {
+      window.history.pushState(null, "", nuevaRuta);
+      setRuta(nuevaRuta);
+    }
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  const manejarNavegacion = useCallback(
+    (nuevaRuta: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+      if (!esClicDeNavegacionNormal(e)) return;
+      e.preventDefault();
+      irA(nuevaRuta);
+    },
+    [irA]
+  );
   const { favoritos, esFavorito, toggleFavorito, mover } = useFavoritos();
   // En celular se reordena arrastrando; en web quedan las flechas.
   const esMovil = useEsMovil();
@@ -73,13 +105,18 @@ export default function App() {
   const cerrarInfoApp = useCallback(() => setMostrarInfoApp(false), []);
   useDismiss(mostrarInfoApp, headerRef, cerrarInfoApp);
 
-  // El HTML de la página ya trae su título, pero un service worker puede
-  // servir el de la home: acá se corrige del lado del cliente.
+  // El HTML de cada página ya trae su título (ver vite.config.ts), pero un
+  // service worker puede servir el de otra, y ahora que se navega sin
+  // recargar (ver `irA`) nada más actualiza estos tags al ir de una página a
+  // otra o de vuelta a la home: acá se corrigen siempre del lado del cliente.
   useEffect(() => {
-    if (!pagina) return;
-    document.title = pagina.titulo;
-    document.querySelector('meta[name="description"]')?.setAttribute("content", pagina.descripcion);
-    document.querySelector('link[rel="canonical"]')?.setAttribute("href", `${SITIO}/${pagina.slug}`);
+    document.title = pagina ? pagina.titulo : TITULO_HOME;
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", pagina ? pagina.descripcion : DESCRIPCION_HOME);
+    document
+      .querySelector('link[rel="canonical"]')
+      ?.setAttribute("href", pagina ? `${SITIO}/${pagina.slug}` : `${SITIO}/`);
   }, [pagina]);
 
   // Base de la brecha cambiaria (blue/MEP/CCL contra el oficial). Si el
@@ -255,7 +292,9 @@ export default function App() {
               <div className="brandText">
                 {pagina ? (
                   <p className="title">
-                    <a className="title__link" href="/">DollarTracker</a>
+                    <a className="title__link" href="/" onClick={manejarNavegacion("/")}>
+                      DollarTracker
+                    </a>
                   </p>
                 ) : (
                   <h1 className="title">DollarTracker</h1>
@@ -295,7 +334,14 @@ export default function App() {
         </header>
 
         <main>
-        {pagina && <PaginaIntro pagina={pagina} accent={acentoDe(pagina.clave)} valores={valoresEnVivo(pagina.clave)} />}
+        {pagina && (
+          <PaginaIntro
+            pagina={pagina}
+            accent={acentoDe(pagina.clave)}
+            valores={valoresEnVivo(pagina.clave)}
+            onNavegar={irA}
+          />
+        )}
 
         {favoritos.length > 0 && (
           <Seccion title="Fijados">
@@ -398,9 +444,18 @@ export default function App() {
               constituyen asesoramiento financiero.
             </p>
             <nav className="footerNav" aria-label="Cotizaciones">
-              {pagina && <a href="/">Inicio</a>}
+              {pagina && (
+                <a href="/" onClick={manejarNavegacion("/")}>
+                  Inicio
+                </a>
+              )}
               {PAGINAS.map((p) => (
-                <a key={p.slug} href={`/${p.slug}`} aria-current={p.slug === pagina?.slug ? "page" : undefined}>
+                <a
+                  key={p.slug}
+                  href={`/${p.slug}`}
+                  aria-current={p.slug === pagina?.slug ? "page" : undefined}
+                  onClick={manejarNavegacion(`/${p.slug}`)}
+                >
                   {p.nombre}
                 </a>
               ))}

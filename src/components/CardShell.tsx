@@ -323,12 +323,7 @@ export default function CardShell({
                   haya llegado: si no, las tarjetas pegaban un salto al aparecer
                   el gráfico unos milisegundos después del precio. */}
               {conGrafico && (
-                <SparklineRow
-                  valores={serieMini}
-                  expandida={expandida}
-                  expandible={puedeExpandirse}
-                  onCerrar={cerrar}
-                />
+                <SparklineRow valores={serieMini} expandida={expandida} expandible={puedeExpandirse} />
               )}
 
               <div className="quoteMeta">{meta}</div>
