@@ -1143,6 +1143,59 @@
   padding-top: 6px;
 }
 
+.historico__chartBox {
+  position: relative;
+  /* El toque lo maneja useTocarGrafico a mano (para poder frenar el
+     deslizamiento que cierra la tarjeta): sin esto, antes de que el handler
+     corra, el navegador ya habría arrancado su propio scroll/zoom. */
+  touch-action: none;
+}
+
+/* El punto que se toca en el gráfico grande, a la altura real de la línea
+   (useTocarGrafico calcula el mismo padY/alto que usa Sparkline). */
+.historico__punto {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 25%, transparent);
+  pointer-events: none;
+}
+
+.historico__tooltip {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-card);
+  color: var(--text-strong);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.historico__tooltipValor {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  filter: var(--accent-contrast-filter);
+}
+
+.historico__tooltipFecha {
+  font-size: 0.64rem;
+  color: var(--text-faint);
+}
+
 .historico__extremos,
 .historico__fechas {
   display: flex;
@@ -1936,6 +1989,11 @@
   grid-area: valores;
   display: flex;
   gap: 10px;
+  /* Mismas cifras que en las tarjetas (ver .quoteCard): tocarlas no debe
+     dejarlas seleccionadas ni disparar la lupa/menú de copiar en celular. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .paginaIntro__valor {

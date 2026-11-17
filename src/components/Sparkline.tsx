@@ -5,6 +5,9 @@ interface Props {
   height: number;
   /** El gráfico grande agrega el relleno degradado bajo la línea */
   conArea?: boolean;
+  /** Índice del punto que se está tocando/apuntando (gráfico grande, interactivo).
+   * Dibuja la línea guía y el punto; la lectura del valor la maneja quien lo pasa. */
+  indiceActivo?: number | null;
 }
 
 // El SVG se dibuja siempre en una grilla de 100 x height y se estira al ancho
@@ -12,7 +15,7 @@ interface Props {
 // usa vector-effect="non-scaling-stroke" para mantener 2px reales siempre.
 const ANCHO = 100;
 
-export default function Sparkline({ valores, height, conArea = false }: Props) {
+export default function Sparkline({ valores, height, conArea = false, indiceActivo = null }: Props) {
   const gradientId = useId();
 
   if (valores.length < 2) return null;
@@ -34,6 +37,11 @@ export default function Sparkline({ valores, height, conArea = false }: Props) {
 
   const linea = coords.join(" ");
   const area = `${coords[0].split(",")[0]},${height} ${linea} ${coords[coords.length - 1].split(",")[0]},${height}`;
+
+  const puntoActivo =
+    indiceActivo != null && indiceActivo >= 0 && indiceActivo < valores.length
+      ? coords[indiceActivo].split(",").map(Number)
+      : null;
 
   return (
     <svg
@@ -64,6 +72,22 @@ export default function Sparkline({ valores, height, conArea = false }: Props) {
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
       />
+      {/* El punto en sí (el círculo) se dibuja afuera, en HTML: este SVG se
+          estira sin mantener la proporción (preserveAspectRatio="none"), así
+          que un <circle> saldría ovalado. La línea vertical no tiene ese
+          problema: va derecha de punta a punta sin importar la escala. */}
+      {puntoActivo && (
+        <line
+          x1={puntoActivo[0]}
+          y1="0"
+          x2={puntoActivo[0]}
+          y2={height}
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeOpacity="0.35"
+          vectorEffect="non-scaling-stroke"
+        />
+      )}
     </svg>
   );
 }
