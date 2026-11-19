@@ -1,78 +1,92 @@
 # DollarTracker
 
-PWA en React + Vite con las cotizaciones del dólar, el euro y el real en
-Argentina, el riesgo país y una selección de mercados internacionales, todo en
-una sola pantalla y con su histórico.
+[Leer en español](README.es.md)
 
-🔗 https://dollartracker.vercel.app/
+A PWA that shows Argentina's dollar, euro and real exchange rates, country
+risk and a selection of international markets on one screen, with history
+and no sign-up.
 
-## Qué muestra
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Deployed on Vercel](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)
+![React 19](https://img.shields.io/badge/react-19-61DAFB?logo=react&logoColor=black)
 
-- **Dólar**: oficial, blue, MEP, CCL, cripto y tarjeta (DolarAPI).
-- **Otras monedas**: euro y real brasileño (DolarAPI).
-- **Mercados**: riesgo país (ArgentinaDatos), petróleo, oro, S&P 500, Dow Jones
-  y Nasdaq, vía ETFs de referencia (Twelve Data).
-- **Granos**: soja, maíz y trigo, vía los ETFs de Teucrium.
+Live app: <https://dollartracker.vercel.app>
 
-Cada tarjeta se toca para abrir su histórico (7d / 30d / 90d / 1 año) y se
-puede compartir o copiar. El cotizador de arriba convierte un monto contra
-todas las cotizaciones a la vez, usando la punta de compra o de venta según
-corresponda.
+![Dashboard showing dollar, euro and real quotes](docs/screenshots/dashboard.jpg)
+![Historical chart for a quote](docs/screenshots/historico.jpg)
 
-## Cómo funciona
+## Features
 
-- Sin backend propio ni cuentas: los cálculos se hacen en el dispositivo.
-- El último dato bueno queda en `localStorage`, así que sin conexión la app
-  sigue mostrando información (marcada como tal) en vez de un error.
-- Dos Edge Functions en Vercel (`api/market`, `api/history`) hacen de proxy de
-  Twelve Data para no exponer la API key y para cachear en el CDN, que es lo
-  que mantiene el consumo dentro del plan gratuito.
+- Dollar rates: oficial, blue, MEP, CCL, cripto and tarjeta.
+- Euro and Brazilian real quotes.
+- Country risk and international markets: oil, gold, S&P 500, Dow Jones,
+  Nasdaq, Ibovespa and Merval (ETF proxies for the indices).
+- Soybean and corn futures (ETF proxies).
+- Crypto prices: BTC, ETH, SOL and XRP.
+- Per-card history (7d / 30d / 90d / 1 year), with share and copy.
+- Converter that checks one amount against every rate at once.
+- SEO landing page per quote (`/dolar-blue`, `/dolar-mep`, etc.), generated
+  at build time, plus offline support as an installable PWA.
 
-## Desarrollo
+## Stack
+
+- Frontend: React 19, TypeScript 5.9, Vite 7.
+- Backend: Vercel Edge Functions (TypeScript), used only as a Twelve Data
+  proxy.
+- Data: DolarAPI, ArgentinaDatos, Twelve Data, Binance and CriptoYa public
+  APIs. No own database.
+- Testing: Vitest 4.
+- Deploy: Vercel.
+
+## Running locally
 
 ```bash
 npm install
-npm run dev      # servidor local
-npm test         # vitest
-npm run build    # tsc -b + vite build
-npm run lint
+npm run dev
 ```
 
-Variables de entorno (Vercel):
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `TWELVE_DATA_API_KEY` | Only for the Markets cards | See `.env.example` |
+| `VITE_DISABLE_ANALYTICS` | No | Disables analytics in the build |
 
-- `TWELVE_DATA_API_KEY`: necesaria para las tarjetas de mercados; el resto de
-  la app funciona sin ninguna key.
-- `VITE_DISABLE_ANALYTICS=true`: apaga Vercel Web Analytics en el build (sin
-  cookies; hay que activarlo además en Project → Analytics).
-
-### Imagen de Open Graph / Twitter Card
-
-`public/og-image.png` (1200×630) es la que se ve al compartir el link en
-LinkedIn, WhatsApp, X o Slack. Es una composición propia, no una captura de la
-app (la pantalla principal muestra cotizaciones en vivo que quedarían
-desactualizadas en una imagen que esas plataformas cachean por días). Si
-cambia el título, la descripción o el diseño de la tarjeta, regenerarla con:
+## Tests
 
 ```bash
-npm run og-image
+npm test
 ```
 
-El script (`scripts/generate-og-image.mjs`) arma un SVG a mano y lo convierte
-a PNG con `sharp`; el texto tiene que coincidir con el `<title>`/`meta
-description`/`og:title`/`og:description` de `index.html` (no se leen de ahí
-para no acoplar el script al parseo de HTML).
+Runs the Vitest suite: unit and component tests covering data fetching and
+retries, offline caching, currency conversion, formatting, and the main UI
+components.
 
-## Seguridad y datos
+## Project structure
 
-- `vercel.json` define la CSP y otros headers. El script inline de `index.html`
-  (tema) está permitido por hash: si se edita, hay que recalcular el
-  `sha256-…` en la CSP. Si se agrega una fuente externa, sumarla a `connect-src`.
-- `/api/market` y `/api/history` aceptan solo GET sin parámetros (evita saltear
-  la caché del CDN y gastar créditos); los errores no exponen detalles del
-  proveedor, que quedan en los logs de Vercel.
-- El cliente usa timeout, reintentos con backoff y valida la forma de cada
-  respuesta (`src/lib/http.ts`); si una fuente falla, el resto sigue.
+```
+dollartracker/
+├── api/        Vercel Edge Functions (Twelve Data proxy)
+├── docs/       Extended documentation
+├── public/     Static assets and PWA icons
+├── scripts/    Build scripts (OG image generator)
+├── src/        React app: components, hooks, lib, config
+└── vercel.json Deploy config, security headers and CSP
+```
 
-## Estado
+## More documentation
 
-Proyecto personal.
+- [Architecture](docs/architecture.md): data sources, caching, per-quote
+  pages, testing.
+- [Deployment](docs/deployment.md): environment variables, security headers,
+  OG image, SEO.
+
+## Author
+
+Benjamín Espina
+
+[LinkedIn](https://linkedin.com/in/benjamin-espina) ·
+[GitHub](https://github.com/benjaespina98) ·
+[Portfolio](https://benjaminespina.com)
+
+## License
+
+MIT, see [LICENSE](LICENSE).
