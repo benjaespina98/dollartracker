@@ -45,6 +45,23 @@ Variables de entorno (Vercel):
 - `VITE_DISABLE_ANALYTICS=true`: apaga Vercel Web Analytics en el build (sin
   cookies; hay que activarlo además en Project → Analytics).
 
+### Imagen de Open Graph / Twitter Card
+
+`public/og-image.png` (1200×630) es la que se ve al compartir el link en
+LinkedIn, WhatsApp, X o Slack. Es una composición propia, no una captura de la
+app (la pantalla principal muestra cotizaciones en vivo que quedarían
+desactualizadas en una imagen que esas plataformas cachean por días). Si
+cambia el título, la descripción o el diseño de la tarjeta, regenerarla con:
+
+```bash
+npm run og-image
+```
+
+El script (`scripts/generate-og-image.mjs`) arma un SVG a mano y lo convierte
+a PNG con `sharp`; el texto tiene que coincidir con el `<title>`/`meta
+description`/`og:title`/`og:description` de `index.html` (no se leen de ahí
+para no acoplar el script al parseo de HTML).
+
 ## Seguridad y datos
 
 - `vercel.json` define la CSP y otros headers. El script inline de `index.html`
