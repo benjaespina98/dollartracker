@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "PWA con las cotizaciones del dólar, el euro y el real en Argentina, el riesgo país y mercados internacionales, en tiempo real.",
+  "description": "PWA with live dollar, euro and real exchange rates in Argentina, country risk and international markets.",
   "author": "Benjamín Espina",
   "license": "MIT",
   "homepage": "https://dollartracker.vercel.app",
